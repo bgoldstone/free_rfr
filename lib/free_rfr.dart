@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:free_rfr/pages/keypad.dart';
-import 'package:free_rfr/pages/targets.dart';
+import 'package:free_rfr/pages/facepanel.dart';
 
 class FreeRFR extends StatefulWidget {
   const FreeRFR({super.key});
@@ -14,9 +13,7 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = const [
-      Keypad(key: Key('FacePanel')),
-      Target(key: Key('Target')),
-      Placeholder(),
+      FacePanel(key: Key('Facepanel')),
       Placeholder(),
       Placeholder(),
     ];
@@ -35,10 +32,8 @@ class _FreeRFRState extends State<FreeRFR> {
       body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dialpad), label: 'Keypad'),
-          BottomNavigationBarItem(icon: Icon(Icons.adjust), label: 'Targets'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.edit_attributes), label: 'Modifiers'),
+              icon: Icon(Icons.keyboard), label: 'Facepanel'),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), label: 'Controls'),
           BottomNavigationBarItem(

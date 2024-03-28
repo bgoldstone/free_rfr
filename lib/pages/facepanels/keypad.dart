@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/button.dart';
-import '../widgets/grid.dart';
+import '../../widgets/button.dart';
+import '../../widgets/grid.dart';
 
 class Keypad extends StatefulWidget {
   const Keypad({super.key});
@@ -13,7 +13,7 @@ class Keypad extends StatefulWidget {
 class _KeypadState extends State<Keypad> {
   @override
   Widget build(BuildContext context) {
-    List<Widget> facepanelButtons = [
+    List<Button> keypad = [
       Button('+', () => null),
       Button('Thru', () => null),
       Button('-', () => null),
@@ -30,6 +30,6 @@ class _KeypadState extends State<Keypad> {
       Button('0', () => null),
       Button('.', () => null),
     ];
-    return Grid(3, facepanelButtons);
+    return Grid(3, keypad, 2.2);
   }
 }
