@@ -3,7 +3,8 @@ import 'package:free_rfr/osc_control.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
-  const Controls({required this.osc, super.key});
+  final void Function(String) setCommandLine;
+  const Controls({required this.osc, required this.setCommandLine, super.key});
 
   @override
   State<Controls> createState() => _ControlsState();

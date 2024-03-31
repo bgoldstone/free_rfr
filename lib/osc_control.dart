@@ -1,38 +1,43 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:osc/osc.dart';
 
 class OSC {
-  final InternetAddress ip;
-  final int port = 8000;
-  late OSCSocket socket;
+  final InternetAddress hostIP;
+  final InternetAddress clientIP;
+  final int hostPort = 8000;
+  final int clientPort = 8001;
+  final RawDatagramSocket? client;
 
-  OSC(this.ip) {
-    socket = OSCSocket(destination: ip, destinationPort: port);
+  OSC(this.hostIP, this.clientIP, this.client) {
+    OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
+    client?.send(message.toBytes(), hostIP, hostPort);
   }
 
   void sendKey(String key) {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
-    socket.send(message);
+    client?.send(message.toBytes(), hostIP, hostPort);
   }
 
-  String getCommandLine() {
-    OSCMessage message = OSCMessage('/eos/out/cmd', arguments: []);
-    socket.send(message);
+  void setCommandLine(void Function(String) setCommandLine) {
     String reply = '';
+    OSCMessage message = OSCMessage('/eos/out/cmd', arguments: []);
+    client?.send(message.toBytes(), hostIP, hostPort);
+    OSCSocket socket = OSCSocket(serverPort: 8001);
     socket.listen((msg) {
       reply = msg.toString();
-      return;
     });
-    return reply;
+    debugPrint('Received: $reply');
+    setCommandLine(reply);
   }
 
   String getShowName() {
     OSCMessage message = OSCMessage('/eos/out/show/name', arguments: []);
-    socket.send(message);
+    client?.send(message.toBytes(), hostIP, hostPort);
     String reply = '';
-    socket.listen((msg) {
+    client?.listen((msg) {
       reply = msg.toString();
       return;
     });
@@ -40,16 +45,16 @@ class OSC {
   }
 
   void close() {
-    socket.close();
+    client?.close();
   }
 
   List<String> getCues() {
     // Get number of cues.
     OSCMessage message = OSCMessage('/eos/get/cuelist/count', arguments: []);
-    socket.send(message);
+    client?.send(message.toBytes(), hostIP, hostPort);
     List<String> cues = [];
     int numOfCues = 0;
-    socket.listen((msg) {
+    client?.listen((msg) {
       numOfCues = int.parse(msg.toString());
       return;
     });
@@ -57,8 +62,8 @@ class OSC {
     // Get each cue
     for (int i = 0; i < numOfCues; i++) {
       OSCMessage message = OSCMessage('/eos/get/cue/0/index/$i', arguments: []);
-      socket.send(message);
-      socket.listen((msg) {
+      client?.send(message.toBytes(), hostIP, hostPort);
+      client?.listen((msg) {
         cues.add(msg.toString());
         return;
       });
@@ -68,9 +73,9 @@ class OSC {
 
   int getCurrentCueIndex() {
     OSCMessage message = OSCMessage('/eos/out/active/cue/text', arguments: []);
-    socket.send(message);
+    client?.send(message.toBytes(), hostIP, hostPort);
     int reply = -1;
-    socket.listen((msg) {
+    client?.listen((msg) {
       reply = int.parse(msg.toString());
       return;
     });

@@ -3,7 +3,8 @@ import 'package:free_rfr/osc_control.dart';
 
 class CueList extends StatefulWidget {
   final OSC osc;
-  const CueList({required this.osc, super.key});
+  final void Function(String) setCommandLine;
+  const CueList({required this.osc, super.key, required this.setCommandLine});
 
   @override
   State<CueList> createState() => _CueListState();
