@@ -27,24 +27,25 @@ class OSC {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
     debugPrint(hostIP.toString());
-    Future.delayed(const Duration(milliseconds: 500), () {
-      client.listen((msg) {
-        debugPrint('Message from server: $msg');
-      });
+    OSCSocket listenSocket = OSCSocket();
+    listenSocket.listen((msg) {
+      debugPrint(msg.address);
+      debugPrint(msg.arguments.toString());
     });
+    listenSocket.close();
   }
 
-  void setCommandLine(void Function(String) setCommandLine) {
-    String reply = '';
-    OSCMessage message = OSCMessage('/eos/out/cmd', arguments: []);
-    client.send(message);
-    OSCSocket socket = OSCSocket(serverPort: 8001);
-    socket.listen((msg) {
-      reply = msg.toString();
-    });
-    debugPrint('Received: $reply');
-    setCommandLine(reply);
-  }
+  // void setCommandLine(void Function(String) setCommandLine) {
+  //   String reply = '';
+  //   OSCMessage message = OSCMessage('/eos/out/cmd', arguments: []);
+  //   client.send(message);
+  //   OSCSocket socket = OSCSocket(serverPort: 8001);
+  //   socket.listen((msg) {
+  //     reply = msg.toString();
+  //   });
+  //   debugPrint('Received: $reply');
+  //   setCommandLine(reply);
+  // }
 
   String getShowName() {
     OSCMessage message = OSCMessage('/eos/out/show/name', arguments: []);
