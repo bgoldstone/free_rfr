@@ -23,14 +23,13 @@ class OSC {
     debugPrint(hostIP.toString());
   }
 
-  void sendKey(String key) {
+  void sendKey(String key) async {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
     debugPrint(hostIP.toString());
     OSCSocket listenSocket = OSCSocket();
     listenSocket.listen((msg) {
-      debugPrint(msg.address);
-      debugPrint(msg.arguments.toString());
+      debugPrint(msg.toString());
     });
     listenSocket.close();
   }
