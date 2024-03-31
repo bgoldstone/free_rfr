@@ -10,18 +10,18 @@ class AdditionalKeys extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Button> additionalKeys = [
-      Button('Mark', () => null),
-      Button('Sneak', () => null),
-      Button('Rem Dim', () => null),
-      Button('Select Manual', () => null),
-      Button('Select Last', () => null),
-      Button('Select Active', () => null),
-      Button('Home', () => null),
-      Button('Level', () => null),
-      Button('Time', () => null),
-      Button('Live', () => null),
-      Button('Blind', () => null),
-      Button('Undo', () => null),
+      Button('Mark', ()=>osc.sendKey('mark')),
+      Button('Sneak', () => osc.sendKey('sneak')),
+      Button('Rem Dim', () => osc.sendKey('rem_dim')),
+      Button('Select Manual', () => osc.sendKey('select_manual')),
+      Button('Select Last', () => osc.sendKey('select_last')),
+      Button('Select Active', () => osc.sendKey('select_active')),
+      Button('Home', () => osc.sendKey('home')),
+      Button('Level', () => osc.sendKey('level')),
+      Button('Time', () => osc.sendKey('time')),
+      Button('Live', () => osc.sendKey('live')),
+      Button('Blind', () => osc.sendKey('blind')),
+      Button('Undo', () =>osc.sendKey('undo')),
     ];
     return Grid(3, additionalKeys, 1.8);
   }
