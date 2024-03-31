@@ -28,7 +28,7 @@ class _ColorControlState extends State<ColorControl> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => manualRGBControl(widget.osc),
+                  builder: (context) => colorSliderControl(widget.osc),
                 ),
               );
             },
@@ -38,7 +38,8 @@ class _ColorControlState extends State<ColorControl> {
   }
 }
 
-Widget manualRGBControl(OSC osc) {
+Widget colorSliderControl(OSC osc) {
   return Scaffold(
-      appBar: AppBar(title: Text('Color Adjustments')), body: const Row());
+      appBar: AppBar(title: const Text('Color Adjustments')),
+      body: const Row());
 }
