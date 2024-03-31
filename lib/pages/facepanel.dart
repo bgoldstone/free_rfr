@@ -14,10 +14,11 @@ class FacePanel extends StatefulWidget {
 }
 
 class _FacePanelState extends State<FacePanel> {
-  final List<Widget> pages = const [Target(osc:widget.osc), Keypad(osc:widget.osc), AdditionalKeys(osc:widget.osc),];
   int index = 1;
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [Target(osc:widget.osc), Keypad(osc:widget.osc), AdditionalKeys(osc:widget.osc)];
+    
     return Scaffold(
       body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
       bottomNavigationBar: BottomNavigationBar(
