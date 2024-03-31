@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/osc_control.dart';
+import 'package:free_rfr/pages/controls/color.dart';
+import 'package:free_rfr/pages/controls/focus.dart';
+import 'package:free_rfr/pages/controls/form.dart';
+import 'package:free_rfr/pages/controls/image.dart';
+import 'package:free_rfr/pages/controls/intensity.dart';
+import 'package:free_rfr/pages/controls/shutter.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
@@ -12,9 +18,17 @@ class Controls extends StatefulWidget {
 
 class _ControlsState extends State<Controls> {
   int index = 0;
-  List<Widget> pages = [];
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> pages = [
+      const IntensityControl(),
+      const FocusControl(),
+      ColorControl(widget.osc),
+      const ShutterControl(),
+      const ImageControl(),
+      const FormControl()
+    ];
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         items: const [
@@ -58,6 +72,7 @@ class _ControlsState extends State<Controls> {
                 : Colors.black,
         showSelectedLabels: true,
       ),
+      body: pages[index],
     );
   }
 }

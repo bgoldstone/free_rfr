@@ -94,4 +94,11 @@ class OSC {
     });
     return reply;
   }
+
+  void sendColor(double red, double green, double blue) {
+    debugPrint('Color: $red, $green, $blue');
+    OSCMessage message =
+        OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
+    client.send(message);
+  }
 }
