@@ -13,40 +13,40 @@ class AdditionalKeys extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Button> additionalKeys = [
       Button('Mark', () {
-        osc.sendKey('mark');
+        osc.sendKey('mark', setCommandLine);
       }),
       Button('Sneak', () {
-        osc.sendKey('sneak');
+        osc.sendKey('sneak', setCommandLine);
       }),
       Button('Rem Dim', () {
-        osc.sendKey('rem_dim');
+        osc.sendKey('rem_dim', setCommandLine);
       }),
       Button('Select Manual', () {
-        osc.sendKey('select_manual');
+        osc.sendKey('select_manual', setCommandLine);
       }),
       Button('Select Last', () {
-        osc.sendKey('select_last');
+        osc.sendKey('select_last', setCommandLine);
       }),
       Button('Select Active', () {
-        osc.sendKey('select_active');
+        osc.sendKey('select_active', setCommandLine);
       }),
       Button('Home', () {
-        osc.sendKey('home');
+        osc.sendKey('home', setCommandLine);
       }),
       Button('Level', () {
-        osc.sendKey('level');
+        osc.sendKey('level', setCommandLine);
       }),
       Button('Time', () {
-        osc.sendKey('time');
+        osc.sendKey('time', setCommandLine);
       }),
       Button('Live', () {
-        osc.sendKey('live');
+        osc.sendKey('live', setCommandLine);
       }),
       Button('Blind', () {
-        osc.sendKey('blind');
+        osc.sendKey('blind', setCommandLine);
       }),
       Button('Undo', () {
-        osc.sendKey('undo');
+        osc.sendKey('undo', setCommandLine);
       }),
     ];
     return Grid(3, additionalKeys, 1.8);

@@ -13,40 +13,40 @@ class Target extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Button> targets = [
       Button('Part', () {
-        osc.sendKey('part');
+        osc.sendKey('part', setCommandLine);
       }),
       Button('Cue', () {
-        osc.sendKey('cue');
+        osc.sendKey('cue', setCommandLine);
       }),
       Button('Record', () {
-        osc.sendKey('record');
+        osc.sendKey('record', setCommandLine);
       }),
       Button('Preset', () {
-        osc.sendKey('preset');
+        osc.sendKey('preset', setCommandLine);
       }),
       Button('Sub', () {
-        osc.sendKey('sub');
+        osc.sendKey('sub', setCommandLine);
       }),
       Button('Delay', () {
-        osc.sendKey('delay');
+        osc.sendKey('delay', setCommandLine);
       }),
       Button('Delete', () {
-        osc.sendKey('delete');
+        osc.sendKey('delete', setCommandLine);
       }),
       Button('Copy To', () {
-        osc.sendKey('copy_to');
+        osc.sendKey('copy_to', setCommandLine);
       }),
       Button('Recall From', () {
-        osc.sendKey('recall_from');
+        osc.sendKey('recall_from', setCommandLine);
       }),
       Button('Update', () {
-        osc.sendKey('update');
+        osc.sendKey('update', setCommandLine);
       }),
       Button('Q-Only/Track', () {
-        osc.sendKey('cueonlytrack');
+        osc.sendKey('cueonlytrack', setCommandLine);
       }),
       Button('Save', () {
-        osc.sendKey('save');
+        osc.sendKey('save', setCommandLine);
       }),
     ];
     return Grid(3, targets, 1.8);

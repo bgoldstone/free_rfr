@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:free_rfr/osc_control.dart';
-import 'package:free_rfr/pages/connections.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cue_list.dart';
 import 'package:free_rfr/pages/facepanel.dart';

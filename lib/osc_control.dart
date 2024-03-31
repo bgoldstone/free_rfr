@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
@@ -20,16 +21,54 @@ class OSC {
       debugPrint(msg.address);
       debugPrint(msg.arguments.toString());
     });
-    debugPrint(hostIP.toString());
+    _setUDPTXIP();
   }
 
-  void sendKey(String key) async {
+  void _setUDPTXIP() async {
+    List<NetworkInterface> list = await NetworkInterface.list();
+    List<String> addresses = [];
+
+    for (NetworkInterface interface in list) {
+      if (interface.addresses.first.type == InternetAddressType.IPv4 &&
+          isPrivateIPAddress(interface.addresses.first.address.toString())) {
+        addresses.add(interface.addresses.first.address.toString());
+      }
+    }
+    OSCMessage message;
+    message = OSCMessage('/eos/newcmd',
+        arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
+    client.send(message);
+    sleep(const Duration(milliseconds: 250));
+    sendLive();
+  }
+
+  void _setUDPTXIPDefault() async {
+    OSCMessage message =
+        OSCMessage('/eos/newcmd', arguments: ['OSC_UDP_TX_IP_ADDRESS#']);
+    client.send(message);
+    sleep(const Duration(milliseconds: 250));
+    sendLive();
+  }
+
+  void sendBlind() {
+    OSCMessage message = OSCMessage('/eos/key/blind', arguments: [1]);
+    client.send(message);
+  }
+
+  void sendLive() {
+    OSCMessage message = OSCMessage('/eos/key/live', arguments: [1]);
+    client.send(message);
+  }
+
+  void sendKey(String key, Function(String) setCommandLine) async {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
-    debugPrint(hostIP.toString());
-    OSCSocket listenSocket = OSCSocket();
-    listenSocket.listen((msg) {
-      debugPrint(msg.toString());
+    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    listenSocket.listen((event) {
+      if (event.address == '/eos/out/cmd') {
+        setCommandLine('${event.arguments[0]}');
+      }
+      debugPrint(event.arguments.toString());
     });
     listenSocket.close();
   }
@@ -58,6 +97,7 @@ class OSC {
   }
 
   void close() {
+    _setUDPTXIPDefault();
     client.close();
   }
 
@@ -96,9 +136,15 @@ class OSC {
   }
 
   void sendColor(double red, double green, double blue) {
-    debugPrint('Color: $red, $green, $blue');
     OSCMessage message =
         OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
     client.send(message);
   }
+}
+
+bool isPrivateIPAddress(String string) {
+  return string.startsWith('10.') ||
+      string.startsWith('172.') ||
+      string.startsWith('192.168.') ||
+      string.startsWith('127.');
 }
