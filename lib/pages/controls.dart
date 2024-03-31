@@ -28,7 +28,7 @@ class _ControlsState extends State<Controls> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      const IntensityControl(),
+      IntensityControl(currentChannel: widget.currentChannel, osc: widget.osc),
       const FocusControl(),
       ColorControl(widget.osc,
           currentChannel: widget.currentChannel,

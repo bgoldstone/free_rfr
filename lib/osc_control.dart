@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
@@ -72,11 +71,11 @@ class OSC {
     client.send(message);
     sleep(const Duration(milliseconds: 100));
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    ParameterList wheels = [];
+    ParameterList parameters = [];
     for (ParameterType _ in ParameterType.values) {
-      wheels.add([]);
+      parameters.add([]);
     }
-    int wheelIndex = 0;
+    int wheelIndex = 1;
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
@@ -85,8 +84,19 @@ class OSC {
         String parameterName = event.arguments[0].toString().split(" ")[0];
         int parameterIndex = int.parse(event.arguments[1].toString());
         double parameterValue = double.parse(event.arguments[2].toString());
-        wheels[parameterIndex].add([wheelIndex, parameterName, parameterValue]);
+        parameters[parameterIndex]
+            .add([wheelIndex, parameterName, parameterValue]);
         wheelIndex++;
+      }
+      if (event.address.startsWith('/eos/out/pantilt') &&
+          event.arguments.isNotEmpty) {
+        debugPrint(event.arguments.toString());
+        double minPan = double.parse(event.arguments[0].toString());
+        double maxPan = double.parse(event.arguments[1].toString());
+        double minTilt = double.parse(event.arguments[2].toString());
+        double maxTilt = double.parse(event.arguments[3].toString());
+        parameters[ParameterType.PT.index]
+            .add([minPan, maxPan, minTilt, maxTilt]);
       }
       if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
@@ -94,10 +104,16 @@ class OSC {
         double saturation = double.parse(event.arguments[1].toString()) / 255;
         setColor(hue, saturation);
       }
-      setCurrentChannel(wheels);
-      debugPrint(wheels.toString());
+      setCurrentChannel(parameters);
     });
     listenSocket.close();
+  }
+
+  void setParameter(String attributeName, double parameterValue) {
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$attributeName $parameterValue#']);
+    client.send(message);
+    sleep(const Duration(milliseconds: 100));
   }
 
   // void setCommandLine(void Function(String) setCommandLine) {
