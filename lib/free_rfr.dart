@@ -44,8 +44,14 @@ class _FreeRFRState extends State<FreeRFR> {
         future: socket,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            OSC osc = OSC(InternetAddress('127.0.0.1'),
-                InternetAddress('127.0.0.1'), snapshot.data);
+            OSC osc;
+            if (activeConnection.isEmpty) {
+              osc = OSC(InternetAddress('127.0.0.1'),
+                  InternetAddress('127.0.0.1'), snapshot.data);
+            } else {
+              osc = OSC(activeConnection['host'], activeConnection['port'],
+                  snapshot.data);
+            }
             List<Widget> pages = [
               Connections(setActiveConnection, key: const Key('Connections')),
               FacePanel(
