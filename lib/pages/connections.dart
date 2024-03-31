@@ -2,11 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:free_rfr/osc_control.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Connections extends StatefulWidget {
-  final Function(Map<String, dynamic> activeConnection) setActiveConnection;
-  const Connections(this.setActiveConnection, {super.key});
+  final void Function(Map<String, dynamic> activeConnection, int index)
+      setActiveConnection;
+  final int currentConnectionIndex;
+  const Connections(this.setActiveConnection,
+      {super.key, required this.currentConnectionIndex});
 
   @override
   State<Connections> createState() => _ConnectionsState();
@@ -16,7 +21,6 @@ class _ConnectionsState extends State<Connections> {
   Map<String, dynamic> config = {"connections": []};
 
   final String configFile = 'free_rfr.json';
-  int currentConnection = -1;
   Directory path = Directory('');
   int listLength = 0;
 
@@ -38,7 +42,11 @@ class _ConnectionsState extends State<Connections> {
     }
     file.readAsString(encoding: utf8).then((data) {
       config = jsonDecode(data);
+      setState(() {
+        config = config;
+      });
     });
+
     return true;
   }
 
@@ -51,6 +59,9 @@ class _ConnectionsState extends State<Connections> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Free RFR'),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(context: context, builder: createConnection);
@@ -68,12 +79,11 @@ class _ConnectionsState extends State<Connections> {
   }
 
   FutureBuilder connectionsList() {
-    debugPrint(config.toString());
-    final Future<bool> didGetConfig = getConfig();
+    final Future<bool> configRetrival = getConfig();
+    int currentConnection = widget.currentConnectionIndex;
     return FutureBuilder(
-        future: didGetConfig,
+        future: configRetrival,
         builder: (context, snapshot) {
-          debugPrint(snapshot.data.toString());
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -89,13 +99,14 @@ class _ConnectionsState extends State<Connections> {
                         title: Text(config['connections'][index]['name']),
                         subtitle: Text(config['connections'][index]['ip']),
                         onTap: () {
-                          widget.setActiveConnection(
-                              config['connections'][index]);
                           if (currentConnection != index) {
                             currentConnection = index;
                           } else {
                             currentConnection = -1;
                           }
+                          widget.setActiveConnection(
+                              config['connections'][index], currentConnection);
+                          Navigator.of(context).pushNamed('/home');
                         },
                         tileColor: index == currentConnection
                             ? Colors.blueGrey
@@ -111,7 +122,7 @@ class _ConnectionsState extends State<Connections> {
                   );
                 });
           } else {
-            return Center(child: Text('No Connections'));
+            return const Center(child: Text('No Connections'));
           }
         });
   }
