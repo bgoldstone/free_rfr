@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
 
 class Keypad extends StatelessWidget {
-  const Keypad({super.key});
+  final OSC osc;
+  const Keypad({super.key, required this.osc});
 
   @override
   Widget build(BuildContext context) {

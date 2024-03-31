@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
-import 'package:free_rfr/pages/facepanels/modifiers.dart';
+import 'package:free_rfr/pages/facepanels/additional_keys.dart';
 import 'package:free_rfr/pages/facepanels/targets.dart';
 
 import '../osc_control.dart';
@@ -14,7 +14,7 @@ class FacePanel extends StatefulWidget {
 }
 
 class _FacePanelState extends State<FacePanel> {
-  final List<Widget> pages = const [Target(), Keypad(), AdditionalKeys()];
+  final List<Widget> pages = const [Target(osc:widget.osc), Keypad(osc:widget.osc), AdditionalKeys(osc:widget.osc),];
   int index = 1;
   @override
   Widget build(BuildContext context) {

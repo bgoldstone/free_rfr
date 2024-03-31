@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
 
 import '../../widgets/grid.dart';
 
 class Target extends StatelessWidget {
-  const Target({super.key});
+  final OSC osc;
+  const Target({required this.osc, super.key});
 
   @override
   Widget build(BuildContext context) {
