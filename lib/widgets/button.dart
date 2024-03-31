@@ -15,6 +15,7 @@ class Button extends StatelessWidget {
       ),
       backgroundColor: Colors.blueGrey,
     );
+    double aspectRatio = MediaQuery.of(context).size.aspectRatio;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
@@ -25,7 +26,7 @@ class Button extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: fontSize,
+            fontSize: (fontSize! * aspectRatio * 1.5),
           ),
           textAlign: TextAlign.center,
         ),

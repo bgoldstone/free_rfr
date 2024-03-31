@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/osc_control.dart';
 import 'package:free_rfr/pages/connections.dart';
+import 'package:free_rfr/parameters.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,6 +22,33 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
+  ParameterList currentChannel = [];
+  List<double> hueSaturation = [];
+  String commandLine = '';
+
+  void setCommandLine(String command) {
+    try {
+      setState(() {
+        commandLine = command;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  String getCommandLine() {
+    return commandLine;
+  }
+
+  void setHueSaturation(double hue, double saturation) {
+    hueSaturation = [hue, saturation];
+  }
+
+  void setCurrentChannel(ParameterList channel) {
+    setState(() {
+      currentChannel = channel;
+    });
+  }
 
   void setActiveConnection(Map<String, dynamic> connection, int index) {
     if (isOSCInitialized) {
@@ -32,7 +60,8 @@ class _MyAppState extends State<MyApp> {
       debugPrint('Initilizing OSC...');
       activeConnection = connection;
       currentConnectionIndex = index;
-      osc = OSC(InternetAddress(activeConnection['ip']));
+      osc = OSC(InternetAddress(activeConnection['ip']), setCurrentChannel,
+          setHueSaturation, setCommandLine);
       isOSCInitialized = true;
     });
   }
@@ -61,7 +90,14 @@ class _MyAppState extends State<MyApp> {
               setActiveConnection,
               currentConnectionIndex: currentConnectionIndex,
             ),
-        '/home': (context) => FreeRFR(osc: osc),
+        '/home': (context) => FreeRFR(
+              osc: osc,
+              setCurrentChannel: setCurrentChannel,
+              currentChannel: currentChannel,
+              hueSaturation: hueSaturation,
+              setCommandLine: setCommandLine,
+              commandLine: getCommandLine(),
+            ),
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,

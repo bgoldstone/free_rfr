@@ -5,48 +5,46 @@ import 'package:free_rfr/widgets/grid.dart';
 
 class AdditionalKeys extends StatelessWidget {
   final OSC osc;
-  final void Function(String) setCommandLine;
-  const AdditionalKeys(
-      {required this.osc, super.key, required this.setCommandLine});
+  const AdditionalKeys({required this.osc, super.key});
 
   @override
   Widget build(BuildContext context) {
     List<Button> additionalKeys = [
       Button('Mark', () {
-        osc.sendKey('mark', setCommandLine);
+        osc.sendKey('mark');
       }),
       Button('Sneak', () {
-        osc.sendKey('sneak', setCommandLine);
+        osc.sendKey('sneak');
       }),
       Button('Rem Dim', () {
-        osc.sendKey('rem_dim', setCommandLine);
+        osc.sendKey('rem_dim');
       }),
       Button('Select Manual', () {
-        osc.sendKey('select_manual', setCommandLine);
+        osc.sendKey('select_manual');
       }),
       Button('Select Last', () {
-        osc.sendKey('select_last', setCommandLine);
+        osc.sendKey('select_last');
       }),
       Button('Select Active', () {
-        osc.sendKey('select_active', setCommandLine);
+        osc.sendKey('select_active');
       }),
       Button('Home', () {
-        osc.sendKey('home', setCommandLine);
+        osc.sendKey('home');
       }),
       Button('Level', () {
-        osc.sendKey('level', setCommandLine);
+        osc.sendKey('level');
       }),
       Button('Time', () {
-        osc.sendKey('time', setCommandLine);
+        osc.sendKey('time');
       }),
       Button('Live', () {
-        osc.sendKey('live', setCommandLine);
+        osc.sendKey('live');
       }),
       Button('Blind', () {
-        osc.sendKey('blind', setCommandLine);
+        osc.sendKey('blind');
       }),
       Button('Undo', () {
-        osc.sendKey('undo', setCommandLine);
+        osc.sendKey('undo');
       }),
     ];
     return Grid(3, additionalKeys, 1.8);

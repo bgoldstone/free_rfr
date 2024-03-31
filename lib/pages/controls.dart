@@ -6,11 +6,17 @@ import 'package:free_rfr/pages/controls/form.dart';
 import 'package:free_rfr/pages/controls/image.dart';
 import 'package:free_rfr/pages/controls/intensity.dart';
 import 'package:free_rfr/pages/controls/shutter.dart';
+import 'package:free_rfr/parameters.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
-  final void Function(String) setCommandLine;
-  const Controls({required this.osc, required this.setCommandLine, super.key});
+  final ParameterList currentChannel;
+  final List<double> hueSaturation;
+  const Controls(
+      {required this.osc,
+      required this.currentChannel,
+      required this.hueSaturation,
+      super.key});
 
   @override
   State<Controls> createState() => _ControlsState();
@@ -24,7 +30,9 @@ class _ControlsState extends State<Controls> {
     List<Widget> pages = [
       const IntensityControl(),
       const FocusControl(),
-      ColorControl(widget.osc),
+      ColorControl(widget.osc,
+          currentChannel: widget.currentChannel,
+          hueSaturation: widget.hueSaturation),
       const ShutterControl(),
       const ImageControl(),
       const FormControl()

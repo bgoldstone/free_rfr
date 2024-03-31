@@ -3,24 +3,25 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/parameters.dart';
 import 'package:osc/osc.dart';
 
 class OSC {
   final InternetAddress hostIP;
   final int hostPort = 8000;
   final int clientPort = 8001;
+  final Function(ParameterList) setCurrentChannel;
+  final Function(double, double) setColor;
+  final Function(String) setCommandLine;
   late final OSCSocket client;
 
-  OSC(this.hostIP) {
+  OSC(this.hostIP, this.setCurrentChannel, this.setColor, this.setCommandLine) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
     message = OSCMessage('/eos/ping', arguments: ['free rfr']);
     client.send(message);
-    OSCSocket(destinationPort: 8001).listen((msg) {
-      debugPrint(msg.address);
-      debugPrint(msg.arguments.toString());
-    });
+    OSCSocket(destinationPort: 8001).listen((msg) {});
     _setUDPTXIP();
   }
 
@@ -38,7 +39,13 @@ class OSC {
     message = OSCMessage('/eos/newcmd',
         arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
     client.send(message);
-    sleep(const Duration(milliseconds: 250));
+    sleep(const Duration(milliseconds: 100));
+    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    listenSocket.listen((event) {
+      if (event.address == '/eos/out/cmd') {
+        setCommandLine('${event.arguments[0]}');
+      }
+    });
     sendLive();
   }
 
@@ -46,7 +53,7 @@ class OSC {
     OSCMessage message =
         OSCMessage('/eos/newcmd', arguments: ['OSC_UDP_TX_IP_ADDRESS#']);
     client.send(message);
-    sleep(const Duration(milliseconds: 250));
+    sleep(const Duration(milliseconds: 100));
     sendLive();
   }
 
@@ -60,15 +67,35 @@ class OSC {
     client.send(message);
   }
 
-  void sendKey(String key, Function(String) setCommandLine) async {
+  void sendKey(String key) async {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
+    sleep(const Duration(milliseconds: 100));
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    ParameterList wheels = [];
+    for (ParameterType _ in ParameterType.values) {
+      wheels.add([]);
+    }
+    int wheelIndex = 0;
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
       }
-      debugPrint(event.arguments.toString());
+      if (event.address.startsWith('/eos/out/active/wheel/')) {
+        String parameterName = event.arguments[0].toString().split(" ")[0];
+        int parameterIndex = int.parse(event.arguments[1].toString());
+        double parameterValue = double.parse(event.arguments[2].toString());
+        wheels[parameterIndex].add([wheelIndex, parameterName, parameterValue]);
+        wheelIndex++;
+      }
+      if (event.address.startsWith('/eos/out/color/hs') &&
+          event.arguments.length == 2) {
+        double hue = double.parse(event.arguments[0].toString());
+        double saturation = double.parse(event.arguments[1].toString()) / 255;
+        setColor(hue, saturation);
+      }
+      setCurrentChannel(wheels);
+      debugPrint(wheels.toString());
     });
     listenSocket.close();
   }

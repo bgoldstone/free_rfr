@@ -3,10 +3,24 @@ import 'package:free_rfr/osc_control.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cue_list.dart';
 import 'package:free_rfr/pages/facepanel.dart';
+import 'package:free_rfr/parameters.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
-  const FreeRFR({super.key, required this.osc});
+  final void Function(ParameterList) setCurrentChannel;
+  final List<double> hueSaturation;
+  final ParameterList currentChannel;
+  final void Function(String) setCommandLine;
+  final String commandLine;
+  const FreeRFR({
+    super.key,
+    required this.osc,
+    required this.setCurrentChannel,
+    required this.currentChannel,
+    required this.hueSaturation,
+    required this.setCommandLine,
+    required this.commandLine,
+  });
 
   @override
   State<FreeRFR> createState() => _FreeRFRState();
@@ -15,14 +29,7 @@ class FreeRFR extends StatefulWidget {
 class _FreeRFRState extends State<FreeRFR> {
   Map<String, dynamic> activeConnection = {};
   int index = 0;
-  String commandLine = '';
   int currentConnectionIndex = -1;
-
-  void setCommandLine(String command) {
-    setState(() {
-      commandLine = command;
-    });
-  }
 
   @override
   void initState() {
@@ -32,29 +39,54 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      FacePanel(
-          key: const Key('Facepanel'),
-          osc: widget.osc,
-          setCommandLine: setCommandLine),
+      FacePanel(key: const Key('Facepanel'), osc: widget.osc),
       Controls(
-          key: const Key('Controls'),
-          osc: widget.osc,
-          setCommandLine: setCommandLine),
-      CueList(
-          key: const Key('CueList'),
-          osc: widget.osc,
-          setCommandLine: setCommandLine),
+        key: const Key('Controls'),
+        osc: widget.osc,
+        currentChannel: widget.currentChannel,
+        hueSaturation: widget.hueSaturation,
+      ),
+      CueList(key: const Key('CueList'), osc: widget.osc),
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          commandLine,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
+        title: TextButton(
+          onPressed: () {
+            AlertDialog alert = AlertDialog(
+              title: const Text('Command Line'),
+              content: Text(widget.commandLine),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('OK')),
+              ],
+            );
+            showDialog(context: context, builder: (context) => alert);
+          },
+          child: Text(
+            widget.commandLine,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              color: widget.commandLine.startsWith('BLIND')
+                  ? Colors.blue
+                  : Theme.of(context).primaryColor,
+              fontSize: 15,
+            ),
           ),
         ),
-        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.backspace),
+            color: MediaQuery.of(context).platformBrightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
+            onPressed: () {
+              widget.osc.sendKey('clear_cmdline');
+            },
+          ),
+        ],
       ),
       body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
       bottomNavigationBar: BottomNavigationBar(
