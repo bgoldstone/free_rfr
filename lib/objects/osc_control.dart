@@ -64,6 +64,7 @@ class OSC {
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
+        debugPrint(event.arguments[0].toString());
       }
     });
     sendLive();
@@ -100,6 +101,7 @@ class OSC {
   }
 
   void _updateEosOutput() {
+    debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     ParameterList parameters = [];
     for (ParameterType _ in ParameterType.values) {
@@ -107,6 +109,7 @@ class OSC {
     }
     int wheelIndex = 1;
     listenSocket.listen((event) {
+      debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
