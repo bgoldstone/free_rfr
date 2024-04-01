@@ -15,4 +15,9 @@ A new RFR for ETC Eos-based consoles using OSC Communication
 ![free_rfr-ip-address](https://github.com/bgoldstone/free_rfr/assets/23127820/36fd53ee-67c9-4740-a2d0-4c08384eb330)
 
 ## Screenshots
-TODO
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/63fdc059-54ce-4481-b2ad-62aa6ede3edb" alt="free_rfr_1" width=150/>
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/92c6b8e9-7101-4aee-b4b8-083855689b17" alt="free_rfr_2" width=150/>
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/5b0c235d-ee3a-4404-82b6-f66a6d0668a5" alt="free_rfr_3" width=150/>
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/aca7f33f-9639-448a-9fc0-5cb5732bc697" alt="free_rfr_4" width=150/>
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/1b865f12-ba8f-4083-b6a4-80bb3b9d6b80" alt="free_rfr_5" width=150/>
+<img src="https://github.com/bgoldstone/free_rfr/assets/23127820/2fadac4d-a748-49d1-a430-908479da23df" alt="free_rfr_6" width=150/>
