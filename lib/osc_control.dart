@@ -108,16 +108,14 @@ class OSC {
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
-      }
-      if (event.address.startsWith('/eos/out/active/wheel/')) {
+      } else if (event.address.startsWith('/eos/out/active/wheel/')) {
         String parameterName = event.arguments[0].toString().split(" ")[0];
         int parameterIndex = int.parse(event.arguments[1].toString());
         double parameterValue = double.parse(event.arguments[2].toString());
         parameters[parameterIndex]
             .add([wheelIndex, parameterName, parameterValue]);
         wheelIndex++;
-      }
-      if (event.address.startsWith('/eos/out/pantilt') &&
+      } else if (event.address.startsWith('/eos/out/pantilt') &&
           event.arguments.isNotEmpty) {
         double minPan = double.parse(event.arguments[0].toString());
         double maxPan = double.parse(event.arguments[1].toString());
@@ -125,14 +123,12 @@ class OSC {
         double maxTilt = double.parse(event.arguments[3].toString());
         parameters[ParameterType.PT.index]
             .add([minPan, maxPan, minTilt, maxTilt]);
-      }
-      if (event.address.startsWith('/eos/out/color/hs') &&
+      } else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
         setColor(hue, saturation);
-      }
-      if (event.address.startsWith('/eos/out/active/cue/text')) {
+      } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
         List<String> textList = text.split(' ');
         if (textList.length > 1) {
@@ -143,14 +139,11 @@ class OSC {
         } else {
           setCurrentCueText('Cue#: ${textList[0]} Fade Time: ${textList[1]}');
         }
-      }
-      if (event.address.startsWith('/eos/out/active/cue/')) {
+      } else if (event.address.startsWith('/eos/out/active/cue/')) {
         List<String> address = event.address.split('/');
         setCurrentCue(double.parse(address.last));
         setCurrentCueList(int.parse(address[address.length - 2]));
-      }
-
-      if (event.address.startsWith('/eos/out/previous/cue/text')) {
+      } else if (event.address.startsWith('/eos/out/previous/cue/text')) {
         List<String> text = event.arguments[0].toString().split(' ');
         if (text.length > 1) {
           setPreviousCueText(
@@ -158,14 +151,10 @@ class OSC {
         } else {
           setPreviousCueText('');
         }
-      }
-
-      if (event.address.startsWith('/eos/out/previous/cue/')) {
+      } else if (event.address.startsWith('/eos/out/previous/cue/')) {
         List<String> address = event.address.split('/');
         setPreviousCue(double.parse(address.last));
-      }
-
-      if (event.address.startsWith('/eos/out/pending/cue/text')) {
+      } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
         List<String> text = event.arguments[0].toString().split(' ');
         if (text.length > 1) {
           setNextCueText(
@@ -173,11 +162,13 @@ class OSC {
         } else {
           setNextCueText('');
         }
-      }
-
-      if (event.address.startsWith('/eos/out/pending/cue/')) {
+      } else if (event.address.startsWith('/eos/out/pending/cue/')) {
         List<String> address = event.address.split('/');
-        setNextCue(double.parse(address.last));
+        try {
+          setPreviousCue(double.parse(address.last));
+        } catch (e) {
+          setPreviousCue(0);
+        }
       }
 
       setCurrentChannel(parameters);

@@ -10,8 +10,8 @@ class Keypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Button> keypad = [
-      Button('Park', () {
-        osc.sendKey('park');
+      Button('Go To Cue', () {
+        osc.sendKey('go_to_cue');
       }, fontSize: 15),
       Button('Addr', () {
         osc.sendKey('address');
