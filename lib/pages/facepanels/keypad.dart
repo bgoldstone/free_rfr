@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:free_rfr/osc_control.dart';
+import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
 

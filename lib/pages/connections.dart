@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:free_rfr/osc_control.dart';
+import 'package:free_rfr/objects/osc_control.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Connections extends StatefulWidget {

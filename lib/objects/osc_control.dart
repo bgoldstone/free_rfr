@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:free_rfr/parameters.dart';
+import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
 
 class OSC {
@@ -20,6 +20,7 @@ class OSC {
   final void Function(String) setPreviousCueText;
   final void Function(double) setNextCue;
   final void Function(String) setNextCueText;
+  final void Function(double, double) setHueSaturation;
   late final OSCSocket client;
 
   OSC(
@@ -33,7 +34,8 @@ class OSC {
       this.setPreviousCue,
       this.setPreviousCueText,
       this.setNextCue,
-      this.setNextCueText) {
+      this.setNextCueText,
+      this.setHueSaturation) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -65,7 +67,7 @@ class OSC {
       }
     });
     sendLive();
-    updateEosOutput();
+    _updateEosOutput();
   }
 
   void sleep100() {
@@ -95,10 +97,10 @@ class OSC {
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
     sleep100();
-    updateEosOutput();
+    _updateEosOutput();
   }
 
-  void updateEosOutput() {
+  void _updateEosOutput() {
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     ParameterList parameters = [];
     for (ParameterType _ in ParameterType.values) {
@@ -127,40 +129,25 @@ class OSC {
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
-        setColor(hue, saturation);
+        setHueSaturation(hue, saturation);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
-        List<String> textList = text.split(' ');
-        if (textList.length > 1) {
-          String label =
-              text.replaceAll(textList.first, '').replaceAll(textList.last, '');
-          setCurrentCueText(
-              'Cue#: ${textList.first} Label: $label Fade Time: ${textList.last}');
+        if (text.length > 1) {
+          setCurrentCueText(text);
         } else {
-          setCurrentCueText('Cue#: ${textList[0]} Fade Time: ${textList[1]}');
+          setCurrentCueText('');
+          ;
         }
       } else if (event.address.startsWith('/eos/out/active/cue/')) {
         List<String> address = event.address.split('/');
         setCurrentCue(double.parse(address.last));
         setCurrentCueList(int.parse(address[address.length - 2]));
-      } else if (event.address.startsWith('/eos/out/previous/cue/text')) {
-        List<String> text = event.arguments[0].toString().split(' ');
+      } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
+        String text = event.arguments[0].toString();
         if (text.length > 1) {
-          setPreviousCueText(
-              'Cue#: ${text[0]} Label: ${text[1]} Fade Time: ${text[2]}');
+          setPreviousCueText(text);
         } else {
           setPreviousCueText('');
-        }
-      } else if (event.address.startsWith('/eos/out/previous/cue/')) {
-        List<String> address = event.address.split('/');
-        setPreviousCue(double.parse(address.last));
-      } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
-        List<String> text = event.arguments[0].toString().split(' ');
-        if (text.length > 1) {
-          setNextCueText(
-              'Cue#: ${text[0]} Label: ${text[1]} Fade Time: ${text[2]}');
-        } else {
-          setNextCueText('');
         }
       } else if (event.address.startsWith('/eos/out/pending/cue/')) {
         List<String> address = event.address.split('/');

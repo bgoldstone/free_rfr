@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:free_rfr/osc_control.dart';
+import 'package:free_rfr/objects/osc_control.dart';
+import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls/color.dart';
 import 'package:free_rfr/pages/controls/focus.dart';
 import 'package:free_rfr/pages/controls/form.dart';
 import 'package:free_rfr/pages/controls/image.dart';
 import 'package:free_rfr/pages/controls/intensity.dart';
 import 'package:free_rfr/pages/controls/shutter.dart';
-import 'package:free_rfr/parameters.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;

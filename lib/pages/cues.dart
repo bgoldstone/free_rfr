@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:free_rfr/osc_control.dart';
+import 'package:free_rfr/objects/osc_control.dart';
 
 class Cues extends StatefulWidget {
   final OSC osc;
@@ -37,39 +37,53 @@ class _CuesState extends State<Cues> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Cue List: ${widget.currentCueList}'),
-        ElevatedButton(
-          child: Card(
-            child: ListTile(
-              title: Text('Current Cue ${widget.currentCue}'),
-              subtitle: Text(widget.currentCueText),
-            ),
-          ),
-          onPressed: () {},
-          onLongPress: () {
-            editLabel(context, widget.nextCue);
-          },
-        ),
-        ElevatedButton(
-            onPressed: () => widget.osc.sendKey('go_0'),
-            child: Card(
-                child: ListTile(
-              title: const Text('Go'),
-              subtitle: Text(widget.nextCueText),
-              onLongPress: () {
-                editLabel(context, widget.nextCue);
-              },
-            ))),
-        ElevatedButton(
-            onPressed: () => widget.osc.sendKey('stop'),
+        Center(child: Text('Cue List: ${widget.currentCueList}')),
+        Card(
+          child: ListTile(
+            title: Text('Current Cue'),
+            subtitle: Text(widget.currentCueText),
             onLongPress: () {
-              editLabel(context, widget.previousCue);
+              editLabel(context, widget.nextCue);
             },
-            child: ListTile(
-              title: const Text('Stop/Back'),
-              subtitle: Text(widget.previousCueText),
-            ))
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Next Cue'),
+            subtitle: Text(widget.nextCueText),
+            onLongPress: () {
+              editLabel(context, widget.nextCue);
+            },
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Previous Cue'),
+            subtitle: Text(widget.previousCueText),
+          ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+                onPressed: () => widget.osc.sendKey('stop'),
+                onLongPress: () {
+                  editLabel(context, widget.previousCue);
+                },
+                style: const ButtonStyle(
+                    foregroundColor:
+                        MaterialStatePropertyAll<Color>(Colors.red)),
+                child: const Text('Stop/Back')),
+            ElevatedButton(
+                onPressed: () => widget.osc.sendKey('go_0'),
+                style: const ButtonStyle(
+                    foregroundColor:
+                        MaterialStatePropertyAll<Color>(Colors.green)),
+                child: const Text('Go')),
+          ],
+        ),
       ],
     );
   }

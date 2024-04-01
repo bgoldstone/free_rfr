@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/pages/facepanels/additional_keys.dart';
 import 'package:free_rfr/pages/facepanels/targets.dart';
 
-import '../osc_control.dart';
 
 class FacePanel extends StatefulWidget {
   final OSC osc;
