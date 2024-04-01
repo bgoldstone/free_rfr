@@ -29,7 +29,7 @@ class _ColorControlState extends State<ColorControl> {
             .toColor()
         : Colors.white;
     return Scaffold(
-      body: Column(children: [
+      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         ColorPicker(
           pickerColor: currentColor ?? colorFromEos,
           onColorChanged: (newColor) {

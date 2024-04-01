@@ -37,51 +37,76 @@ class _CuesState extends State<Cues> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: Text('Cue List: ${widget.currentCueList}')),
-        Card(
-          child: ListTile(
-            title: const Text('Current Cue'),
-            subtitle: Text(widget.currentCueText),
-            onLongPress: () {
-              editLabel(context, widget.nextCue);
-            },
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+              child: Text(
+            'Cue List: ${widget.currentCueList}',
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          )),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+              title: const Text('Current Cue'),
+              subtitle: Text(widget.currentCueText),
+              onLongPress: () {
+                editLabel(context, widget.nextCue);
+              },
+            ),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: const Text('Next Cue'),
-            subtitle: Text(widget.nextCueText),
-            onLongPress: () {
-              editLabel(context, widget.nextCue);
-            },
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+              title: const Text('Next Cue'),
+              subtitle: Text(widget.nextCueText),
+              onLongPress: () {
+                editLabel(context, widget.nextCue);
+              },
+            ),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: const Text('Previous Cue'),
-            subtitle: Text(widget.previousCueText),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+                title: const Text('Previous Cue'),
+                subtitle: Text(widget.previousCueText),
+                onLongPress: () {
+                  editLabel(context, widget.previousCue);
+                }),
           ),
         ),
         Wrap(
           alignment: WrapAlignment.spaceAround,
           children: [
-            ElevatedButton(
-                onPressed: () => widget.osc.sendKey('stop'),
-                onLongPress: () {
-                  editLabel(context, widget.previousCue);
-                },
-                style: const ButtonStyle(
-                    foregroundColor:
-                        MaterialStatePropertyAll<Color>(Colors.red)),
-                child: const Text('Stop/Back')),
-            ElevatedButton(
-                onPressed: () => widget.osc.sendKey('go_0'),
-                style: const ButtonStyle(
-                    foregroundColor:
-                        MaterialStatePropertyAll<Color>(Colors.green)),
-                child: const Text('Go')),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () => widget.osc.sendKey('stop'),
+                  onLongPress: () {
+                    editLabel(context, widget.previousCue);
+                  },
+                  style: const ButtonStyle(
+                      foregroundColor:
+                          MaterialStatePropertyAll<Color>(Colors.red)),
+                  child: const Text('Stop/Back')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () => widget.osc.sendKey('go_0'),
+                  style: const ButtonStyle(
+                      foregroundColor:
+                          MaterialStatePropertyAll<Color>(Colors.green)),
+                  child: const Text('Go')),
+            ),
           ],
         ),
       ],
