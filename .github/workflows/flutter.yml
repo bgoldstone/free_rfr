@@ -24,6 +24,6 @@ jobs:
       - run: flutter clean
       - run: flutter pub get
       - run: flutter analyze
-      - run: flutter build apk
+      - run: flutter build apk --debug
       #- run: flutter test
             
