@@ -1,4 +1,4 @@
-package com.example.free_rfr
+package com.github.bgoldstone.free_rfr
 
 import io.flutter.embedding.android.FlutterActivity
 
