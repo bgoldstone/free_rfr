@@ -10,7 +10,6 @@ class OSC {
   final int hostPort = 8000;
   final int clientPort = 8001;
   final Function(ParameterList) setCurrentChannel;
-  final Function(double, double) setColor;
   final Function(String) setCommandLine;
   final void Function(int) setCurrentCueList;
   final void Function(double) setCurrentCue;
@@ -25,7 +24,6 @@ class OSC {
   OSC(
       this.hostIP,
       this.setCurrentChannel,
-      this.setColor,
       this.setCommandLine,
       this.setCurrentCueList,
       this.setCurrentCue,

@@ -112,7 +112,6 @@ class _MyAppState extends State<MyApp> {
       osc = OSC(
           InternetAddress(activeConnection['ip']),
           setCurrentChannel,
-          setHueSaturation,
           setCommandLine,
           setCurrentCueList,
           setCurrentCue,
