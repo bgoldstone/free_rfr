@@ -25,6 +25,55 @@ class _MyAppState extends State<MyApp> {
   ParameterList currentChannel = [];
   List<double> hueSaturation = [];
   String commandLine = '';
+  double currentCue = -1;
+  int currentCueList = -1;
+  String currentCueText = '';
+  double previousCue = -1;
+  String previousCueText = '';
+  double nextCue = -1;
+  String nextCueText = '';
+
+  void setPreviousCue(double cue) {
+    setState(() {
+      previousCue = cue;
+    });
+  }
+
+  void setPreviousCueText(String text) {
+    setState(() {
+      previousCueText = text;
+    });
+  }
+
+  void setNextCue(double cue) {
+    setState(() {
+      nextCue = cue;
+    });
+  }
+
+  void setNextCueText(String text) {
+    setState(() {
+      nextCueText = text;
+    });
+  }
+
+  void setCurrentCueText(String text) {
+    setState(() {
+      currentCueText = text;
+    });
+  }
+
+  void setCurrentCue(double cue) {
+    setState(() {
+      currentCue = cue;
+    });
+  }
+
+  void setCurrentCueList(int cueList) {
+    setState(() {
+      currentCueList = cueList;
+    });
+  }
 
   void setCommandLine(String command) {
     try {
@@ -60,8 +109,18 @@ class _MyAppState extends State<MyApp> {
       debugPrint('Initilizing OSC...');
       activeConnection = connection;
       currentConnectionIndex = index;
-      osc = OSC(InternetAddress(activeConnection['ip']), setCurrentChannel,
-          setHueSaturation, setCommandLine);
+      osc = OSC(
+          InternetAddress(activeConnection['ip']),
+          setCurrentChannel,
+          setHueSaturation,
+          setCommandLine,
+          setCurrentCueList,
+          setCurrentCue,
+          setCurrentCueText,
+          setPreviousCue,
+          setPreviousCueText,
+          setNextCue,
+          setNextCueText);
       isOSCInitialized = true;
     });
   }
@@ -97,6 +156,13 @@ class _MyAppState extends State<MyApp> {
               hueSaturation: hueSaturation,
               setCommandLine: setCommandLine,
               commandLine: getCommandLine(),
+              currentCue: currentCue,
+              currentCueList: currentCueList,
+              currentCueText: currentCueText,
+              nextCue: nextCue,
+              nextCueText: nextCueText,
+              previousCue: previousCue,
+              previousCueText: previousCueText,
             ),
       },
       initialRoute: '/',

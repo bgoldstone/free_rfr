@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/osc_control.dart';
 import 'package:free_rfr/pages/controls.dart';
-import 'package:free_rfr/pages/cue_list.dart';
+import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/parameters.dart';
 
@@ -12,6 +12,13 @@ class FreeRFR extends StatefulWidget {
   final ParameterList currentChannel;
   final void Function(String) setCommandLine;
   final String commandLine;
+  final double previousCue;
+  final double currentCue;
+  final double nextCue;
+  final int currentCueList;
+  final String previousCueText;
+  final String currentCueText;
+  final String nextCueText;
   const FreeRFR({
     super.key,
     required this.osc,
@@ -20,6 +27,13 @@ class FreeRFR extends StatefulWidget {
     required this.hueSaturation,
     required this.setCommandLine,
     required this.commandLine,
+    required this.previousCue,
+    required this.currentCue,
+    required this.nextCue,
+    required this.currentCueList,
+    required this.previousCueText,
+    required this.currentCueText,
+    required this.nextCueText,
   });
 
   @override
@@ -46,7 +60,17 @@ class _FreeRFRState extends State<FreeRFR> {
         currentChannel: widget.currentChannel,
         hueSaturation: widget.hueSaturation,
       ),
-      CueList(key: const Key('CueList'), osc: widget.osc),
+      Cues(
+        key: const Key('CueList'),
+        osc: widget.osc,
+        currentCue: widget.currentCue,
+        currentCueList: widget.currentCueList,
+        currentCueText: widget.currentCueText,
+        nextCue: widget.nextCue,
+        nextCueText: widget.nextCueText,
+        previousCue: widget.previousCue,
+        previousCueText: widget.previousCueText,
+      ),
     ];
     return Scaffold(
       appBar: AppBar(

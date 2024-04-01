@@ -151,6 +151,7 @@ class _ConnectionsState extends State<Connections> {
             onChanged: (value) {
               consoleIP = value;
             },
+            keyboardType: TextInputType.number,
           ),
         ],
       ),
