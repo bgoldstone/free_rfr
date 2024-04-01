@@ -12,22 +12,22 @@ class Keypad extends StatelessWidget {
     List<Button> keypad = [
       Button('Go To Cue', () {
         osc.sendKey('go_to_cue');
-      }, fontSize: 13),
+      }, fontSize: 17.4),
       Button('Addr', () {
         osc.sendKey('address');
-      }, fontSize: 15),
+      }, fontSize: 20),
       Button('Last', () {
         osc.sendKey('last');
-      }, fontSize: 18),
+      }, fontSize: 20),
       Button('Next', () {
         osc.sendKey('next');
-      }, fontSize: 17),
+      }, fontSize: 20),
       Button('+', () {
         osc.sendKey('plus');
       }, fontSize: 30),
       Button('Thru', () {
         osc.sendKey('thru');
-      }, fontSize: 16),
+      }, fontSize: 20),
       Button('-', () {
         osc.sendKey('-');
       }, fontSize: 30),
@@ -102,26 +102,18 @@ class Keypad extends StatelessWidget {
       Button('At', () {
         osc.sendKey('at');
       }),
-      Button(
-        'Clear',
-        () {
-          osc.sendKey('clear_cmd');
-        },
-        fontSize: 15,
-      ),
-      Button(
-        '0',
-        () {
-          osc.sendKey('0');
-        },
-        fontSize: 30,
-      ),
+      Button('Clear', () {
+        osc.sendKey('clear_cmd');
+      }, fontSize: 18.5),
+      Button('0', () {
+        osc.sendKey('0');
+      }, fontSize: 30),
       Button('.', () {
         osc.sendKey('.');
       }, fontSize: 30),
       Button('Enter', () {
         osc.sendKey('enter');
-      }, fontSize: 15),
+      }, fontSize: 18.5),
     ];
     return Grid(4, keypad, 2);
   }
