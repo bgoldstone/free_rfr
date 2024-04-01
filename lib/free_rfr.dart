@@ -4,6 +4,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
@@ -120,7 +121,7 @@ class _FreeRFRState extends State<FreeRFR> {
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), label: 'Controls'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt), label: 'Cue List'),
+              icon: Icon(Symbols.play_pause), label: 'Playback'),
         ],
         selectedItemColor: Colors.yellow,
         currentIndex: index,

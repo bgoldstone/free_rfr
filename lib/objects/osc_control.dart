@@ -42,6 +42,7 @@ class OSC {
     message = OSCMessage('/eos/ping', arguments: ['free rfr']);
     client.send(message);
     OSCSocket(destinationPort: 8001).listen((msg) {});
+    _updateEosOutput();
     _setUDPTXIP();
   }
 
@@ -67,7 +68,6 @@ class OSC {
       }
     });
     sendLive();
-    _updateEosOutput();
   }
 
   void sleep100() {
