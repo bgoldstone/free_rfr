@@ -12,7 +12,7 @@ class Keypad extends StatelessWidget {
     List<Button> keypad = [
       Button('Go To Cue', () {
         osc.sendKey('go_to_cue');
-      }, fontSize: 15),
+      }, fontSize: 13),
       Button('Addr', () {
         osc.sendKey('address');
       }, fontSize: 15),
