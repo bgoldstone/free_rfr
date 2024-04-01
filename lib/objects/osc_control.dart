@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -136,7 +135,6 @@ class OSC {
           setCurrentCueText(text);
         } else {
           setCurrentCueText('');
-          ;
         }
       } else if (event.address.startsWith('/eos/out/active/cue/')) {
         List<String> address = event.address.split('/');
@@ -249,9 +247,10 @@ class OSC {
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((msg) {
       debugPrint('Index: ${msg.arguments[0].toString()}');
-      if (msg.address == '/eos/out/active/cue/text')
+      if (msg.address == '/eos/out/active/cue/text') {
         reply = int.parse(msg.arguments[0].toString());
-      return;
+        return;
+      }
     });
     listenSocket.close();
     return reply;

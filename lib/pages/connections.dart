@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:free_rfr/objects/osc_control.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Connections extends StatefulWidget {
@@ -93,7 +91,7 @@ class _ConnectionsState extends State<Connections> {
                 itemCount: config['connections'].length,
                 itemBuilder: (context, index) {
                   return Dismissible(
-                    key: Key('Connection ${index}'),
+                    key: Key('Connection $index'),
                     child: Card(
                       child: ListTile(
                         title: Text(config['connections'][index]['name']),

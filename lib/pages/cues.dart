@@ -42,7 +42,7 @@ class _CuesState extends State<Cues> {
         Center(child: Text('Cue List: ${widget.currentCueList}')),
         Card(
           child: ListTile(
-            title: Text('Current Cue'),
+            title: const Text('Current Cue'),
             subtitle: Text(widget.currentCueText),
             onLongPress: () {
               editLabel(context, widget.nextCue);
