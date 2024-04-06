@@ -1,5 +1,5 @@
 name: free_rfr
-description: "A new Flutter project."
+description: "An OSC Controller for ETC Eos Consoles."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,6 +39,7 @@ dependencies:
   path_provider: ^2.1.2
   flutter_colorpicker: ^1.0.3
   material_symbols_icons: ^4.2719.3
+  wheel_slider: ^1.2.1
   
 
 dev_dependencies:
@@ -59,6 +60,13 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/icons/free_rfr.png"
   remove_alpha_ios: true
+  windows:
+    generate: true
+    image_path: "assets/icons/free_rfr.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/free_rfr.png"
 
 # The following section is specific to Flutter packages.
 flutter:
