@@ -4,6 +4,8 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
+import 'package:free_rfr/pages/facepanels/keypad.dart';
+import 'package:free_rfr/pages/pan_tilt_control.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
@@ -61,6 +63,16 @@ class _FreeRFRState extends State<FreeRFR> {
         currentChannel: widget.currentChannel,
         hueSaturation: widget.hueSaturation,
       ),
+      PanTiltControl(
+        minPan: widget.currentChannel[20]?[0] ?? 0,
+        maxPan: widget.currentChannel[20]?[1] ?? 0,
+        minTilt: widget.currentChannel[20]?[2] ?? 0,
+        maxTilt: widget.currentChannel[20]?[3] ?? 0,
+        currentPan: widget.currentChannel[20]?[4] ?? 0,
+        currentTilt: widget.currentChannel[20]?[5] ?? 0,
+        key: const Key('PanTiltControl'),
+        osc: widget.osc,
+      ),
       Cues(
         key: const Key('CueList'),
         osc: widget.osc,
@@ -73,6 +85,87 @@ class _FreeRFRState extends State<FreeRFR> {
         previousCueText: widget.previousCueText,
       ),
     ];
+    return Scaffold(
+      appBar: freeRFRAppBar(context),
+      body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
+      bottomNavigationBar: bottomNavBar(context),
+    );
+  }
+
+  BottomNavigationBar bottomNavBar(BuildContext context) {
+    return BottomNavigationBar(
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.keyboard), label: 'Facepanel'),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Controls'),
+        BottomNavigationBarItem(
+            icon: Icon(Symbols.point_scan), label: 'Pan/Tilt Control'),
+        BottomNavigationBarItem(
+            icon: Icon(Symbols.play_pause), label: 'Playback'),
+      ],
+      selectedItemColor: Colors.yellow,
+      currentIndex: index,
+      unselectedItemColor:
+          MediaQuery.of(context).platformBrightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+      onTap: (i) => setState(() {
+        index = i;
+      }),
+      showSelectedLabels: true,
+    );
+  }
+
+  AppBar freeRFRAppBar(BuildContext context) {
+    return AppBar(
+      title: TextButton(
+        onPressed: () {
+          AlertDialog alert = AlertDialog(
+            title: const Text('Command Line'),
+            content: Text(widget.commandLine),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK')),
+            ],
+          );
+          showDialog(context: context, builder: (context) => alert);
+        },
+        child: Text(
+          widget.commandLine,
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            color: widget.commandLine.startsWith('BLIND')
+                ? Colors.blue
+                : Theme.of(context).primaryColor,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return keypadWindow(context);
+            }));
+          },
+          icon: const Icon(Icons.dialpad_rounded),
+        ),
+        IconButton(
+          icon: const Icon(Icons.backspace),
+          color: MediaQuery.of(context).platformBrightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+          onPressed: () {
+            widget.osc.sendKey('clear_cmdline');
+          },
+        ),
+      ],
+    );
+  }
+
+  Scaffold keypadWindow(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: TextButton(
@@ -101,39 +194,8 @@ class _FreeRFRState extends State<FreeRFR> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.backspace),
-            color: MediaQuery.of(context).platformBrightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-            onPressed: () {
-              widget.osc.sendKey('clear_cmdline');
-            },
-          ),
-        ],
       ),
-      body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.keyboard), label: 'Facepanel'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Controls'),
-          BottomNavigationBarItem(
-              icon: Icon(Symbols.play_pause), label: 'Playback'),
-        ],
-        selectedItemColor: Colors.yellow,
-        currentIndex: index,
-        unselectedItemColor:
-            MediaQuery.of(context).platformBrightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-        onTap: (i) => setState(() {
-          index = i;
-        }),
-        showSelectedLabels: true,
-      ),
+      body: Keypad(osc: widget.osc),
     );
   }
 }

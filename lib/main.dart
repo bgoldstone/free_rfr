@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
-  ParameterList currentChannel = [];
+  ParameterList currentChannel = {};
   List<double> hueSaturation = [];
   String commandLine = '';
   double currentCue = -1;

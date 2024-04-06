@@ -22,30 +22,30 @@ class _IntensityControlState extends State<IntensityControl> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(widget.currentChannel.toString());
-    List<List<dynamic>> intensityControl =
-        widget.currentChannel[ParameterType.Intensity.index];
-    if (intensityControl.isEmpty) {
-      return const Empty();
-    }
-    for (List<dynamic> parameter in intensityControl) {
-      debugPrint(parameter.toString());
-      String parameterKey = 'Intensity Parameter # ${parameter[0]}';
-      if (!parameters.contains(parameterKey)) {
-        intensityWidgets.add(ParameterSlider(
-          osc: widget.osc,
-          attributes: parameter,
-          superSetState: setState,
-          key: Key(parameterKey),
-        ));
-      }
-    }
-    if (intensityWidgets.isEmpty) {
-      return const Empty();
-    }
-    return Row(
-      children: intensityWidgets,
-    );
+    // debugPrint(widget.currentChannel.toString());
+    // ParameterList intensityControl = widget.currentChannel;
+    // if (intensityControl.isEmpty) {
+    //   return const Empty();
+    // }
+    // for (List<dynamic> parameter in intensityControl) {
+    //   debugPrint(parameter.toString());
+    //   String parameterKey = 'Intensity Parameter # ${parameter[0]}';
+    //   if (!parameters.contains(parameterKey)) {
+    //     intensityWidgets.add(ParameterSlider(
+    //       osc: widget.osc,
+    //       attributes: parameter,
+    //       superSetState: setState,
+    //       key: Key(parameterKey),
+    //     ));
+    //   }
+    // }
+    // if (intensityWidgets.isEmpty) {
+    //   return const Empty();
+    // }
+    // return Row(
+    //   children: intensityWidgets,
+    // );
+    return Placeholder();
   }
 }
 

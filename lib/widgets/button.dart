@@ -17,18 +17,19 @@ class Button extends StatelessWidget {
     );
     double aspectRatio = MediaQuery.of(context).size.aspectRatio;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(4.0),
       child: ElevatedButton(
         onPressed: onPressed,
         style: buttonStyle,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: (fontSize! * aspectRatio * 1.5),
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: Text(
+            text,
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: (fontSize! * aspectRatio * 1.5)),
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );

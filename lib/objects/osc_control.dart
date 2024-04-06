@@ -98,13 +98,19 @@ class OSC {
     _updateEosOutput();
   }
 
+  void updatePanTilt(double pan, double tilt) {
+    debugPrint('Sending pan: $pan, tilt: $tilt');
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['Pan $pan Tilt $tilt#']);
+    client.send(message);
+    _updateEosOutput();
+  }
+
   void _updateEosOutput() {
     debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    ParameterList parameters = [];
-    for (ParameterType _ in ParameterType.values) {
-      parameters.add([]);
-    }
+    ParameterList parameters = {};
+
     int wheelIndex = 1;
     listenSocket.listen((event) {
       debugPrint(event.toString());
@@ -114,8 +120,11 @@ class OSC {
         String parameterName = event.arguments[0].toString().split(" ")[0];
         int parameterIndex = int.parse(event.arguments[1].toString());
         double parameterValue = double.parse(event.arguments[2].toString());
-        parameters[parameterIndex]
-            .add([wheelIndex, parameterName, parameterValue]);
+        parameters[parameterIndex] = [
+          wheelIndex,
+          parameterName,
+          parameterValue
+        ];
         wheelIndex++;
       } else if (event.address.startsWith('/eos/out/pantilt') &&
           event.arguments.isNotEmpty) {
@@ -123,8 +132,16 @@ class OSC {
         double maxPan = double.parse(event.arguments[1].toString());
         double minTilt = double.parse(event.arguments[2].toString());
         double maxTilt = double.parse(event.arguments[3].toString());
-        parameters[ParameterType.PT.index]
-            .add([minPan, maxPan, minTilt, maxTilt]);
+        double currentPan = double.parse(event.arguments[4].toString());
+        double currentTilt = double.parse(event.arguments[5].toString());
+        parameters[20] = [
+          minPan,
+          maxPan,
+          minTilt,
+          maxTilt,
+          currentPan,
+          currentTilt
+        ];
       } else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
