@@ -57,7 +57,7 @@ class OSC {
     message = OSCMessage('/eos/newcmd',
         arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
     await client.send(message);
-    sleep100();
+    sendKey('clear_cmd');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
@@ -98,6 +98,19 @@ class OSC {
     _updateEosOutput();
   }
 
+  void setMinValue(String parameter) async {
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: ['$parameter Min#']);
+    await client.send(message);
+    _updateEosOutput();
+  }
+
+  void setMaxValue(String parameter) async {
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter Full#']);
+    await client.send(message);
+    _updateEosOutput();
+  }
+
   void updatePanTilt(double pan, double tilt) {
     debugPrint('Sending pan: $pan, tilt: $tilt');
     OSCMessage message =
@@ -111,17 +124,22 @@ class OSC {
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     ParameterList parameters = {};
 
-    int wheelIndex = 1;
+    int wheelIndex;
     listenSocket.listen((event) {
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        String parameterName = event.arguments[0].toString().split(" ")[0];
+        wheelIndex = int.parse(event.address.split('/').last);
+        String parameterName = RegExp('([a-zA-Z\\s]+)')
+            .stringMatch(event.arguments[0].toString())!
+            .trim();
+        debugPrint(parameterName);
         int parameterIndex = int.parse(event.arguments[1].toString());
-        double parameterValue = double.parse(event.arguments[2].toString());
-        parameters[parameterIndex] = [
-          wheelIndex,
+        double parameterValue = double.parse(
+            double.parse(event.arguments[2].toString()).toStringAsFixed(3));
+        parameters[wheelIndex] = [
+          parameterIndex,
           parameterName,
           parameterValue
         ];
@@ -179,11 +197,12 @@ class OSC {
     listenSocket.close();
   }
 
-  void setParameter(String attributeName, double parameterValue) {
-    OSCMessage message =
-        OSCMessage('/eos/cmd', arguments: ['$attributeName $parameterValue#']);
+  void setParameter(String attributeName, String parameterValue) {
+    debugPrint('Setting parameter $attributeName to $parameterValue');
+    OSCMessage message = OSCMessage('/eos/cmd',
+        arguments: ['${attributeName.replaceAll(' ', '_')} $parameterValue#']);
     client.send(message);
-    sleep100();
+    _updateEosOutput();
   }
 
   void setLabel(double cueNumber, String label) {
