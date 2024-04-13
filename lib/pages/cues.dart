@@ -54,7 +54,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
               title: const Text('Current Cue'),
               subtitle: Text(widget.currentCueText),
-              onLongPress: () {
+              onTap: () {
                 editLabel(context, widget.nextCue);
               },
             ),
@@ -66,7 +66,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
               title: const Text('Next Cue'),
               subtitle: Text(widget.nextCueText),
-              onLongPress: () {
+              onTap: () {
                 editLabel(context, widget.nextCue);
               },
             ),
@@ -78,7 +78,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
                 title: const Text('Previous Cue'),
                 subtitle: Text(widget.previousCueText),
-                onLongPress: () {
+                onTap: () {
                   editLabel(context, widget.previousCue);
                 }),
           ),
