@@ -127,6 +127,8 @@ class KeyboardShortcuts extends StatelessWidget {
             LogicalKeyboardKey.control,
             LogicalKeyboardKey.keyX,
           }): () => osc.sendKey('undo'),
+          const SingleActivator(LogicalKeyboardKey.slash): () =>
+              osc.sendKey('/'),
         },
         child: Focus(
           autofocus: true,
