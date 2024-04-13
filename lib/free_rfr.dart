@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:free_rfr/keyboard_shortcuts.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
@@ -54,6 +56,12 @@ class _FreeRFRState extends State<FreeRFR> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    HardwareKeyboard.instance.removeHandler((event) => false);
+  }
+
+  @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
@@ -85,10 +93,13 @@ class _FreeRFRState extends State<FreeRFR> {
         previousCueText: widget.previousCueText,
       ),
     ];
-    return Scaffold(
-      appBar: freeRFRAppBar(context),
-      body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
-      bottomNavigationBar: bottomNavBar(context),
+    return KeyboardShortcuts(
+      osc: widget.osc,
+      child: Scaffold(
+        appBar: freeRFRAppBar(context),
+        body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
+        bottomNavigationBar: bottomNavBar(context),
+      ),
     );
   }
 
