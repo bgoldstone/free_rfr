@@ -23,7 +23,7 @@ class Keypad extends StatelessWidget {
         osc.sendKey('next');
       }, fontSize: 20),
       Button('+', () {
-        osc.sendKey('plus');
+        osc.sendKey('+');
       }, fontSize: 30),
       Button('Thru', () {
         osc.sendKey('thru');
