@@ -23,9 +23,8 @@ class _ParameterEntryState extends State<ParameterEntry> {
   void updateValue(double value) {
     if (currentValue! + value > widget.maxValue ||
         currentValue! + value < widget.minValue) return;
-    String newValue = (currentValue! + value).toStringAsFixed(2);
-    widget.osc.setParameter(widget.attributes[1], newValue);
     currentValue = currentValue! + value;
+    widget.osc.setParamter(widget.attributes[1], currentValue!);
     _updateState();
   }
 
@@ -50,7 +49,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  widget.osc.setMinValue(widget.attributes[1]);
+                  widget.osc.setParameterMin(widget.attributes[1]);
                   currentValue = widget.minValue;
                   _updateState();
                 },
@@ -81,7 +80,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
               child: TextButton(
                 child: Text(currentValue!.toStringAsFixed(2)),
                 onPressed: () {
-                  widget.osc.sendCommand('${widget.attributes[1]} Home#');
+                  widget.osc.setParamterHome(widget.attributes[1]);
                   currentValue = 0;
                 },
               ),
@@ -107,7 +106,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  widget.osc.setMaxValue(widget.attributes[1]);
+                  widget.osc.setParameterMax(widget.attributes[1]);
                   currentValue = widget.maxValue;
                   _updateState();
                 },

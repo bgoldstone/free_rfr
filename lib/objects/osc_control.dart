@@ -203,14 +203,6 @@ class OSC {
     listenSocket.close();
   }
 
-  void setParameter(String attributeName, String parameterValue) {
-    debugPrint('Setting parameter $attributeName to $parameterValue');
-    OSCMessage message = OSCMessage('/eos/cmd',
-        arguments: ['${attributeName.replaceAll(' ', '_')} $parameterValue#']);
-    client.send(message);
-    _updateEosOutput();
-  }
-
   void setLabel(double cueNumber, String label) {
     if (label == '') {
       return;
@@ -303,6 +295,36 @@ class OSC {
     OSCMessage message =
         OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
     client.send(message);
+  }
+
+  void setParamter(String parameter, double value) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    OSCMessage message =
+        OSCMessage('/eos/param/$parameter', arguments: ['$value#']);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void setParameterMax(String parameter) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    OSCMessage message = OSCMessage('/eos/param/$parameter/max', arguments: []);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void setParameterMin(String parameter) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    OSCMessage message = OSCMessage('/eos/param/$parameter/min', arguments: []);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void setParamterHome(String parameter) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    OSCMessage message =
+        OSCMessage('/eos/param/$parameter/home', arguments: []);
+    client.send(message);
+    _updateEosOutput();
   }
 }
 
