@@ -43,6 +43,12 @@ class OSC {
     _setUDPTXIP();
   }
 
+  void sendCommand(String command) async {
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [command]);
+    await client.send(message);
+    _updateEosOutput();
+  }
+
   void _setUDPTXIP() async {
     List<NetworkInterface> list = await NetworkInterface.list();
     List<String> addresses = [];
@@ -136,8 +142,7 @@ class OSC {
             .trim();
         debugPrint(parameterName);
         int parameterIndex = int.parse(event.arguments[1].toString());
-        double parameterValue = double.parse(
-            double.parse(event.arguments[2].toString()).toStringAsFixed(3));
+        double parameterValue = double.parse(event.arguments[2].toString());
         parameters[wheelIndex] = [
           parameterIndex,
           parameterName,
