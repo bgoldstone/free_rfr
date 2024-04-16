@@ -185,6 +185,7 @@ class _FreeRFRState extends State<FreeRFR> {
         pageBuilder: (context, anim1, anim2) {
           return Scaffold(
             appBar: AppBar(
+                automaticallyImplyLeading: false,
                 title: TextButton(
                   onPressed: () {
                     AlertDialog alert = AlertDialog(
