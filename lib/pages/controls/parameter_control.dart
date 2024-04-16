@@ -45,30 +45,30 @@ class _ParameterControlState extends State<ParameterControl> {
     if (newParameterList.isEmpty) {
       return const Empty();
     }
-    return SingleChildScrollView(
-      child: Column(
-        children: newParameterList.map((parameters) {
-          if (parameters[1].startsWith("Pan")) {
-            return ParameterEntry(
-              osc: widget.osc,
-              attributes: parameters,
-              minValue: widget.currentChannel[20]![0],
-              maxValue: widget.currentChannel[20]![1],
-            );
-          } else if (parameters[1].startsWith("Tilt")) {
-            return ParameterEntry(
-              osc: widget.osc,
-              attributes: parameters,
-              minValue: widget.currentChannel[20]![2],
-              maxValue: widget.currentChannel[20]![3],
-            );
-          }
+    return ListView.builder(
+      itemCount: newParameterList.length,
+      itemBuilder: (context, index) {
+        List<dynamic> parameters = newParameterList[index];
+        if (parameters[1].startsWith("Pan")) {
           return ParameterEntry(
             osc: widget.osc,
             attributes: parameters,
+            minValue: widget.currentChannel[20]![0],
+            maxValue: widget.currentChannel[20]![1],
           );
-        }).toList(),
-      ),
+        } else if (parameters[1].startsWith("Tilt")) {
+          return ParameterEntry(
+            osc: widget.osc,
+            attributes: parameters,
+            minValue: widget.currentChannel[20]![2],
+            maxValue: widget.currentChannel[20]![3],
+          );
+        }
+        return ParameterEntry(
+          osc: widget.osc,
+          attributes: parameters,
+        );
+      },
     );
   }
 }
