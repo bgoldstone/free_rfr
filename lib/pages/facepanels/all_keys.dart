@@ -20,12 +20,12 @@ class AllKeys extends StatelessWidget {
         Expanded(
             child: Target(
           osc: osc,
-          scale: .65,
+          scale: .67,
         )),
         Expanded(
             child: AdditionalKeys(
           osc: osc,
-          scale: .53,
+          scale: .54,
         )),
       ],
     );
