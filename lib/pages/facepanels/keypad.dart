@@ -6,7 +6,12 @@ import 'package:free_rfr/widgets/grid.dart';
 class Keypad extends StatelessWidget {
   final OSC osc;
   final bool isKeypadWindow;
-  const Keypad({super.key, required this.osc, this.isKeypadWindow = false});
+  final double scale;
+  const Keypad(
+      {super.key,
+      required this.osc,
+      this.isKeypadWindow = false,
+      this.scale = 2});
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +122,6 @@ class Keypad extends StatelessWidget {
         isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return Grid(4, keypad, 2);
+    return Grid(4, keypad, scale);
   }
 }

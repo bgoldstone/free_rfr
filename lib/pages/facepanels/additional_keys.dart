@@ -5,7 +5,8 @@ import 'package:free_rfr/widgets/grid.dart';
 
 class AdditionalKeys extends StatelessWidget {
   final OSC osc;
-  const AdditionalKeys({required this.osc, super.key});
+  final double scale;
+  const AdditionalKeys({required this.osc, super.key, this.scale = 1.8});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,6 @@ class AdditionalKeys extends StatelessWidget {
         osc.sendKey('undo');
       }, fontSize: 30),
     ];
-    return Grid(3, additionalKeys, 1.8);
+    return Grid(3, additionalKeys, scale);
   }
 }

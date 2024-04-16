@@ -6,7 +6,8 @@ import '../../widgets/grid.dart';
 
 class Target extends StatelessWidget {
   final OSC osc;
-  const Target({required this.osc, super.key});
+  final double scale;
+  const Target({required this.osc, super.key, this.scale = 2.22});
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +82,6 @@ class Target extends StatelessWidget {
         osc.sendKey('enter');
       }, fontSize: 30),
     ];
-    return Grid(3, targets, 2.22);
+    return Grid(3, targets, scale);
   }
 }
