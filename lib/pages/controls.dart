@@ -8,10 +8,12 @@ class Controls extends StatefulWidget {
   final OSC osc;
   final ParameterList currentChannel;
   final List<double> hueSaturation;
+  final String commandLine;
   const Controls(
       {required this.osc,
       required this.currentChannel,
       required this.hueSaturation,
+      required this.commandLine,
       super.key});
 
   @override
@@ -27,6 +29,7 @@ class _ControlsState extends State<Controls> {
       ParameterControl(
         currentChannel: widget.currentChannel,
         osc: widget.osc,
+        commandLine: widget.commandLine,
       ),
       ColorControl(widget.osc,
           currentChannel: widget.currentChannel,

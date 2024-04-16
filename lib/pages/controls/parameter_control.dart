@@ -8,10 +8,12 @@ import 'package:free_rfr/widgets/parameter_entry.dart';
 class ParameterControl extends StatefulWidget {
   final ParameterList currentChannel;
   final OSC osc;
+  final String commandLine;
   const ParameterControl({
     super.key,
     required this.currentChannel,
     required this.osc,
+    required this.commandLine,
   });
 
   @override
@@ -22,6 +24,11 @@ class _ParameterControlState extends State<ParameterControl> {
   List<String> parameters = [];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.currentChannel.isEmpty) {
       return const Empty();
@@ -29,7 +36,6 @@ class _ParameterControlState extends State<ParameterControl> {
     List<List<dynamic>> newParameterList = [];
     for (MapEntry<int, List<dynamic>> parameter
         in widget.currentChannel.entries) {
-      debugPrint(parameter.toString());
       if (parameter.key != 20) {
         setState(() {
           newParameterList.add(parameter.value);
@@ -42,6 +48,21 @@ class _ParameterControlState extends State<ParameterControl> {
     return SingleChildScrollView(
       child: Column(
         children: newParameterList.map((parameters) {
+          if (parameters[1].startsWith("Pan")) {
+            return ParameterEntry(
+              osc: widget.osc,
+              attributes: parameters,
+              minValue: widget.currentChannel[20]![0],
+              maxValue: widget.currentChannel[20]![1],
+            );
+          } else if (parameters[1].startsWith("Tilt")) {
+            return ParameterEntry(
+              osc: widget.osc,
+              attributes: parameters,
+              minValue: widget.currentChannel[20]![2],
+              maxValue: widget.currentChannel[20]![3],
+            );
+          }
           return ParameterEntry(
             osc: widget.osc,
             attributes: parameters,
