@@ -175,6 +175,30 @@ class _FreeRFRState extends State<FreeRFR> {
           icon: const Icon(Icons.dialpad_rounded),
         ),
         clearCommandLine,
+        IconButton(
+            onPressed: () => showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Shut Down Eos Console'),
+                    content: const Text(
+                        'Are you sure you want to shut down your Eos Console?'),
+                    actions: [
+                      TextButton(
+                          onPressed: (() => Navigator.of(context).pop()),
+                          child: const Text('Cancel')),
+                      TextButton(
+                          onPressed: () {
+                            widget.osc.sendKey('multiconsole_power_off');
+                            widget.osc.sendKey('enter');
+                            Navigator.pop(context);
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK')),
+                    ],
+                  );
+                }),
+            icon: const Icon(Icons.power_settings_new))
       ],
     );
   }
