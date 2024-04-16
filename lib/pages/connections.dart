@@ -106,9 +106,7 @@ class _ConnectionsState extends State<Connections> {
                               config['connections'][index], currentConnection);
                           Navigator.of(context).pushNamed('/home');
                         },
-                        tileColor: index == currentConnection
-                            ? Colors.blueGrey
-                            : Colors.grey,
+                        tileColor: Colors.grey,
                       ),
                     ),
                     onDismissed: (direction) {
