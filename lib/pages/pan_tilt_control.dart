@@ -71,61 +71,63 @@ class _PanTiltControlState extends State<PanTiltControl> {
     center = size!.center(Offset.zero);
     var top = size!.height / 2 - tiltSize! / 2 + 10;
     var left = size!.width / 2 - panSize! / 2 + 10;
-    if (panSize! + 20 > size!.width || tiltSize! + 20 > size!.height) {
+    if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
       return const Center(
           child: Text('Screen too small to support Pan Tilt Grid Control.'));
     }
-    return Stack(
-      children: [
-        // Empty box
-        Positioned(
-          top: top,
-          left: left,
-          child: GestureDetector(
-            child: Container(
-              height: tiltSize!,
-              width: panSize!,
-              decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).primaryColor)),
+    return Center(
+      child: Stack(
+        children: [
+          // Empty box
+          Positioned(
+            top: top,
+            left: left,
+            child: GestureDetector(
+              child: Container(
+                height: tiltSize!,
+                width: panSize!,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).primaryColor)),
+              ),
+              // TODO: Fix tap on box
+              // onTapDown: (details) {
+              //   setState(() {
+              //     debugPrint(details.localPosition.toString());
+              //     x = double.parse(
+              //         (details.localPosition.dx - center!.dx / 2 - 60)
+              //             .toStringAsFixed(3));
+              //     y = double.parse(
+              //         (details.localPosition.dy - center!.dy / 2 + 60)
+              //             .toStringAsFixed(3));
+              //   });
+              // },
             ),
-            // TODO: Fix tap on box
-            // onTapDown: (details) {
-            //   setState(() {
-            //     debugPrint(details.localPosition.toString());
-            //     x = double.parse(
-            //         (details.localPosition.dx - center!.dx / 2 - 60)
-            //             .toStringAsFixed(3));
-            //     y = double.parse(
-            //         (details.localPosition.dy - center!.dy / 2 + 60)
-            //             .toStringAsFixed(3));
-            //   });
-            // },
           ),
-        ),
 
-        // Point
-        Positioned(
-          top: center!.dy + y!,
-          left: center!.dx + x!,
-          child: GestureDetector(
-            onPanUpdate: _onPanUpdate,
-            onPanEnd: _onPanEnd, // Update position on drag
-            child: Container(
-              width: 20.0, // Adjust size of the point
-              height: 20.0,
-              decoration: const BoxDecoration(
-                color: Colors.white, // Color of the point
-                shape: BoxShape.circle,
+          // Point
+          Positioned(
+            top: center!.dy + y!,
+            left: center!.dx + x!,
+            child: GestureDetector(
+              onPanUpdate: _onPanUpdate,
+              onPanEnd: _onPanEnd, // Update position on drag
+              child: Container(
+                width: 20.0, // Adjust size of the point
+                height: 20.0,
+                decoration: const BoxDecoration(
+                  color: Colors.white, // Color of the point
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          bottom: 15,
-          left: size!.width / 2 - 50,
-          child: Text("Pan: $x, Tilt: ${y! * -1}"),
-        )
-      ],
+          Positioned(
+            bottom: 15,
+            left: size!.width / 2 - 50,
+            child: Text("Pan: $x, Tilt: ${y! * -1}"),
+          )
+        ],
+      ),
     );
   }
 }
