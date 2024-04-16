@@ -22,17 +22,18 @@ class OSC {
   late final OSCSocket client;
 
   OSC(
-      this.hostIP,
-      this.setCurrentChannel,
-      this.setCommandLine,
-      this.setCurrentCueList,
-      this.setCurrentCue,
-      this.setCurrentCueText,
-      this.setPreviousCue,
-      this.setPreviousCueText,
-      this.setNextCue,
-      this.setNextCueText,
-      this.setHueSaturation) {
+    this.hostIP,
+    this.setCurrentChannel,
+    this.setCommandLine,
+    this.setCurrentCueList,
+    this.setCurrentCue,
+    this.setCurrentCueText,
+    this.setPreviousCue,
+    this.setPreviousCueText,
+    this.setNextCue,
+    this.setNextCueText,
+    this.setHueSaturation,
+  ) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);

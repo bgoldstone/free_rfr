@@ -110,17 +110,18 @@ class _MyAppState extends State<MyApp> {
       activeConnection = connection;
       currentConnectionIndex = index;
       osc = OSC(
-          InternetAddress(activeConnection['ip']),
-          setCurrentChannel,
-          setCommandLine,
-          setCurrentCueList,
-          setCurrentCue,
-          setCurrentCueText,
-          setPreviousCue,
-          setPreviousCueText,
-          setNextCue,
-          setNextCueText,
-          setHueSaturation);
+        InternetAddress(activeConnection['ip']),
+        setCurrentChannel,
+        setCommandLine,
+        setCurrentCueList,
+        setCurrentCue,
+        setCurrentCueText,
+        setPreviousCue,
+        setPreviousCueText,
+        setNextCue,
+        setNextCueText,
+        setHueSaturation,
+      );
       isOSCInitialized = true;
     });
   }
