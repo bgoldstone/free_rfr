@@ -63,6 +63,15 @@ class _FreeRFRState extends State<FreeRFR> {
 
   @override
   Widget build(BuildContext context) {
+    IconButton clearCommandLine = IconButton(
+      icon: const Icon(Icons.backspace),
+      color: MediaQuery.of(context).platformBrightness == Brightness.dark
+          ? Colors.white
+          : Colors.black,
+      onPressed: () {
+        widget.osc.sendKey('clear_cmdline');
+      },
+    );
     List<Widget> pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
       Controls(
@@ -70,6 +79,7 @@ class _FreeRFRState extends State<FreeRFR> {
         osc: widget.osc,
         currentChannel: widget.currentChannel,
         hueSaturation: widget.hueSaturation,
+        commandLine: widget.commandLine,
       ),
       PanTiltControl(
         minPan: widget.currentChannel[20]?[0] ?? 0,
@@ -96,7 +106,7 @@ class _FreeRFRState extends State<FreeRFR> {
     return KeyboardShortcuts(
       osc: widget.osc,
       child: Scaffold(
-        appBar: freeRFRAppBar(context),
+        appBar: freeRFRAppBar(context, clearCommandLine),
         body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
         bottomNavigationBar: bottomNavBar(context),
       ),
@@ -126,7 +136,7 @@ class _FreeRFRState extends State<FreeRFR> {
     );
   }
 
-  AppBar freeRFRAppBar(BuildContext context) {
+  AppBar freeRFRAppBar(BuildContext context, IconButton clearCommandLine) {
     return AppBar(
       title: TextButton(
         onPressed: () {
@@ -157,56 +167,61 @@ class _FreeRFRState extends State<FreeRFR> {
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              return keypadWindow(context);
-            }));
+            keypadWindow(context, clearCommandLine);
+            // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            //   return keypadWindow(context);
+            // }));
           },
           icon: const Icon(Icons.dialpad_rounded),
         ),
-        IconButton(
-          icon: const Icon(Icons.backspace),
-          color: MediaQuery.of(context).platformBrightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-          onPressed: () {
-            widget.osc.sendKey('clear_cmdline');
-          },
-        ),
+        clearCommandLine,
       ],
     );
   }
 
-  Scaffold keypadWindow(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: TextButton(
-          onPressed: () {
-            AlertDialog alert = AlertDialog(
-              title: const Text('Command Line'),
-              content: Text(widget.commandLine),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK')),
-              ],
-            );
-            showDialog(context: context, builder: (context) => alert);
-          },
-          child: Text(
-            widget.commandLine,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              color: widget.commandLine.startsWith('BLIND')
-                  ? Colors.blue
-                  : Theme.of(context).primaryColor,
-              fontSize: 15,
+  void keypadWindow(BuildContext context, IconButton clearCommandLine) {
+    showGeneralDialog(
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return Scaffold(
+            appBar: AppBar(
+                title: TextButton(
+                  onPressed: () {
+                    AlertDialog alert = AlertDialog(
+                      title: const Text('Command Line'),
+                      content: Text(widget.commandLine),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK')),
+                      ],
+                    );
+                    showDialog(context: context, builder: (context) => alert);
+                  },
+                  child: Text(
+                    widget.commandLine,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: widget.commandLine.startsWith('BLIND')
+                          ? Colors.blue
+                          : Theme.of(context).primaryColor,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                actions: [
+                  clearCommandLine,
+                  IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close))
+                ]),
+            body: Keypad(
+              osc: widget.osc,
+              isKeypadWindow: true,
             ),
-          ),
-        ),
-      ),
-      body: Keypad(osc: widget.osc),
-    );
+          );
+        });
   }
 }
