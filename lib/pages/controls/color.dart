@@ -40,23 +40,7 @@ class _ColorControlState extends State<ColorControl> {
           enableAlpha: false,
           paletteType: PaletteType.hueWheel,
         ),
-        // TODO: implement this page.
-        // ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.of(context).push(
-        //         MaterialPageRoute(
-        //           builder: (context) => colorSliderControl(widget.osc),
-        //         ),
-        //       );
-        //     },
-        //     child: const Text("Color Sliders")),
       ]),
     );
   }
-}
-
-Widget colorSliderControl(OSC osc) {
-  return Scaffold(
-      appBar: AppBar(title: const Text('Color Adjustments')),
-      body: const Row());
 }
