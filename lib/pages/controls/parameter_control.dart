@@ -64,6 +64,9 @@ class _ParameterControlState extends State<ParameterControl> {
             maxValue: widget.currentChannel[20]![3],
           );
         }
+        if (parameters[1] == '') {
+          return null;
+        }
         return ParameterEntry(
           osc: widget.osc,
           attributes: parameters,
