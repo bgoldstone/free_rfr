@@ -71,6 +71,7 @@ class Target extends StatelessWidget {
         osc.sendKey(
           'save',
         );
+        osc.sendKey('enter');
       }, fontSize: 30),
       Button('Last', () {
         osc.sendKey('last');

@@ -90,8 +90,10 @@ class KeyboardShortcuts extends StatelessWidget {
           const SingleActivator(LogicalKeyboardKey.keyE): () =>
               osc.sendKey("recall_from"),
           LogicalKeySet.fromSet(
-                  {LogicalKeyboardKey.shift, LogicalKeyboardKey.keyU}):
-              () => osc.sendKey('save'),
+              {LogicalKeyboardKey.shift, LogicalKeyboardKey.keyU}): () {
+            osc.sendKey('save');
+            osc.sendKey('enter');
+          },
           const SingleActivator(LogicalKeyboardKey.keyU): () =>
               osc.sendKey('update'),
           const SingleActivator(LogicalKeyboardKey.keyX): () =>
