@@ -31,8 +31,8 @@ class _FacePanelState extends State<FacePanel> {
         osc: widget.osc,
       )
     ];
-
-    bool isWide = size!.width > 1000;
+    debugPrint(size!.width.toString());
+    bool isWide = size!.width > 1200;
     return Scaffold(
       body: pages.isEmpty
           ? const CircularProgressIndicator()

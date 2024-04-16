@@ -19,7 +19,7 @@ class Keypad extends StatelessWidget {
       Button('Go To Cue', () {
         osc.sendKey('go_to_cue');
       }, fontSize: 17.4),
-      Button('Addr', () {
+      Button('Address', () {
         osc.sendKey('address');
       }, fontSize: 20),
       Button('Last', () {
@@ -37,7 +37,7 @@ class Keypad extends StatelessWidget {
       Button('-', () {
         osc.sendKey('-');
       }, fontSize: 30),
-      Button('Grp', () {
+      Button('Group', () {
         osc.sendKey('group');
       }, fontSize: 20),
       Button(

@@ -23,13 +23,28 @@ class Button extends StatelessWidget {
         style: buttonStyle,
         child: FittedBox(
           fit: BoxFit.fill,
-          child: Text(
-            text,
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: (fontSize! * aspectRatio * 1.5)),
-          ),
+          child: text.length > 10
+              ? Column(
+                  children: text
+                      .split(' ')
+                      .map(
+                        (e) => Text(
+                          e,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: (fontSize! * aspectRatio * 1.5)),
+                          maxLines: null,
+                        ),
+                      )
+                      .toList())
+              : Text(
+                  text,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: (fontSize! * aspectRatio * 1.5)),
+                ),
         ),
       ),
     );
