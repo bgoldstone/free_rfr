@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:free_rfr/keyboard_shortcuts.dart';
+import 'package:free_rfr/widgets/keyboard_shortcuts.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
