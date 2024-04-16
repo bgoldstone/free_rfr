@@ -19,20 +19,24 @@ class ParameterEntry extends StatefulWidget {
 }
 
 class _ParameterEntryState extends State<ParameterEntry> {
-  double currentValue = 0;
-
+  double? currentValue;
   void updateValue(double value) {
-    String newValue = (currentValue + value).toStringAsFixed(2);
+    if (currentValue! + value > widget.maxValue ||
+        currentValue! + value < widget.minValue) return;
+    String newValue = (currentValue! + value).toStringAsFixed(2);
     widget.osc.setParameter(widget.attributes[1], newValue);
-    currentValue += value;
+    currentValue = currentValue! + value;
     _updateState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    debugPrint(widget.attributes.toString());
+  void initState() {
+    super.initState();
     currentValue = widget.attributes[2];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: FittedBox(
         child: Row(
@@ -47,6 +51,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
               child: ElevatedButton(
                 onPressed: () {
                   widget.osc.setMinValue(widget.attributes[1]);
+                  currentValue = widget.minValue;
                   _updateState();
                 },
                 child: const Text(
@@ -73,7 +78,13 @@ class _ParameterEntryState extends State<ParameterEntry> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(currentValue.toString()),
+              child: TextButton(
+                child: Text(currentValue!.toStringAsFixed(2)),
+                onPressed: () {
+                  widget.osc.sendCommand('${widget.attributes[1]} Home#');
+                  currentValue = 0;
+                },
+              ),
             ),
             GestureDetector(
               child: Padding(
@@ -97,6 +108,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
               child: ElevatedButton(
                 onPressed: () {
                   widget.osc.setMaxValue(widget.attributes[1]);
+                  currentValue = widget.maxValue;
                   _updateState();
                 },
                 child: const Text(
@@ -111,6 +123,7 @@ class _ParameterEntryState extends State<ParameterEntry> {
   }
 
   void _updateState() {
+    debugPrint(currentValue.toString());
     setState(() {});
   }
 }

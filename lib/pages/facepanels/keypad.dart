@@ -5,7 +5,8 @@ import 'package:free_rfr/widgets/grid.dart';
 
 class Keypad extends StatelessWidget {
   final OSC osc;
-  const Keypad({super.key, required this.osc});
+  final bool isKeypadWindow;
+  const Keypad({super.key, required this.osc, this.isKeypadWindow = false});
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +114,7 @@ class Keypad extends StatelessWidget {
       }, fontSize: 30),
       Button('Enter', () {
         osc.sendKey('enter');
+        isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
     return Grid(4, keypad, 2);
