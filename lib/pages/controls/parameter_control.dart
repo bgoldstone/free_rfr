@@ -34,8 +34,11 @@ class _ParameterControlState extends State<ParameterControl> {
       return const Empty();
     }
     List<List<dynamic>> newParameterList = [];
-    for (MapEntry<int, List<dynamic>> parameter
+    for (MapEntry<dynamic, List<dynamic>> parameter
         in widget.currentChannel.entries) {
+      if (parameter.key is String) {
+        continue;
+      }
       if (parameter.key != 20) {
         setState(() {
           newParameterList.add(parameter.value);
@@ -66,6 +69,19 @@ class _ParameterControlState extends State<ParameterControl> {
         }
         if (parameters[1] == '') {
           return null;
+        }
+        String paramNameUnderscored = parameters[1].contains('/')
+            ? null
+            : parameters[1].toLowerCase().replaceAll(" ", "_");
+        List<dynamic>? paramExist = widget.currentChannel[paramNameUnderscored];
+        if (paramExist != null && paramExist.length == 3) {
+          return ParameterEntry(
+            osc: widget.osc,
+            attributes: parameters,
+            minValue: paramExist[1],
+            maxValue: paramExist[2],
+            isParam: true,
+          );
         }
         return ParameterEntry(
           osc: widget.osc,

@@ -6,12 +6,14 @@ class ParameterEntry extends StatefulWidget {
   final List<dynamic> attributes;
   final double minValue;
   final double maxValue;
+  final bool isParam;
   const ParameterEntry({
     super.key,
     required this.osc,
     required this.attributes,
     this.minValue = 0,
     this.maxValue = 100,
+    this.isParam = false,
   });
 
   @override
@@ -24,7 +26,10 @@ class _ParameterEntryState extends State<ParameterEntry> {
     if (currentValue! + value > widget.maxValue ||
         currentValue! + value < widget.minValue) return;
     currentValue = currentValue! + value;
-    widget.osc.setParamter(widget.attributes[1], currentValue!);
+    widget.isParam
+        ? widget.osc.setParamter(widget.attributes[1], currentValue!)
+        : widget.osc
+            .setParamString(widget.attributes[1], currentValue!.toString());
     _updateState();
   }
 
@@ -42,27 +47,26 @@ class _ParameterEntryState extends State<ParameterEntry> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('${widget.attributes[1]}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: TextButton(
+                child: Text('${widget.attributes[1]}',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: () =>
+                    widget.osc.sendCommandNoEnter(widget.attributes[1]),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  widget.osc.setParameterMin(widget.attributes[1]);
+                  widget.isParam
+                      ? widget.osc.setParameterMin(widget.attributes[1])
+                      : widget.osc.setParamMinString(widget.attributes[1]);
                   currentValue = widget.minValue;
                   _updateState();
                 },
                 child: const Text(
                   'Min',
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: IconButton(
-                onPressed: () => updateValue(-0.1),
-                icon: const Icon(Icons.keyboard_arrow_left),
               ),
             ),
             GestureDetector(
@@ -77,12 +81,26 @@ class _ParameterEntryState extends State<ParameterEntry> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                onPressed: () => updateValue(-0.1),
+                icon: const Icon(Icons.keyboard_arrow_left),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: TextButton(
                 child: Text(currentValue!.toStringAsFixed(2)),
                 onPressed: () {
                   widget.osc.setParamterHome(widget.attributes[1]);
                   currentValue = 0;
                 },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                onPressed: () => updateValue(0.1),
+                icon: const Icon(Icons.keyboard_arrow_right),
               ),
             ),
             GestureDetector(
@@ -97,16 +115,11 @@ class _ParameterEntryState extends State<ParameterEntry> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: IconButton(
-                onPressed: () => updateValue(0.1),
-                icon: const Icon(Icons.keyboard_arrow_right),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: () {
-                  widget.osc.setParameterMax(widget.attributes[1]);
+                  widget.isParam
+                      ? widget.osc.setParameterMax(widget.attributes[1])
+                      : widget.osc.setParamMaxString(widget.attributes[1]);
                   currentValue = widget.maxValue;
                   _updateState();
                 },

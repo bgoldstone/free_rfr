@@ -149,6 +149,10 @@ class OSC {
           parameterName,
           parameterValue
         ];
+        if (!parameterName.contains('/')) {
+          _subscribeToParameter(
+              parameterName.toLowerCase().replaceAll(' ', '_'));
+        }
         wheelIndex++;
       } else if (event.address.startsWith('/eos/out/pantilt') &&
           event.arguments.isNotEmpty) {
@@ -196,6 +200,9 @@ class OSC {
         } catch (e) {
           setPreviousCue(0);
         }
+      } else if (event.address.startsWith('/eos/out/param/')) {
+        //current Value, min Value, max Value
+        parameters[event.address.split('/').last] = event.arguments;
       }
 
       setCurrentChannel(parameters);
@@ -297,12 +304,48 @@ class OSC {
     client.send(message);
   }
 
+  void _subscribeToParameter(String parameter) {
+    OSCMessage message =
+        OSCMessage('/eos/subscribe/param/$parameter', arguments: [1]);
+    client.send(message);
+  }
+
   void setParamter(String parameter, double value) {
     parameter = parameter.toLowerCase().replaceAll(' ', '_');
     OSCMessage message =
-        OSCMessage('/eos/param/$parameter', arguments: ['$value#']);
+        OSCMessage('/eos/param/$parameter', arguments: ['$value']);
     client.send(message);
     _updateEosOutput();
+  }
+
+  void sendCommandNoEnter(String command) {
+    if (command == 'Gobo Ind') command = 'Gobo Index/Speed';
+    if (command == 'Beam Fx Ind') command = 'Beam Fx Index/Speed';
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [command]);
+    client.send(message);
+  }
+
+  void setParamString(String parameter, String value) {
+    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
+    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter $value#']);
+    client.send(message);
+  }
+
+  void setParamMaxString(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
+    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter Full#']);
+    client.send(message);
+  }
+
+  void setParamMinString(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
+    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: ['$parameter Min#']);
+    client.send(message);
   }
 
   void setParameterMax(String parameter) {
