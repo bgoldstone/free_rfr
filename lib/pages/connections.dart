@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/helpers/discovery.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Connections extends StatefulWidget {
   final void Function(Map<String, dynamic> activeConnection, int index)
       setActiveConnection;
   final int currentConnectionIndex;
-  const Connections(this.setActiveConnection,
+  // ignore: prefer_const_constructors_in_immutables
+  Connections(this.setActiveConnection,
       {super.key, required this.currentConnectionIndex});
 
   @override
@@ -29,10 +31,11 @@ class _ConnectionsState extends State<Connections> {
 
   Future<bool> getConfig() async {
     path = await getApplicationDocumentsDirectory();
-    if (!path.existsSync()) {
-      path.createSync(recursive: true);
+    final newPath = Directory('${path.path}/FreeRFR');
+    if (!newPath.existsSync()) {
+      newPath.createSync(recursive: true);
     }
-    File file = File('${path.path}/$configFile');
+    File file = File('${newPath.path}/$configFile');
     if (!file.existsSync()) {
       file.createSync();
       file.writeAsString(jsonEncode(config), encoding: utf8);
@@ -40,10 +43,26 @@ class _ConnectionsState extends State<Connections> {
     }
     file.readAsString(encoding: utf8).then((data) {
       config = jsonDecode(data);
-      setState(() {
-        config = config;
-      });
     });
+
+    List<String>? discoveredHosts = await getHosts();
+
+    for (String ip in discoveredHosts) {
+      debugPrint("Found discovered host: $ip");
+      InternetAddress host = await InternetAddress(ip).reverse();
+      bool exists = false;
+      for (Map<String, dynamic> connection in config['connections']) {
+        if (connection['ip'] == host.host) {
+          exists = true;
+        }
+      }
+      if (!exists) {
+        config['connections'].add({
+          'name': '${host.host} (Auto Discovery)',
+          'ip': ip,
+        });
+      }
+    }
 
     return true;
   }
