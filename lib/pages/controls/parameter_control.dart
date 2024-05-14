@@ -67,7 +67,9 @@ class _ParameterControlState extends State<ParameterControl> {
             maxValue: widget.currentChannel[20]![3],
           );
         }
-        if (parameters[1] == '') {
+        if (parameters[1] == '' ||
+            parameters[1] == 'Macros' ||
+            parameters[1].contains('Ind')) {
           return null;
         }
         String paramNameUnderscored = parameters[1].contains('/')

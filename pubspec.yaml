@@ -41,6 +41,8 @@ dependencies:
   material_symbols_icons: ^4.2719.3
   wheel_slider: ^1.2.1
   shared_preferences: ^2.2.3
+  url_launcher: ^6.2.6
+  font_awesome_flutter: ^10.7.0
   
 
 dev_dependencies:
