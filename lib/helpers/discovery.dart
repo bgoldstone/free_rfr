@@ -35,17 +35,15 @@ Future<List<String>> discoverHosts(int timeout) async {
       debugPrint("Checking IP address: $address");
       try {
         // Create a socket connection with a timeout
-        Socket socket = await Socket.connect(address, 3002,
+        Socket socket = await Socket.connect(address, 3037,
             timeout: Duration(milliseconds: timeout));
         sleep(Duration(milliseconds: timeout));
         await socket.close();
-        debugPrint("Connected to $address:8000");
+        debugPrint("Connected to $address:3037");
         discoveredHosts.add(address);
 
         // Attempt reverse lookup to get hostname (optional)
-      } on SocketException catch (e) {
-        debugPrint("Cannot connect to $address:8000${e.message}");
-      }
+      } on SocketException catch (_) {}
     }
   }
 

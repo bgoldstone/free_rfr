@@ -369,6 +369,17 @@ class OSC {
     client.send(message);
     _updateEosOutput();
   }
+
+  void shutdownMultiConsole() {
+    sendKey('multiconsole_power_off');
+    sendKey('confirm_command');
+    sleep(const Duration(milliseconds: 500));
+    try {
+      sendKey('quit');
+      sendKey('confirm_command');
+    } catch (_) {}
+    _setUDPTXIPDefault();
+  }
 }
 
 bool isPrivateIPAddress(String string) {

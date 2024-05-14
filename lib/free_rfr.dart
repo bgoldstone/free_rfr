@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/widgets/keyboard_shortcuts.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
@@ -81,6 +82,7 @@ class _FreeRFRState extends State<FreeRFR> {
         hueSaturation: widget.hueSaturation,
         commandLine: widget.commandLine,
       ),
+      ChannelCheck(osc: widget.osc),
       PanTiltControl(
         minPan: widget.currentChannel[20]?[0] ?? 0,
         maxPan: widget.currentChannel[20]?[1] ?? 0,
@@ -118,6 +120,10 @@ class _FreeRFRState extends State<FreeRFR> {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.keyboard), label: 'Facepanel'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Controls'),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.lightbulb),
+            label: 'Channel Check',
+            tooltip: 'Channel Check'),
         BottomNavigationBarItem(
             icon: Icon(Symbols.point_scan), label: 'Pan/Tilt Control'),
         BottomNavigationBarItem(
@@ -189,8 +195,7 @@ class _FreeRFRState extends State<FreeRFR> {
                           child: const Text('Cancel')),
                       TextButton(
                           onPressed: () {
-                            widget.osc.sendKey('multiconsole_power_off');
-                            widget.osc.sendKey('enter');
+                            widget.osc.shutdownMultiConsole();
                             Navigator.pop(context);
                             Navigator.of(context).pop();
                           },

@@ -40,6 +40,7 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   material_symbols_icons: ^4.2719.3
   wheel_slider: ^1.2.1
+  shared_preferences: ^2.2.3
   
 
 dev_dependencies:
@@ -77,8 +78,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/osc_config.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

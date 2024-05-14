@@ -47,12 +47,14 @@ class _ParameterEntryState extends State<ParameterEntry> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: TextButton(
-                child: Text('${widget.attributes[1]}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                onPressed: () =>
-                    widget.osc.sendCommandNoEnter(widget.attributes[1]),
-              ),
+              // child: TextButton(
+              //   child: Text('${widget.attributes[1]}',
+              //       style: const TextStyle(fontWeight: FontWeight.bold)),
+              //   onPressed: () => widget.osc
+              //       .sendCommandNoEnter('/eos/wheel/${widget.attributes[1]}'),
+              // ),
+              child: Text('${widget.attributes[1]}',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
