@@ -9,16 +9,16 @@ class OSC {
   final InternetAddress hostIP;
   final int hostPort = 8000;
   final int clientPort = 8001;
-  final Function(ParameterList) setCurrentChannel;
-  final Function(String) setCommandLine;
-  final void Function(int) setCurrentCueList;
-  final void Function(double) setCurrentCue;
-  final void Function(String) setCurrentCueText;
-  final void Function(double) setPreviousCue;
-  final void Function(String) setPreviousCueText;
-  final void Function(double) setNextCue;
-  final void Function(String) setNextCueText;
-  final void Function(double, double) setHueSaturation;
+  final Function(ParameterList)? setCurrentChannel;
+  final Function(String)? setCommandLine;
+  final void Function(int)? setCurrentCueList;
+  final void Function(double)? setCurrentCue;
+  final void Function(String)? setCurrentCueText;
+  final void Function(double)? setPreviousCue;
+  final void Function(String)? setPreviousCueText;
+  final void Function(double)? setNextCue;
+  final void Function(String)? setNextCueText;
+  final void Function(double, double)? setHueSaturation;
   late final OSCSocket client;
 
   OSC(
@@ -43,6 +43,17 @@ class OSC {
     _setUDPTXIP();
   }
 
+  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
+    client = OSCSocket(destination: hostIP, destinationPort: hostPort);
+    OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
+    client.send(message);
+    message = OSCMessage('/eos/ping', arguments: ['free rfr']);
+    client.send(message);
+    OSCSocket(destinationPort: 8001).listen((msg) {});
+    _updateEosOutput();
+    _setUDPTXIP();
+    }
+
   void _setUDPTXIP() async {
     List<NetworkInterface> list = await NetworkInterface.list();
     List<String> addresses = [];
@@ -61,7 +72,7 @@ class OSC {
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
-        setCommandLine('${event.arguments[0]}');
+        setCommandLine!('${event.arguments[0]}');
         debugPrint(event.arguments[0].toString());
       }
     });
@@ -90,12 +101,14 @@ class OSC {
     client.send(message);
   }
 
-  void sendKey(String key) async {
+  void sendKey(String key, {bool withUpdate = true}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
     sleep100();
-    _updateEosOutput();
+    if(withUpdate){
+      _updateEosOutput();
+    }
   }
 
   void _updateEosOutput() {
@@ -109,7 +122,7 @@ class OSC {
     listenSocket.listen((event) {
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
-        setCommandLine('${event.arguments[0]}');
+        setCommandLine!('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
         String parameterName = event.arguments[0].toString().split(" ")[0];
         int parameterIndex = int.parse(event.arguments[1].toString());
@@ -129,35 +142,35 @@ class OSC {
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
-        setHueSaturation(hue, saturation);
+        setHueSaturation!(hue, saturation);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
-          setCurrentCueText(text);
+          setCurrentCueText!(text);
         } else {
-          setCurrentCueText('');
+          setCurrentCueText!('');
         }
       } else if (event.address.startsWith('/eos/out/active/cue/')) {
         List<String> address = event.address.split('/');
-        setCurrentCue(double.parse(address.last));
-        setCurrentCueList(int.parse(address[address.length - 2]));
+        setCurrentCue!(double.parse(address.last));
+        setCurrentCueList!(int.parse(address[address.length - 2]));
       } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
-          setPreviousCueText(text);
+          setPreviousCueText!(text);
         } else {
-          setPreviousCueText('');
+          setPreviousCueText!('');
         }
       } else if (event.address.startsWith('/eos/out/pending/cue/')) {
         List<String> address = event.address.split('/');
         try {
-          setPreviousCue(double.parse(address.last));
+          setPreviousCue!(double.parse(address.last));
         } catch (e) {
-          setPreviousCue(0);
+          setPreviousCue!(0);
         }
       }
 
-      setCurrentChannel(parameters);
+      setCurrentChannel!(parameters);
     });
     listenSocket.close();
   }
@@ -166,12 +179,6 @@ class OSC {
     OSCMessage message = OSCMessage('/eos/out/fader/$page/$index/name', arguments: []);
     client.send(message);
     String reply = '';
-    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    listenSocket.listen((event) {
-      if (event.address == '/eos/out/fader/$page/$index/name') {
-        reply = event.arguments[0].toString();
-      }
-    });
     return reply;
   }
 

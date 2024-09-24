@@ -53,7 +53,39 @@ class _FaderControlsState extends State<FaderControls> {
         },
       ));
     }
-    return Grid(5, pads, 2);
+    return SingleChildScrollView(scrollDirection: Axis.vertical, child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  faderPage --;
+                  loadedFaders = loadFaders();
+                });
+              },
+              icon: const Icon(Icons.arrow_back),
+            ),
+            const Text('Faders'),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  faderPage ++;
+                  loadedFaders = loadFaders();
+                });
+              },
+              icon: const Icon(Icons.arrow_forward),
+            ),
+          ],
+        ),
+        SizedBox(width: MediaQuery.sizeOf(context).width * 1, height: MediaQuery.sizeOf(context).height *2, child:
+        GridView.count(
+          crossAxisCount: 5,
+          children: pads,
+        ),)
+      ],
+    ));
   }
 }
 
@@ -66,17 +98,21 @@ class Fader {
   Fader(this.name, this.index, this.faderPage, this.intensity);
 
   Widget buildFader(OSC osc, Function(void Function()) setState) {
-    return Column(
-      children: [
-        Text(name),
-        ParameterSlider(
-          osc: osc,
-          attributes: [index, 'Intensity', 0, 100, 0],
-          superSetState: setState,
-          key: Key('Fader $index'),
-        ),
-      ],
-    );
+    return SizedBox(
+      height: 400,
+      child:
+    Card(
+        child: Column(
+          children: [
+            Text(name),
+            ParameterSlider(
+              osc: osc,
+              attributes: [index, 'Intensity', 0.0, 100.0, 0.0],
+              superSetState: setState,
+              key: Key('Fader $index'),
+            ),
+          ],)
+    ));
   }
 
 
