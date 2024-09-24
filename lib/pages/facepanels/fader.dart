@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../objects/osc_control.dart';
 import '../../objects/parameters.dart';
+import '../../widgets/grid.dart';
 import '../../widgets/slider.dart';
 import '../controls/intensity.dart';
 
@@ -39,54 +40,20 @@ class _FaderControlsState extends State<FaderControls> {
   @override
   Widget build(BuildContext context) {
    //return grid of faders
-    return Column(
-      children: [
-        GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: 10,
-          itemBuilder: (BuildContext context, int index) {
-            return FutureBuilder<List<Fader>>(
-              future: loadedFaders,
-              builder: (BuildContext context, AsyncSnapshot<List<Fader>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return snapshot.data![index].buildFader(widget.osc, setState);
-                } else {
-                  return const CircularProgressIndicator();
-                }
-              },
-            );
-          },
-        ),
-        //next and previous buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            (faderPage != 1) ? IconButton(
-              onPressed: () {
-                setState(() {
-                  faderPage = faderPage - 1;
-                  loadedFaders = loadFaders();
-                });
-              },
-              icon: const Icon(Icons.arrow_back),
-            ) : Container(),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  faderPage = faderPage + 1;
-                  loadedFaders = loadFaders();
-                });
-              },
-              icon: const Icon(Icons.arrow_forward),
-            ),
-          ],
-        ),
-      ],
-    );
+    var pads = <Widget>[];
+    for(int i = 0; i < 10; i++){
+      pads.add(FutureBuilder(
+        future: loadedFaders,
+        builder: (BuildContext context, AsyncSnapshot<List<Fader>> snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data![i].buildFader(widget.osc, setState);
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+      ));
+    }
+    return Grid(5, pads, 2);
   }
 }
 
