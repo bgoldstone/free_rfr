@@ -162,6 +162,19 @@ class OSC {
     listenSocket.close();
   }
 
+  Future<String> getFaderInformation(int page, int index) async{
+    OSCMessage message = OSCMessage('/eos/out/fader/$page/$index/name', arguments: []);
+    client.send(message);
+    String reply = '';
+    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    listenSocket.listen((event) {
+      if (event.address == '/eos/out/fader/$page/$index/name') {
+        reply = event.arguments[0].toString();
+      }
+    });
+    return reply;
+  }
+
   void setParameter(String attributeName, double parameterValue) {
     OSCMessage message =
         OSCMessage('/eos/cmd', arguments: ['$attributeName $parameterValue#']);
