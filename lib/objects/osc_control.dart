@@ -184,7 +184,7 @@ class OSC {
   }
 
   void sendCmd(String cmd) {
-    OSCMessage message = OSCMessage('/eos/cmd/="$cmd#"', arguments: []);
+    OSCMessage message = OSCMessage('/eos/cmd/="$cmd"', arguments: []);
     client.send(message);
     sleep100();
   }
