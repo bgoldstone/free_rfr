@@ -102,11 +102,11 @@ class OSC {
     client.send(message);
   }
 
-  void sendKey(String key, {bool withUpdate = true}) async {
+  void sendKey(String key, {bool withUpdate = true, double sleepMillis = 100}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
-    sleep100();
+    sleep(Duration(milliseconds: sleepMillis.toInt()));
     if(withUpdate){
       _updateEosOutput();
     }
