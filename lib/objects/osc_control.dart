@@ -67,6 +67,7 @@ class OSC {
         arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
     await client.send(message);
     sleep100();
+    /*
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
@@ -74,6 +75,8 @@ class OSC {
         debugPrint(event.arguments[0].toString());
       }
     });
+
+     */
     sendLive();
   }
 
@@ -178,6 +181,12 @@ class OSC {
     client.send(message);
     String reply = '';
     return reply;
+  }
+
+  void sendCmd(String cmd) {
+    OSCMessage message = OSCMessage('/eos/cmd/="$cmd#"', arguments: []);
+    client.send(message);
+    sleep100();
   }
 
   void setParameter(String attributeName, double parameterValue) {
