@@ -38,15 +38,15 @@ class AdditionalKeys extends StatelessWidget {
         osc.sendKey('time');
       }, fontSize: 30),
       Button('Live', () {
-        osc.sendKey('live');
+        osc.sendLive();
       }, fontSize: 30),
       Button('Blind', () {
-        osc.sendKey('blind');
+       osc.sendBlind();
       }, fontSize: 30),
       Button('Undo', () {
         osc.sendKey('undo');
       }, fontSize: 30),
     ];
-    return Grid(3, additionalKeys, 1.8);
+    return Grid(3, additionalKeys, 2);
   }
 }

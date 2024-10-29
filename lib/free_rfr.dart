@@ -9,9 +9,9 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
-  final void Function(ParameterList) setCurrentChannel;
+  final void Function(ParameterMap) setCurrentChannel;
   final List<double> hueSaturation;
-  final ParameterList currentChannel;
+  final ParameterMap currentChannel;
   final void Function(String) setCommandLine;
   final String commandLine;
   final double previousCue;
@@ -111,6 +111,7 @@ class _FreeRFRState extends State<FreeRFR> {
                 : Colors.black,
             onPressed: () {
               widget.osc.sendKey('clear_cmdline');
+              widget.osc.setCommandLine!('LIVE: ');
             },
           ),
         ],

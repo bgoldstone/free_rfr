@@ -2,10 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../objects/osc_control.dart';
-import '../../objects/parameters.dart';
-import '../../widgets/grid.dart';
 import '../../widgets/slider.dart';
-import '../controls/intensity.dart';
 
 class FaderControls extends StatefulWidget {
   final OSC osc;
@@ -15,44 +12,40 @@ class FaderControls extends StatefulWidget {
   });
 
   @override
-  State<FaderControls> createState() => _FaderControlsState();
+  State<FaderControls> createState() => FaderControlsState();
 }
 
-class _FaderControlsState extends State<FaderControls> {
+class FaderControlsState extends State<FaderControls> {
 
   int faderPage = 1;
-  late Future<List<Fader>> loadedFaders;
+  List<int> faderBanks = [];
+  List<Fader> faders = [];
 
   @override
   void initState() {
     super.initState();
-    loadedFaders = loadFaders();
+    widget.osc.setupFaderBank(10, this);
   }
 
-  Future<List<Fader>> loadFaders () async{
-    List<Fader> faders = [];
-    for (int i = 1; i <= 10; i++) {
-      faders.add(Fader(await widget.osc.getFaderInformation(faderPage, i), i, faderPage, 0));
-    }
-    return faders;
+  void updateFader(int index, double intensity, String name, int range,
+      {bool forceUpdate = false}) {
+    setState(() {
+      if(faders.length < index) {
+        faders.add(Fader(name, index, faderPage, intensity));
+      } else {
+        if(forceUpdate) {
+          faders[index-1].forceUpdate(name, index, faderPage, intensity);
+        } else {
+          faders[index - 1].update(name, index, faderPage, intensity);
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
    //return grid of faders
-    var pads = <Widget>[];
-    for(int i = 0; i < 10; i++){
-      pads.add(FutureBuilder(
-        future: loadedFaders,
-        builder: (BuildContext context, AsyncSnapshot<List<Fader>> snapshot) {
-          if (snapshot.hasData) {
-            return snapshot.data![i].buildFader(widget.osc, setState);
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
-      ));
-    }
+    debugPrint(faders.toString());
     return SingleChildScrollView(scrollDirection: Axis.vertical, child: Column(
       children: [
         Row(
@@ -61,18 +54,19 @@ class _FaderControlsState extends State<FaderControls> {
             IconButton(
               onPressed: () {
                 setState(() {
+                  if(faderPage == 1) return;
+                  widget.osc.send("/eos/fader/1/page/-1", []);
                   faderPage --;
-                  loadedFaders = loadFaders();
                 });
               },
               icon: const Icon(Icons.arrow_back),
             ),
-            const Text('Faders'),
+            Text('Faders (Seite $faderPage)'),
             IconButton(
               onPressed: () {
                 setState(() {
+                  widget.osc.send("/eos/fader/1/page/1", []);
                   faderPage ++;
-                  loadedFaders = loadFaders();
                 });
               },
               icon: const Icon(Icons.arrow_forward),
@@ -82,7 +76,7 @@ class _FaderControlsState extends State<FaderControls> {
         SizedBox(width: MediaQuery.sizeOf(context).width * 1, height: MediaQuery.sizeOf(context).height *2, child:
         GridView.count(
           crossAxisCount: 5,
-          children: pads,
+          children: faders.map((fader) => fader.buildFader(widget.osc, setState)).toList(),
         ),)
       ],
     ));
@@ -93,7 +87,7 @@ class Fader {
   String name = "";
   int index = 0;
   int faderPage = 0;
-  int intensity = 0;
+  double intensity = 0;
 
   Fader(this.name, this.index, this.faderPage, this.intensity);
 
@@ -105,14 +99,41 @@ class Fader {
         child: Column(
           children: [
             Text(name),
-            ParameterSlider(
-              osc: osc,
-              attributes: [index, 'Intensity', 0.0, 100.0, 0.0],
-              superSetState: setState,
-              key: Key('Fader $index'),
-            ),
+            RotatedBox(
+              quarterTurns: 3,
+              child: Slider(
+                value: intensity * 100,
+                min: 0,
+                max: 100,
+                onChanged: (value) {
+                  setState(() {
+                    intensity = value / 100;
+                    osc.send("/eos/fader/${faderPage}/${index}", [intensity]);
+                  });
+                },
+                onChangeEnd: (value) {
+
+                },
+              ),
+            )
           ],)
     ));
+  }
+
+  void update(String name, int index, int faderPage, double intensity) {
+    //if name == "" dont update, also for 0 values in int
+    if(name != "") this.name = name;
+    if(index != 0) this.index = index;
+    if(faderPage != 0) this.faderPage = faderPage;
+    if(intensity != 0) this.intensity = intensity;
+  }
+
+  void forceUpdate(String name, int index, int faderPage, double intensity) {
+    this.name = name;
+    this.index = index;
+    this.faderPage = faderPage;
+    this.intensity = intensity;
+    debugPrint("Force updated fader $name");
   }
 
 

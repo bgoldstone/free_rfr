@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:osc/osc.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../widgets/button.dart';
 
 class Connections extends StatefulWidget {
   final void Function(Map<String, dynamic> activeConnection, int index)
@@ -72,7 +75,21 @@ class _ConnectionsState extends State<Connections> {
           size: 30,
         ),
       ),
-      body: connectionsList(),
+      body: Column(
+        children: [
+          Button("start server", () {
+            OSCSocket socket = OSCSocket(
+              serverAddress: InternetAddress("0.0.0.0"),
+              serverPort: 8000,
+            );
+            socket.listen((OSCMessage message) {
+              debugPrint("Message received: ${message.address}");
+            });
+          }),
+          Expanded(child:  connectionsList(),)
+
+        ],
+      ),
     );
   }
 

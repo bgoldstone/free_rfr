@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls/color.dart';
+import 'package:free_rfr/pages/controls/pan_tilt_control.dart';
 
+import '../objects/parameters.dart';
 import 'controls/focus.dart';
 import 'controls/form.dart';
 import 'controls/image.dart';
@@ -11,7 +12,7 @@ import 'controls/shutter.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
-  final ParameterList currentChannel;
+  final ParameterMap currentChannel;
   final List<double> hueSaturation;
   const Controls(
       {required this.osc,
@@ -30,6 +31,9 @@ class _ControlsState extends State<Controls> {
   Widget build(BuildContext context) {
     List<Widget> pages = [
        IntensityControl(currentChannel: widget.currentChannel, osc: widget.osc),
+      PanTiltControl(
+          currentChannel: widget.currentChannel,
+          osc: widget.osc),
        const FocusControl(),
       ColorControl(widget.osc,
           currentChannel: widget.currentChannel,
@@ -46,6 +50,11 @@ class _ControlsState extends State<Controls> {
              label: 'Intensity',
              tooltip: 'Intensity',
            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pan_tool),
+              label: 'Pan/Tilt',
+              tooltip: 'Pan/Tilt',
+            ),
            BottomNavigationBarItem(
              icon: Icon(Icons.center_focus_strong),
              label: 'Focus',
