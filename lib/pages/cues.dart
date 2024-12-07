@@ -95,7 +95,7 @@ class _CuesState extends State<Cues> {
                   },
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.red)),
+                          WidgetStatePropertyAll<Color>(Colors.red)),
                   child: const Text('Stop/Back')),
             ),
             Padding(
@@ -104,7 +104,7 @@ class _CuesState extends State<Cues> {
                   onPressed: () => widget.osc.sendKey('go_0'),
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.green)),
+                          WidgetStatePropertyAll<Color>(Colors.green)),
                   child: const Text('Go')),
             ),
           ],
