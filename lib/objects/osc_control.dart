@@ -319,37 +319,39 @@ class OSC {
   }
 
   void sendCommandNoEnter(String command) {
-    if (command == 'Gobo Ind') command = 'Gobo Index/Speed';
-    if (command == 'Beam Fx Ind') command = 'Beam Fx Index/Speed';
+    if (command == 'Gobo Ind') command = 'gobo_select';
+    if (command == 'Beam Fx Ind') command = 'beam_fx_select';
     OSCMessage message = OSCMessage('/eos/cmd', arguments: [command]);
     client.send(message);
   }
 
   void setParamString(String parameter, String value) {
-    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
-    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     OSCMessage message =
         OSCMessage('/eos/cmd', arguments: ['$parameter $value#']);
     client.send(message);
   }
 
   void setParamMaxString(String parameter) {
-    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
-    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     OSCMessage message =
         OSCMessage('/eos/cmd', arguments: ['$parameter Full#']);
     client.send(message);
   }
 
   void setParamMinString(String parameter) {
-    if (parameter == 'Gobo Ind') parameter = 'Gobo Index/Speed';
-    if (parameter == 'Beam Fx Ind') parameter = 'Beam Fx Index/Speed';
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     OSCMessage message = OSCMessage('/eos/cmd', arguments: ['$parameter Min#']);
     client.send(message);
   }
 
   void setParameterMax(String parameter) {
     parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     OSCMessage message = OSCMessage('/eos/param/$parameter/max', arguments: []);
     client.send(message);
     _updateEosOutput();
@@ -357,17 +359,32 @@ class OSC {
 
   void setParameterMin(String parameter) {
     parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     OSCMessage message = OSCMessage('/eos/param/$parameter/min', arguments: []);
     client.send(message);
     _updateEosOutput();
   }
 
   void setParamterHome(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
     parameter = parameter.toLowerCase().replaceAll(' ', '_');
     OSCMessage message =
         OSCMessage('/eos/param/$parameter/home', arguments: []);
     client.send(message);
     _updateEosOutput();
+  }
+
+  void shutdownMultiConsole() {
+    sendKey('multiconsole_power_off');
+    sendKey('confirm_command');
+    sleep(const Duration(milliseconds: 500));
+    try {
+      sendKey('quit');
+      sendKey('confirm_command');
+    } catch (_) {}
+    _setUDPTXIPDefault();
   }
 }
 

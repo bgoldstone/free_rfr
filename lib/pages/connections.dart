@@ -2,14 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+// import 'package:free_rfr/helpers/discovery.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Connections extends StatefulWidget {
   final void Function(Map<String, dynamic> activeConnection, int index)
       setActiveConnection;
   final int currentConnectionIndex;
+  // bool isAlreadyAutoDiscovered;
   const Connections(this.setActiveConnection,
-      {super.key, required this.currentConnectionIndex});
+      {super.key, required this.currentConnectionIndex
+      // required this.isAlreadyAutoDiscovered
+      });
 
   @override
   State<Connections> createState() => _ConnectionsState();
@@ -29,10 +33,11 @@ class _ConnectionsState extends State<Connections> {
 
   Future<bool> getConfig() async {
     path = await getApplicationDocumentsDirectory();
-    if (!path.existsSync()) {
-      path.createSync(recursive: true);
+    final newPath = Directory('${path.path}/FreeRFR');
+    if (!newPath.existsSync()) {
+      newPath.createSync(recursive: true);
     }
-    File file = File('${path.path}/$configFile');
+    File file = File('${newPath.path}/$configFile');
     if (!file.existsSync()) {
       file.createSync();
       file.writeAsString(jsonEncode(config), encoding: utf8);
@@ -40,10 +45,31 @@ class _ConnectionsState extends State<Connections> {
     }
     file.readAsString(encoding: utf8).then((data) {
       config = jsonDecode(data);
-      setState(() {
-        config = config;
-      });
     });
+    // List<String>? discoveredHosts;
+    // if (!widget.isAlreadyAutoDiscovered) {
+    //   discoveredHosts = await getHosts();
+    //   debugPrint(discoveredHosts.toString());
+    //   for (String ip in discoveredHosts) {
+    //     debugPrint("Found discovered host: $ip");
+    //     InternetAddress host = await InternetAddress(ip).reverse();
+    //     bool exists = false;
+    //     for (Map<String, dynamic> connection in config['connections']) {
+    //       debugPrint(connection.toString());
+    //       if (connection['ip'] == ip) {
+    //         exists = true;
+    //       }
+    //     }
+    //     if (!exists) {
+    //       debugPrint("Adding discovered host: $ip");
+    //       config['connections'].add({
+    //         'name': '${host.host} (Auto Discovery)',
+    //         'ip': ip,
+    //       });
+    //     }
+    //   }
+    //   widget.isAlreadyAutoDiscovered = true;
+    // }
 
     return true;
   }
@@ -59,6 +85,9 @@ class _ConnectionsState extends State<Connections> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Free RFR'),
+        actions: [
+          IconButton(onPressed: showHelpDialog, icon: const Icon(Icons.help))
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -169,5 +198,29 @@ class _ConnectionsState extends State<Connections> {
         )
       ],
     );
+  }
+
+  void showHelpDialog() async {
+    Image helpImage = Image.asset('assets/osc_config.png');
+    AlertDialog helpDialog = AlertDialog(
+      title: const Text('Help'),
+      content: Column(children: [
+        const Text(
+            "Please Configure your Eos Console OSC Settings Like the image below:"),
+        FittedBox(
+          fit: BoxFit.contain,
+          child: helpImage,
+        )
+      ]),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        )
+      ],
+    );
+    showDialog(context: context, builder: (context) => helpDialog);
   }
 }

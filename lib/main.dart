@@ -146,9 +146,9 @@ class _MyAppState extends State<MyApp> {
       ),
       themeMode: ThemeMode.system,
       routes: {
-        '/': (context) => Connections(
-              setActiveConnection,
-              currentConnectionIndex: currentConnectionIndex,
+        '/': (context) => Connections(setActiveConnection,
+            currentConnectionIndex: currentConnectionIndex
+            // isAlreadyAutoDiscovered: false,
             ),
         '/home': (context) => FreeRFR(
               osc: osc,
