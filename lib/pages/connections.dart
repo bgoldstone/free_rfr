@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:free_rfr/helpers/discovery.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:free_rfr/free_rfr.dart' show donateButton;
 
 class Connections extends StatefulWidget {
   final void Function(Map<String, dynamic> activeConnection, int index)
@@ -70,7 +71,6 @@ class _ConnectionsState extends State<Connections> {
     //   }
     //   widget.isAlreadyAutoDiscovered = true;
     // }
-
     return true;
   }
 
@@ -86,7 +86,8 @@ class _ConnectionsState extends State<Connections> {
       appBar: AppBar(
         title: const Text('Free RFR'),
         actions: [
-          IconButton(onPressed: showHelpDialog, icon: const Icon(Icons.help))
+          donateButton(context),
+          IconButton(onPressed: showHelpDialog, icon: const Icon(Icons.help)),
         ],
       ),
       floatingActionButton: FloatingActionButton(

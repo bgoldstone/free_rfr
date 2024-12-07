@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/widgets/keyboard_shortcuts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -308,4 +309,53 @@ class _FreeRFRState extends State<FreeRFR> {
           );
         });
   }
+}
+
+IconButton donateButton(BuildContext context) {
+  return IconButton(
+    onPressed: () {
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text('Donate'),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Like What I do? Please consider making a donation!",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.paypal),
+                            onPressed: () => launchUrl(Uri.parse(
+                                "https://paypal.me/BenjaminGoldstone")),
+                            tooltip: 'Paypal',
+                          ),
+                          IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.vimeo),
+                            onPressed: () => launchUrl(
+                                Uri.parse("https://www.venmo.com/bgoldstone")),
+                            tooltip: 'Venmo',
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                      child: const Text('OK'),
+                      onPressed: () => Navigator.of(context).pop())
+                ],
+              ));
+    },
+    icon: const Icon(Icons.monetization_on),
+    tooltip: 'Donate',
+  );
 }
