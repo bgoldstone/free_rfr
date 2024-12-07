@@ -22,17 +22,18 @@ class OSC {
   late final OSCSocket client;
 
   OSC(
-      this.hostIP,
-      this.setCurrentChannel,
-      this.setCommandLine,
-      this.setCurrentCueList,
-      this.setCurrentCue,
-      this.setCurrentCueText,
-      this.setPreviousCue,
-      this.setPreviousCueText,
-      this.setNextCue,
-      this.setNextCueText,
-      this.setHueSaturation) {
+    this.hostIP,
+    this.setCurrentChannel,
+    this.setCommandLine,
+    this.setCurrentCueList,
+    this.setCurrentCue,
+    this.setCurrentCueText,
+    this.setPreviousCue,
+    this.setPreviousCueText,
+    this.setNextCue,
+    this.setNextCueText,
+    this.setHueSaturation,
+  ) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -41,6 +42,12 @@ class OSC {
     OSCSocket(destinationPort: 8001).listen((msg) {});
     _updateEosOutput();
     _setUDPTXIP();
+  }
+
+  void sendCommand(String command) async {
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [command]);
+    await client.send(message);
+    _updateEosOutput();
   }
 
   void _setUDPTXIP() async {
@@ -57,7 +64,7 @@ class OSC {
     message = OSCMessage('/eos/newcmd',
         arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
     await client.send(message);
-    sleep100();
+    sendKey('clear_cmd');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
@@ -98,24 +105,54 @@ class OSC {
     _updateEosOutput();
   }
 
+  void setMinValue(String parameter) async {
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: ['$parameter Min#']);
+    await client.send(message);
+    _updateEosOutput();
+  }
+
+  void setMaxValue(String parameter) async {
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter Full#']);
+    await client.send(message);
+    _updateEosOutput();
+  }
+
+  void updatePanTilt(double pan, double tilt) {
+    debugPrint('Sending pan: $pan, tilt: $tilt');
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['Pan $pan Tilt $tilt#']);
+    client.send(message);
+    _updateEosOutput();
+  }
+
   void _updateEosOutput() {
     debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    ParameterList parameters = [];
-    for (ParameterType _ in ParameterType.values) {
-      parameters.add([]);
-    }
-    int wheelIndex = 1;
+    ParameterList parameters = {};
+
+    int wheelIndex;
     listenSocket.listen((event) {
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        String parameterName = event.arguments[0].toString().split(" ")[0];
+        wheelIndex = int.parse(event.address.split('/').last);
+        String parameterName = RegExp('([a-zA-Z\\s]+)')
+            .stringMatch(event.arguments[0].toString())!
+            .trim();
+        debugPrint(parameterName);
         int parameterIndex = int.parse(event.arguments[1].toString());
         double parameterValue = double.parse(event.arguments[2].toString());
-        parameters[parameterIndex]
-            .add([wheelIndex, parameterName, parameterValue]);
+        parameters[wheelIndex] = [
+          parameterIndex,
+          parameterName,
+          parameterValue
+        ];
+        if (!parameterName.contains('/')) {
+          _subscribeToParameter(
+              parameterName.toLowerCase().replaceAll(' ', '_'));
+        }
         wheelIndex++;
       } else if (event.address.startsWith('/eos/out/pantilt') &&
           event.arguments.isNotEmpty) {
@@ -123,8 +160,16 @@ class OSC {
         double maxPan = double.parse(event.arguments[1].toString());
         double minTilt = double.parse(event.arguments[2].toString());
         double maxTilt = double.parse(event.arguments[3].toString());
-        parameters[ParameterType.PT.index]
-            .add([minPan, maxPan, minTilt, maxTilt]);
+        double currentPan = double.parse(event.arguments[4].toString());
+        double currentTilt = double.parse(event.arguments[5].toString());
+        parameters[20] = [
+          minPan,
+          maxPan,
+          minTilt,
+          maxTilt,
+          currentPan,
+          currentTilt
+        ];
       } else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
@@ -155,18 +200,14 @@ class OSC {
         } catch (e) {
           setPreviousCue(0);
         }
+      } else if (event.address.startsWith('/eos/out/param/')) {
+        //current Value, min Value, max Value
+        parameters[event.address.split('/').last] = event.arguments;
       }
 
       setCurrentChannel(parameters);
     });
     listenSocket.close();
-  }
-
-  void setParameter(String attributeName, double parameterValue) {
-    OSCMessage message =
-        OSCMessage('/eos/cmd', arguments: ['$attributeName $parameterValue#']);
-    client.send(message);
-    sleep100();
   }
 
   void setLabel(double cueNumber, String label) {
@@ -261,6 +302,91 @@ class OSC {
     OSCMessage message =
         OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
     client.send(message);
+  }
+
+  void _subscribeToParameter(String parameter) {
+    OSCMessage message =
+        OSCMessage('/eos/subscribe/param/$parameter', arguments: [1]);
+    client.send(message);
+  }
+
+  void setParamter(String parameter, double value) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    OSCMessage message =
+        OSCMessage('/eos/param/$parameter', arguments: ['$value']);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void sendCommandNoEnter(String command) {
+    if (command == 'Gobo Ind') command = 'gobo_select';
+    if (command == 'Beam Fx Ind') command = 'beam_fx_select';
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [command]);
+    client.send(message);
+  }
+
+  void setParamString(String parameter, String value) {
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter $value#']);
+    client.send(message);
+  }
+
+  void setParamMaxString(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message =
+        OSCMessage('/eos/cmd', arguments: ['$parameter Full#']);
+    client.send(message);
+  }
+
+  void setParamMinString(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: ['$parameter Min#']);
+    client.send(message);
+  }
+
+  void setParameterMax(String parameter) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message = OSCMessage('/eos/param/$parameter/max', arguments: []);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void setParameterMin(String parameter) {
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message = OSCMessage('/eos/param/$parameter/min', arguments: []);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void setParamterHome(String parameter) {
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    parameter = parameter.toLowerCase().replaceAll(' ', '_');
+    if (parameter == 'Gobo Ind') parameter = 'gobo_select,';
+    if (parameter == 'Beam Fx Ind') parameter = 'beam_fx_select';
+    OSCMessage message =
+        OSCMessage('/eos/param/$parameter/home', arguments: []);
+    client.send(message);
+    _updateEosOutput();
+  }
+
+  void shutdownMultiConsole() {
+    sendKey('multiconsole_power_off');
+    sendKey('confirm_command');
+    sleep(const Duration(milliseconds: 500));
+    try {
+      sendKey('quit');
+      sendKey('confirm_command');
+    } catch (_) {}
+    _setUDPTXIPDefault();
   }
 }
 

@@ -54,7 +54,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
               title: const Text('Current Cue'),
               subtitle: Text(widget.currentCueText),
-              onLongPress: () {
+              onTap: () {
                 editLabel(context, widget.nextCue);
               },
             ),
@@ -66,7 +66,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
               title: const Text('Next Cue'),
               subtitle: Text(widget.nextCueText),
-              onLongPress: () {
+              onTap: () {
                 editLabel(context, widget.nextCue);
               },
             ),
@@ -78,7 +78,7 @@ class _CuesState extends State<Cues> {
             child: ListTile(
                 title: const Text('Previous Cue'),
                 subtitle: Text(widget.previousCueText),
-                onLongPress: () {
+                onTap: () {
                   editLabel(context, widget.previousCue);
                 }),
           ),
@@ -95,7 +95,7 @@ class _CuesState extends State<Cues> {
                   },
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.red)),
+                          WidgetStatePropertyAll<Color>(Colors.red)),
                   child: const Text('Stop/Back')),
             ),
             Padding(
@@ -104,7 +104,7 @@ class _CuesState extends State<Cues> {
                   onPressed: () => widget.osc.sendKey('go_0'),
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.green)),
+                          WidgetStatePropertyAll<Color>(Colors.green)),
                   child: const Text('Go')),
             ),
           ],

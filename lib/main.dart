@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
-  ParameterList currentChannel = [];
+  ParameterList currentChannel = {};
   List<double> hueSaturation = [];
   String commandLine = '';
   double currentCue = -1;
@@ -110,17 +110,18 @@ class _MyAppState extends State<MyApp> {
       activeConnection = connection;
       currentConnectionIndex = index;
       osc = OSC(
-          InternetAddress(activeConnection['ip']),
-          setCurrentChannel,
-          setCommandLine,
-          setCurrentCueList,
-          setCurrentCue,
-          setCurrentCueText,
-          setPreviousCue,
-          setPreviousCueText,
-          setNextCue,
-          setNextCueText,
-          setHueSaturation);
+        InternetAddress(activeConnection['ip']),
+        setCurrentChannel,
+        setCommandLine,
+        setCurrentCueList,
+        setCurrentCue,
+        setCurrentCueText,
+        setPreviousCue,
+        setPreviousCueText,
+        setNextCue,
+        setNextCueText,
+        setHueSaturation,
+      );
       isOSCInitialized = true;
     });
   }
@@ -145,9 +146,9 @@ class _MyAppState extends State<MyApp> {
       ),
       themeMode: ThemeMode.system,
       routes: {
-        '/': (context) => Connections(
-              setActiveConnection,
-              currentConnectionIndex: currentConnectionIndex,
+        '/': (context) => Connections(setActiveConnection,
+            currentConnectionIndex: currentConnectionIndex
+            // isAlreadyAutoDiscovered: false,
             ),
         '/home': (context) => FreeRFR(
               osc: osc,
