@@ -4,7 +4,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/widgets/slider.dart';
 
 class IntensityControl extends StatefulWidget {
-  final ParameterList currentChannel;
+  final ParameterMap currentChannel;
   final OSC osc;
   const IntensityControl({
     super.key,
@@ -23,29 +23,22 @@ class _IntensityControlState extends State<IntensityControl> {
   @override
   Widget build(BuildContext context) {
     debugPrint(widget.currentChannel.toString());
-    List<List<dynamic>> intensityControl =
-        widget.currentChannel[ParameterType.Intensity.index];
-    if (intensityControl.isEmpty) {
-      return const Empty();
+    if(!widget.currentChannel.containsKey(ParameterType.intens)) {
+      return Empty();
     }
-    for (List<dynamic> parameter in intensityControl) {
-      debugPrint(parameter.toString());
-      String parameterKey = 'Intensity Parameter # ${parameter[0]}';
-      if (!parameters.contains(parameterKey)) {
-        intensityWidgets.add(ParameterSlider(
-          osc: widget.osc,
-          attributes: parameter,
-          superSetState: setState,
-          key: Key(parameterKey),
-        ));
-      }
-    }
-    if (intensityWidgets.isEmpty) {
-      return const Empty();
-    }
-    return Row(
-      children: intensityWidgets,
-    );
+    var intens =
+        widget.currentChannel[ParameterType.intens][1];
+    return RotatedBox(quarterTurns: 3, child: Slider(
+      value: intens,
+      min: 0,
+      max: 100,
+      onChanged: (value) {
+        widget.osc.setParameter('intens', value.roundToDouble());
+        setState(() {
+          intens = value;
+        });
+      },
+    ),);
   }
 }
 

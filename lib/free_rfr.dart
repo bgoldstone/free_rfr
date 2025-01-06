@@ -4,13 +4,14 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
+import 'package:free_rfr/pages/facepanels/fader.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
-  final void Function(ParameterList) setCurrentChannel;
+  final void Function(ParameterMap) setCurrentChannel;
   final List<double> hueSaturation;
-  final ParameterList currentChannel;
+  final ParameterMap currentChannel;
   final void Function(String) setCommandLine;
   final String commandLine;
   final double previousCue;
@@ -55,6 +56,7 @@ class _FreeRFRState extends State<FreeRFR> {
   Widget build(BuildContext context) {
     List<Widget> pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
+      FaderControls(osc: widget.osc),
       Controls(
         key: const Key('Controls'),
         osc: widget.osc,
@@ -109,6 +111,7 @@ class _FreeRFRState extends State<FreeRFR> {
                 : Colors.black,
             onPressed: () {
               widget.osc.sendKey('clear_cmdline');
+              widget.osc.setCommandLine!('LIVE: ');
             },
           ),
         ],
@@ -118,6 +121,8 @@ class _FreeRFRState extends State<FreeRFR> {
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.keyboard), label: 'Facepanel'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), label: 'Controls'),
           BottomNavigationBarItem(

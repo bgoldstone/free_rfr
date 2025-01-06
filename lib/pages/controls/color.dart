@@ -5,7 +5,7 @@ import 'package:free_rfr/objects/parameters.dart';
 
 class ColorControl extends StatefulWidget {
   final OSC osc;
-  final ParameterList currentChannel;
+  final ParameterMap currentChannel;
   final List<double> hueSaturation;
   const ColorControl(
     this.osc, {

@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
-  ParameterList currentChannel = [];
+  ParameterMap currentChannel = {};
   List<double> hueSaturation = [];
   String commandLine = '';
   double currentCue = -1;
@@ -85,6 +85,16 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void addToCommandLine(String command) {
+    try {
+      setState(() {
+        commandLine += command;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   String getCommandLine() {
     return commandLine;
   }
@@ -93,7 +103,7 @@ class _MyAppState extends State<MyApp> {
     hueSaturation = [hue, saturation];
   }
 
-  void setCurrentChannel(ParameterList channel) {
+  void setCurrentChannel(ParameterMap channel) {
     setState(() {
       currentChannel = channel;
     });
@@ -117,6 +127,7 @@ class _MyAppState extends State<MyApp> {
           setCurrentCue,
           setCurrentCueText,
           setPreviousCue,
+          addToCommandLine,
           setPreviousCueText,
           setNextCue,
           setNextCueText,

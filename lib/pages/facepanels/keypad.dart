@@ -104,6 +104,7 @@ class Keypad extends StatelessWidget {
       }),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
+        osc.setCommandLine!('LIVE: ');
       }, fontSize: 18.5),
       Button('0', () {
         osc.sendKey('0');
