@@ -3,11 +3,11 @@ import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
 
-class Keypad extends StatelessWidget {
+class ChannelCheck extends StatelessWidget {
   final OSC osc;
   final bool isKeypadWindow;
   final double scale;
-  const Keypad(
+  const ChannelCheck(
       {super.key,
       required this.osc,
       this.isKeypadWindow = false,
@@ -15,11 +15,11 @@ class Keypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Button> keypad = [
+    List<Button> channelCheck = [
       Button('Go To Cue', () {
         osc.sendKey('go_to_cue');
       }, fontSize: 17.4),
-      Button('Addr', () {
+      Button('Address', () {
         osc.sendKey('address');
       }, fontSize: 20),
       Button('Last', () {
@@ -29,15 +29,15 @@ class Keypad extends StatelessWidget {
         osc.sendKey('next');
       }, fontSize: 20),
       Button('+', () {
-        osc.sendKey('plus');
+        osc.sendKey('+');
       }, fontSize: 30),
-      Button('Thru', () {
-        osc.sendKey('thru');
+      Button('Check', () {
+        osc.sendKey('check');
       }, fontSize: 20),
       Button('-', () {
         osc.sendKey('-');
       }, fontSize: 30),
-      Button('Grp', () {
+      Button('Group', () {
         osc.sendKey('group');
       }, fontSize: 20),
       Button(
@@ -110,7 +110,6 @@ class Keypad extends StatelessWidget {
       }),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
-        osc.setCommandLine!('LIVE: ');
       }, fontSize: 18.5),
       Button('0', () {
         osc.sendKey('0');
@@ -123,6 +122,6 @@ class Keypad extends StatelessWidget {
         isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return Grid(4, keypad, scale);
+    return Grid(4, channelCheck, scale);
   }
 }

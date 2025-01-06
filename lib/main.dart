@@ -104,9 +104,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setCurrentChannel(ParameterMap channel) {
-    setState(() {
-      currentChannel = channel;
-    });
+    currentChannel = channel;
   }
 
   void setActiveConnection(Map<String, dynamic> connection, int index) {
@@ -162,7 +160,6 @@ class _MyAppState extends State<MyApp> {
             ),
         '/home': (context) => FreeRFR(
               osc: osc,
-              setCurrentChannel: setCurrentChannel,
               currentChannel: currentChannel,
               hueSaturation: hueSaturation,
               setCommandLine: setCommandLine,

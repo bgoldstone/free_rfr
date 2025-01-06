@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/fader.dart';
+import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
-  final void Function(ParameterMap) setCurrentChannel;
   final List<double> hueSaturation;
   final ParameterMap currentChannel;
   final void Function(String) setCommandLine;
@@ -24,7 +25,6 @@ class FreeRFR extends StatefulWidget {
   const FreeRFR({
     super.key,
     required this.osc,
-    required this.setCurrentChannel,
     required this.currentChannel,
     required this.hueSaturation,
     required this.setCommandLine,
@@ -57,6 +57,7 @@ class _FreeRFRState extends State<FreeRFR> {
     List<Widget> pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
       FaderControls(osc: widget.osc),
+      ChannelCheck(osc: widget.osc),
       Controls(
         key: const Key('Controls'),
         osc: widget.osc,
@@ -104,16 +105,9 @@ class _FreeRFRState extends State<FreeRFR> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.backspace),
-            color: MediaQuery.of(context).platformBrightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-            onPressed: () {
-              widget.osc.sendKey('clear_cmdline');
-              widget.osc.setCommandLine!('LIVE: ');
-            },
-          ),
+          clearCommandLine(context),
+          shutdownMultiConsole(context),
+          keypad(context),
         ],
       ),
       body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
@@ -123,6 +117,8 @@ class _FreeRFRState extends State<FreeRFR> {
               icon: Icon(Icons.keyboard), label: 'Facepanel'),
           BottomNavigationBarItem(
               icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.lightbulb), label: 'Channel Check'),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), label: 'Controls'),
           BottomNavigationBarItem(
@@ -140,5 +136,107 @@ class _FreeRFRState extends State<FreeRFR> {
         showSelectedLabels: true,
       ),
     );
+  }
+
+  IconButton keypad(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        keypadWindow(context, clearCommandLine(context));
+        // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        //   return keypadWindow(context);
+        // }));
+      },
+      icon: const Icon(Icons.dialpad_rounded),
+      tooltip: "Keypad",
+    );
+  }
+
+  IconButton clearCommandLine(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.backspace),
+      color: MediaQuery.of(context).platformBrightness == Brightness.dark
+          ? Colors.white
+          : Colors.black,
+      onPressed: () {
+        widget.osc.sendKey('clear_cmdline');
+        widget.osc.setCommandLine!('LIVE: ');
+      },
+      tooltip: "Clear Command Line",
+    );
+  }
+
+  IconButton shutdownMultiConsole(BuildContext context) {
+    return IconButton(
+      onPressed: () => showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Shut Down Eos Console'),
+              content: const Text(
+                  'Are you sure you want to shut down your Eos Console?'),
+              actions: [
+                TextButton(
+                    onPressed: (() => Navigator.of(context).pop()),
+                    child: const Text('Cancel')),
+                TextButton(
+                    onPressed: () {
+                      widget.osc.shutdownMultiConsole();
+                      Navigator.pop(context);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK')),
+              ],
+            );
+          }),
+      icon: const Icon(Icons.power_settings_new),
+      tooltip: 'Shut Down MultiConsole',
+    );
+  }
+
+  void keypadWindow(BuildContext context, IconButton clearCommandLine) {
+    showGeneralDialog(
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return Scaffold(
+            appBar: AppBar(
+                automaticallyImplyLeading: false,
+                title: TextButton(
+                  onPressed: () {
+                    AlertDialog alert = AlertDialog(
+                      title: const Text('Command Line'),
+                      content: Text(widget.commandLine),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK')),
+                      ],
+                    );
+                    showDialog(context: context, builder: (context) => alert);
+                  },
+                  child: Text(
+                    widget.commandLine,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: widget.commandLine.startsWith('BLIND')
+                          ? Colors.blue
+                          : Theme.of(context).primaryColor,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                actions: [
+                  clearCommandLine,
+                  IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close))
+                ]),
+            body: Keypad(
+              osc: widget.osc,
+              isKeypadWindow: true,
+            ),
+          );
+        });
   }
 }

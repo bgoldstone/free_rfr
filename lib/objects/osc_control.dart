@@ -51,7 +51,18 @@ class OSC {
     _setUDPTXIP();
   }
 
-  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.addToCommandLine = null,this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
+  OSC.simple(this.hostIP,
+      {this.setCommandLine = null,
+      this.setCurrentChannel = null,
+      this.setCurrentCueList = null,
+      this.setCurrentCue = null,
+      this.setCurrentCueText = null,
+      this.setPreviousCue = null,
+      this.addToCommandLine = null,
+      this.setPreviousCueText = null,
+      this.setNextCue = null,
+      this.setNextCueText = null,
+      this.setHueSaturation = null}) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -59,23 +70,34 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
-    }
+  }
 
-    void registerControlState(ControlWidget controlWidget) {
-    controlStates.removeWhere((e) => e.runtimeType == controlWidget.runtimeType);
-      controlStates.add(controlWidget);
-      debugPrint("added $controlWidget to controlstates");
-    }
+  void registerControlState(ControlWidget controlWidget) {
+    controlStates
+        .removeWhere((e) => e.runtimeType == controlWidget.runtimeType);
+    controlStates.add(controlWidget);
+    debugPrint("added $controlWidget to controlstates");
+  }
 
-    ControlWidget? getControlWidgetForType(ParameterType type) {
-      for(var control in controlStates) {
-        if(control.controllingParameters.contains(type)) {
-          return control;
-        }
+  ControlWidget? getControlWidgetForType(ParameterType type) {
+    for (var control in controlStates) {
+      if (control.controllingParameters.contains(type)) {
+        return control;
       }
-      return null;
     }
+    return null;
+  }
 
+  void shutdownMultiConsole() {
+    sendKey('multiconsole_power_off');
+    sendKey('confirm_command');
+    sleep(const Duration(milliseconds: 500));
+    try {
+      sendKey('quit');
+      sendKey('confirm_command');
+    } catch (_) {}
+    _setUDPTXIPDefault();
+  }
 
   void _setUDPTXIP() async {
     List<NetworkInterface> list = await NetworkInterface.list();
@@ -91,10 +113,10 @@ class OSC {
     //get system language of the phone
     String locale = Platform.localeName;
     var split = locale.split('_');
-    if(split[0].toLowerCase() == "en") {
+    if (split[0].toLowerCase() == "en") {
       message = OSCMessage('/eos/newcmd',
           arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
-    }else{
+    } else {
       message = OSCMessage('/eos/newcmd',
           arguments: ['OSC_UDP_TX_IP_ADRESSE ${addresses.join(',')}#']);
     }
@@ -137,17 +159,16 @@ class OSC {
     setCommandLine!('LIVE : ');
   }
 
-
-  void sendKey(String key, {bool withUpdate = true, double sleepMillis = 100}) async {
+  void sendKey(String key,
+      {bool withUpdate = true, double sleepMillis = 100}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
     sleep(Duration(milliseconds: sleepMillis.toInt()));
     _updateEosOutput();
-
   }
 
-  Future<int> requestCountOfType(String type) async{
+  Future<int> requestCountOfType(String type) async {
     OSCMessage message = OSCMessage('/eos/get/$type/count', arguments: []);
     client.send(message);
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
@@ -162,7 +183,6 @@ class OSC {
     return compl.future;
   }
 
-
   void _updateEosOutput() {
     debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
@@ -172,30 +192,49 @@ class OSC {
       if (event.address == '/eos/out/cmd') {
         setCommandLine!('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        debugPrint("args: " +event.arguments[0].toString().split(" ").toString());
-        String parameterName = event.arguments[0].toString().split(" ")[0] + " " + event.arguments[0].toString().split(" ")[1];
+        debugPrint(
+            "args: " + event.arguments[0].toString().split(" ").toString());
+        String parameterName = event.arguments[0].toString().split(" ")[0] +
+            " " +
+            event.arguments[0].toString().split(" ")[1];
         parameterName = parameterName.replaceAll(" ", "");
         debugPrint(parameters.toString());
         var key = ParameterType.getTypeByName(parameterName);
-        if(key == null) {
+        if (key == null) {
           debugPrint("Key is null at $parameterName");
           return;
         }
-        if(!parameters.containsKey(key)) {
+        if (!parameters.containsKey(key)) {
           parameters[key!] = [];
         }
-        if(key == ParameterType.intens) {
-          parameters[ParameterType.intens] = [0, double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""))];
+        if (key == ParameterType.intens) {
+          parameters[ParameterType.intens] = [
+            0,
+            double.parse(event.arguments[0]
+                .toString()
+                .split(" ")
+                .last
+                .replaceAll("[", "")
+                .replaceAll("]", ""))
+          ];
           return;
         }
-        if(key == ParameterType.pan || key == ParameterType.tilt) {
-            parameters[key] = [1, (key == ParameterType.tilt ? -1 : 1) *  double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""))];
-            return;
+        if (key == ParameterType.pan || key == ParameterType.tilt) {
+          parameters[key] = [
+            1,
+            (key == ParameterType.tilt ? -1 : 1) *
+                double.parse(event.arguments[0]
+                    .toString()
+                    .split(" ")
+                    .last
+                    .replaceAll("[", "")
+                    .replaceAll("]", ""))
+          ];
+          return;
         }
         parameters[ParameterType.getTypeByName(parameterName)]
             .addAll(event.arguments.skip(1));
-      }
-       else if (event.address.startsWith('/eos/out/color/hs') &&
+      } else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
@@ -225,53 +264,59 @@ class OSC {
         } catch (e) {
           setPreviousCue!(0);
         }
-      }else if(event.address.startsWith("/eos/out/fader")) {
-       var components = event.address.split("/");
-       debugPrint(components.toString());
-       if(components[4] == "range") {
+      } else if (event.address.startsWith("/eos/out/fader")) {
+        var components = event.address.split("/");
+        debugPrint(components.toString());
+        if (components[4] == "range") {
           var faderPage = int.parse(components[5]);
           var faderIndex = int.parse(components[6]);
           var faderRange = int.parse(event.arguments[1].toString());
           faderControlsState!.updateFader(faderIndex, 0, "", faderRange);
-       }else if(components.length == 7){
-         if(components[6] == "name") {
-           var faderPage = int.parse(components[4]);
-           var faderIndex = int.parse(components[5]);
-           if(event.arguments.toString() == "[]") {
-             debugPrint("Empty arguments");
-             faderControlsState!.updateFader(faderIndex, 0, "", 0, forceUpdate: true);
-           }else {
-             faderControlsState!.updateFader(faderIndex, 0, event.arguments.join(" "), 0);
-           }
-         }
-
-    }
-      }else if(event.address.startsWith("/eos/fader/")) {
+        } else if (components.length == 7) {
+          if (components[6] == "name") {
+            var faderPage = int.parse(components[4]);
+            var faderIndex = int.parse(components[5]);
+            if (event.arguments.toString() == "[]") {
+              debugPrint("Empty arguments");
+              faderControlsState!
+                  .updateFader(faderIndex, 0, "", 0, forceUpdate: true);
+            } else {
+              faderControlsState!
+                  .updateFader(faderIndex, 0, event.arguments.join(" "), 0);
+            }
+          }
+        }
+      } else if (event.address.startsWith("/eos/fader/")) {
         var components = event.address.split("/");
         var faderPage = int.parse(components[3]);
         var faderIndex = int.parse(components[4]);
-        faderControlsState!.updateFader(faderIndex, double.parse(event.arguments[0].toString()), "", 0);
-      }
-
-       else if(event.address.startsWith("/eos/out/pantilt")) {
-         if(getControlWidgetForType(ParameterType.pan) == null) return;
-        PanTiltControlState state = getControlWidgetForType(ParameterType.pan)! as PanTiltControlState;
+        faderControlsState!.updateFader(
+            faderIndex, double.parse(event.arguments[0].toString()), "", 0);
+      } else if (event.address.startsWith("/eos/out/pantilt")) {
+        if (getControlWidgetForType(ParameterType.pan) == null) return;
+        PanTiltControlState state =
+            getControlWidgetForType(ParameterType.pan)! as PanTiltControlState;
         var args = event.arguments;
-        state.updateValues(double.parse(args[0].toString()),
-            double.parse(args[1].toString()), double.parse(args[2].toString()), double.parse(args[3].toString()));
+        if (args.isNotEmpty && args.length <= 4) {
+          state.updateValues(
+              double.parse(args[0].toString()),
+              double.parse(args[1].toString()),
+              double.parse(args[2].toString()),
+              double.parse(args[3].toString()));
+        }
       }
 
       setCurrentChannel!(parameters);
     });
   }
 
- void setupFaderBank(int count, FaderControlsState state) {
+  void setupFaderBank(int count, FaderControlsState state) {
     OSCMessage message = OSCMessage('/eos/fader/1/config/10', arguments: []);
     client.send(message);
     debugPrint('Sent: $message, configuration done!');
     faderControlsState = state;
     _updateEosOutput();
- }
+  }
 
   void sendCmd(String cmd) {
     OSCMessage message = OSCMessage('/eos/cmd/="$cmd"', arguments: []);
@@ -300,6 +345,7 @@ class OSC {
     client.send(message);
     sendLive();
   }
+
   Future<String> getCmdLine() async {
     OSCMessage message = OSCMessage('/eos/get/cmd', arguments: []);
     var i = await client.send(message);
@@ -371,7 +417,8 @@ class OSC {
   }
 
   void updatePanTilt(double pan, double tilt) {
-    OSCMessage message = OSCMessage('/eos/param/pan/tilt', arguments: [pan, tilt]);
+    OSCMessage message =
+        OSCMessage('/eos/param/pan/tilt', arguments: [pan, tilt]);
     client.send(message);
   }
 
@@ -404,7 +451,7 @@ class OSC {
       if (msg.address.contains('/eos/out/fader/$faderPage')) {
         var message = msg.address.split('/');
         var index = int.parse(message[4]);
-          faders.add(Fader(msg.arguments.join(" "), index, faderPage, 0));
+        faders.add(Fader(msg.arguments.join(" "), index, faderPage, 0));
       }
     });
     listenSocket.close();

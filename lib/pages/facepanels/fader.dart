@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +8,7 @@ import '../../widgets/slider.dart';
 
 class FaderControls extends StatefulWidget {
   final OSC osc;
+
   const FaderControls({
     super.key,
     required this.osc,
@@ -16,10 +19,11 @@ class FaderControls extends StatefulWidget {
 }
 
 class FaderControlsState extends State<FaderControls> {
-
   int faderPage = 1;
   List<int> faderBanks = [];
   List<Fader> faders = [];
+  final Map<String, String> pageLocale = {"en": "Page", "de": "Seite"};
+  final String locale = Platform.localeName.split('_')[0];
 
   @override
   void initState() {
@@ -30,11 +34,11 @@ class FaderControlsState extends State<FaderControls> {
   void updateFader(int index, double intensity, String name, int range,
       {bool forceUpdate = false}) {
     setState(() {
-      if(faders.length < index) {
+      if (faders.length < index) {
         faders.add(Fader(name, index, faderPage, intensity));
       } else {
-        if(forceUpdate) {
-          faders[index-1].forceUpdate(name, index, faderPage, intensity);
+        if (forceUpdate) {
+          faders[index - 1].forceUpdate(name, index, faderPage, intensity);
         } else {
           faders[index - 1].update(name, index, faderPage, intensity);
         }
@@ -44,42 +48,49 @@ class FaderControlsState extends State<FaderControls> {
 
   @override
   Widget build(BuildContext context) {
-   //return grid of faders
+    //return grid of faders
     debugPrint(faders.toString());
-    return SingleChildScrollView(scrollDirection: Axis.vertical, child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
           children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  if(faderPage == 1) return;
-                  widget.osc.send("/eos/fader/1/page/-1", []);
-                  faderPage --;
-                });
-              },
-              icon: const Icon(Icons.arrow_back),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      if (faderPage == 1) return;
+                      widget.osc.send("/eos/fader/1/page/-1", []);
+                      faderPage--;
+                    });
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                Text('Faders (${pageLocale[locale]} $faderPage)'),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      widget.osc.send("/eos/fader/1/page/1", []);
+                      faderPage++;
+                    });
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                ),
+              ],
             ),
-            Text('Faders (Seite $faderPage)'),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  widget.osc.send("/eos/fader/1/page/1", []);
-                  faderPage ++;
-                });
-              },
-              icon: const Icon(Icons.arrow_forward),
-            ),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width * 1,
+              height: MediaQuery.sizeOf(context).height * 2,
+              child: GridView.count(
+                crossAxisCount: 5,
+                children: faders
+                    .map((fader) => fader.buildFader(widget.osc, setState))
+                    .toList(),
+              ),
+            )
           ],
-        ),
-        SizedBox(width: MediaQuery.sizeOf(context).width * 1, height: MediaQuery.sizeOf(context).height *2, child:
-        GridView.count(
-          crossAxisCount: 5,
-          children: faders.map((fader) => fader.buildFader(widget.osc, setState)).toList(),
-        ),)
-      ],
-    ));
+        ));
   }
 }
 
@@ -93,10 +104,9 @@ class Fader {
 
   Widget buildFader(OSC osc, Function(void Function()) setState) {
     return SizedBox(
-      height: 400,
-      child:
-    Card(
-        child: Column(
+        height: 400,
+        child: Card(
+            child: Column(
           children: [
             Text(name),
             RotatedBox(
@@ -111,21 +121,19 @@ class Fader {
                     osc.send("/eos/fader/${faderPage}/${index}", [intensity]);
                   });
                 },
-                onChangeEnd: (value) {
-
-                },
+                onChangeEnd: (value) {},
               ),
             )
-          ],)
-    ));
+          ],
+        )));
   }
 
   void update(String name, int index, int faderPage, double intensity) {
     //if name == "" dont update, also for 0 values in int
-    if(name != "") this.name = name;
-    if(index != 0) this.index = index;
-    if(faderPage != 0) this.faderPage = faderPage;
-    if(intensity != 0) this.intensity = intensity;
+    if (name != "") this.name = name;
+    if (index != 0) this.index = index;
+    if (faderPage != 0) this.faderPage = faderPage;
+    if (intensity != 0) this.intensity = intensity;
   }
 
   void forceUpdate(String name, int index, int faderPage, double intensity) {
@@ -135,6 +143,4 @@ class Fader {
     this.intensity = intensity;
     debugPrint("Force updated fader $name");
   }
-
-
 }

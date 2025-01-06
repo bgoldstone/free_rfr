@@ -21,14 +21,16 @@ class Button extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: buttonStyle,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: (fontSize! * aspectRatio * 1.5),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: (fontSize! * aspectRatio * 1),
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );
