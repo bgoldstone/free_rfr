@@ -14,6 +14,7 @@ class FreeRFR extends StatefulWidget {
   final List<double> hueSaturation;
   final ParameterMap currentChannel;
   final void Function(String) setCommandLine;
+  final void Function(int) setCurrentConnection;
   final String commandLine;
   final double previousCue;
   final double currentCue;
@@ -22,21 +23,21 @@ class FreeRFR extends StatefulWidget {
   final String previousCueText;
   final String currentCueText;
   final String nextCueText;
-  const FreeRFR({
-    super.key,
-    required this.osc,
-    required this.currentChannel,
-    required this.hueSaturation,
-    required this.setCommandLine,
-    required this.commandLine,
-    required this.previousCue,
-    required this.currentCue,
-    required this.nextCue,
-    required this.currentCueList,
-    required this.previousCueText,
-    required this.currentCueText,
-    required this.nextCueText,
-  });
+  const FreeRFR(
+      {super.key,
+      required this.osc,
+      required this.currentChannel,
+      required this.hueSaturation,
+      required this.setCommandLine,
+      required this.commandLine,
+      required this.previousCue,
+      required this.currentCue,
+      required this.nextCue,
+      required this.currentCueList,
+      required this.previousCueText,
+      required this.currentCueText,
+      required this.nextCueText,
+      required this.setCurrentConnection});
 
   @override
   State<FreeRFR> createState() => _FreeRFRState();
@@ -76,64 +77,75 @@ class _FreeRFRState extends State<FreeRFR> {
         previousCueText: widget.previousCueText,
       ),
     ];
-    return Scaffold(
-      appBar: AppBar(
-        title: TextButton(
-          onPressed: () {
-            AlertDialog alert = AlertDialog(
-              title: const Text('Command Line'),
-              content: Text(widget.commandLine),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK')),
-              ],
-            );
-            showDialog(context: context, builder: (context) => alert);
-          },
-          child: Text(
-            widget.commandLine,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              color: widget.commandLine.startsWith('BLIND')
-                  ? Colors.blue
-                  : Theme.of(context).primaryColor,
-              fontSize: 15,
+    return PopScope(
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        widget.setCurrentConnection(-1);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: TextButton(
+            onPressed: () {
+              AlertDialog alert = AlertDialog(
+                  title: const Text('Command Line'),
+                  content: Text(widget.commandLine),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('OK')),
+
+                    /// 4. Controls: a page with controls for selecting parameters, setting values,
+                    ///    and setting cues.
+                    /// 5. Playback: a page with controls for playing back cues.
+                    ///
+                    /// The command line is shown when the button in the app bar is pressed. The
+                    /// command line shows the current command line of the Hog 4 console.
+                  ]);
+              showDialog(context: context, builder: (context) => alert);
+            },
+            child: Text(
+              widget.commandLine,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: widget.commandLine.startsWith('BLIND')
+                    ? Colors.blue
+                    : Theme.of(context).primaryColor,
+                fontSize: 15,
+              ),
             ),
           ),
+          actions: [
+            clearCommandLine(context),
+            shutdownMultiConsole(context),
+            keypad(context),
+          ],
         ),
-        actions: [
-          clearCommandLine(context),
-          shutdownMultiConsole(context),
-          keypad(context),
-        ],
-      ),
-      body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.keyboard), label: 'Facepanel'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.lightbulb), label: 'Channel Check'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Controls'),
-          BottomNavigationBarItem(
-              icon: Icon(Symbols.play_pause), label: 'Playback'),
-        ],
-        selectedItemColor: Colors.yellow,
-        currentIndex: index,
-        unselectedItemColor:
-            MediaQuery.of(context).platformBrightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-        onTap: (i) => setState(() {
-          index = i;
-        }),
-        showSelectedLabels: true,
+        body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.keyboard), label: 'Facepanel'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.lightbulb), label: 'Channel Check'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'Controls'),
+            BottomNavigationBarItem(
+                icon: Icon(Symbols.play_pause), label: 'Playback'),
+          ],
+          selectedItemColor: Colors.yellow,
+          currentIndex: index,
+          unselectedItemColor:
+              MediaQuery.of(context).platformBrightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+          onTap: (i) => setState(() {
+            index = i;
+          }),
+          showSelectedLabels: true,
+        ),
       ),
     );
   }
@@ -183,6 +195,7 @@ class _FreeRFRState extends State<FreeRFR> {
                       widget.osc.shutdownMultiConsole();
                       Navigator.pop(context);
                       Navigator.of(context).pop();
+                      widget.setCurrentConnection(-1);
                     },
                     child: const Text('OK')),
               ],

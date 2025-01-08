@@ -134,6 +134,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void setCurrentConnection(int index) {
+    setState(() {
+      currentConnectionIndex = index;
+    });
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -159,19 +165,19 @@ class _MyAppState extends State<MyApp> {
               currentConnectionIndex: currentConnectionIndex,
             ),
         '/home': (context) => FreeRFR(
-              osc: osc,
-              currentChannel: currentChannel,
-              hueSaturation: hueSaturation,
-              setCommandLine: setCommandLine,
-              commandLine: getCommandLine(),
-              currentCue: currentCue,
-              currentCueList: currentCueList,
-              currentCueText: currentCueText,
-              nextCue: nextCue,
-              nextCueText: nextCueText,
-              previousCue: previousCue,
-              previousCueText: previousCueText,
-            ),
+            osc: osc,
+            currentChannel: currentChannel,
+            hueSaturation: hueSaturation,
+            setCommandLine: setCommandLine,
+            commandLine: getCommandLine(),
+            currentCue: currentCue,
+            currentCueList: currentCueList,
+            currentCueText: currentCueText,
+            nextCue: nextCue,
+            nextCueText: nextCueText,
+            previousCue: previousCue,
+            previousCueText: previousCueText,
+            setCurrentConnection: setCurrentConnection),
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
