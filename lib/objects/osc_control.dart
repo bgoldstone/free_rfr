@@ -52,17 +52,17 @@ class OSC {
   }
 
   OSC.simple(this.hostIP,
-      {this.setCommandLine = null,
-      this.setCurrentChannel = null,
-      this.setCurrentCueList = null,
-      this.setCurrentCue = null,
-      this.setCurrentCueText = null,
-      this.setPreviousCue = null,
-      this.addToCommandLine = null,
-      this.setPreviousCueText = null,
-      this.setNextCue = null,
-      this.setNextCueText = null,
-      this.setHueSaturation = null}) {
+      {this.setCommandLine,
+      this.setCurrentChannel,
+      this.setCurrentCueList,
+      this.setCurrentCue,
+      this.setCurrentCueText,
+      this.setPreviousCue,
+      this.addToCommandLine,
+      this.setPreviousCueText,
+      this.setNextCue,
+      this.setNextCueText,
+      this.setHueSaturation}) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -192,11 +192,9 @@ class OSC {
       if (event.address == '/eos/out/cmd') {
         setCommandLine!('${event.arguments[0]}');
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        debugPrint(
-            "args: " + event.arguments[0].toString().split(" ").toString());
-        String parameterName = event.arguments[0].toString().split(" ")[0] +
-            " " +
-            event.arguments[0].toString().split(" ")[1];
+        debugPrint("args: ${event.arguments[0].toString().split(" ")}");
+        String parameterName =
+            "${event.arguments[0].toString().split(" ")[0]} ${event.arguments[0].toString().split(" ")[1]}";
         parameterName = parameterName.replaceAll(" ", "");
         debugPrint(parameters.toString());
         var key = ParameterType.getTypeByName(parameterName);
@@ -205,7 +203,7 @@ class OSC {
           return;
         }
         if (!parameters.containsKey(key)) {
-          parameters[key!] = [];
+          parameters[key] = [];
         }
         if (key == ParameterType.intens) {
           parameters[ParameterType.intens] = [

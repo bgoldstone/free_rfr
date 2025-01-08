@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../objects/osc_control.dart';
@@ -118,7 +117,7 @@ class Fader {
                 onChanged: (value) {
                   setState(() {
                     intensity = value / 100;
-                    osc.send("/eos/fader/${faderPage}/${index}", [intensity]);
+                    osc.send("/eos/fader/$faderPage/$index", [intensity]);
                   });
                 },
                 onChangeEnd: (value) {},

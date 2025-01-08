@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
-import 'package:free_rfr/widgets/slider.dart';
 
 class IntensityControl extends StatefulWidget {
   final ParameterMap currentChannel;
@@ -23,22 +22,24 @@ class _IntensityControlState extends State<IntensityControl> {
   @override
   Widget build(BuildContext context) {
     debugPrint(widget.currentChannel.toString());
-    if(!widget.currentChannel.containsKey(ParameterType.intens)) {
-      return Empty();
+    if (!widget.currentChannel.containsKey(ParameterType.intens)) {
+      return const Empty();
     }
-    var intens =
-        widget.currentChannel[ParameterType.intens][1];
-    return RotatedBox(quarterTurns: 3, child: Slider(
-      value: intens,
-      min: 0,
-      max: 100,
-      onChanged: (value) {
-        widget.osc.setParameter('intens', value.roundToDouble());
-        setState(() {
-          intens = value;
-        });
-      },
-    ),);
+    var intens = widget.currentChannel[ParameterType.intens][1];
+    return RotatedBox(
+      quarterTurns: 3,
+      child: Slider(
+        value: intens,
+        min: 0,
+        max: 100,
+        onChanged: (value) {
+          widget.osc.setParameter('intens', value.roundToDouble());
+          setState(() {
+            intens = value;
+          });
+        },
+      ),
+    );
   }
 }
 
