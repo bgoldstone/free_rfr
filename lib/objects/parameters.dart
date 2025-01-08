@@ -11,6 +11,8 @@ class ParameterType {
   static ParameterType blue = ParameterType("Blue");
   static ParameterType indigo = ParameterType("Indigo");
   static ParameterType cyan = ParameterType("Cyan");
+  static ParameterType magenta = ParameterType("Magenta");
+  static ParameterType yellow = ParameterType("Yellow");
   static ParameterType hue = ParameterType("Hue");
   static ParameterType saturation = ParameterType("Saturation");
   static ParameterType colorTemperature = ParameterType("ColorTemperature");
@@ -20,12 +22,33 @@ class ParameterType {
   static ParameterType xFocus = ParameterType("X Focus");
   static ParameterType yFocus = ParameterType("Y Focus");
   static ParameterType zFocus = ParameterType("Z Focus");
-  static ParameterType positionMSpeed = ParameterType("PositionMSpeed");
+  static ParameterType positionMSpeed = ParameterType("Position MSpeed");
+  static ParameterType positionMSpeedMode =
+      ParameterType("Position MSpeed Mode");
   static ParameterType positionBlink = ParameterType("PositionBlink");
   static ParameterType ctc = ParameterType("CTC");
+  static ParameterType cto = ParameterType("CTO");
   static ParameterType colorMix = ParameterType("ColorMix");
   static ParameterType colorMixMSpeed = ParameterType("ColorMixMSpeed");
   static ParameterType zoom = ParameterType("Zoom");
+  static ParameterType colorSelect = ParameterType("Color Select");
+  static ParameterType colorMSpeed = ParameterType("Color MSpeed");
+  static ParameterType colorMSpeedMode = ParameterType("Color MSpeed Mode");
+  static ParameterType goboIndSpd = ParameterType("Gobo Ind/Spd");
+  static ParameterType goboSelect = ParameterType("Gobo Select");
+  static ParameterType goboIndSpd2 = ParameterType("Gobo Ind/Spd 2");
+  static ParameterType goboSelect2 = ParameterType("Gobo Select 2");
+  //ADD BELOW
+  static ParameterType goboIndSpd3 = ParameterType("Gobo Ind/Spd 3");
+  static ParameterType goboSelect3 = ParameterType("Gobo Select 3");
+  static ParameterType goboWheelSelectMSpeed =
+      ParameterType("Gobo Wheel Select MSpeed");
+  static ParameterType goboWheelSelectMSpeedMode =
+      ParameterType("Gobo Wheel Select MSpeed Mode");
+  static ParameterType iris = ParameterType("Iris");
+  static ParameterType edge = ParameterType("Edge");
+  static ParameterType formMSpeed = ParameterType("Form MSpeed");
+  static ParameterType formMSpeedMode = ParameterType("Form MSpeed Mode");
 
   static List<ParameterType> values = [
     intens,
@@ -36,6 +59,8 @@ class ParameterType {
     blue,
     indigo,
     cyan,
+    magenta,
+    yellow,
     hue,
     saturation,
     colorTemperature,
@@ -46,11 +71,28 @@ class ParameterType {
     yFocus,
     zFocus,
     positionMSpeed,
+    positionMSpeedMode,
     positionBlink,
     ctc,
     colorMix,
     colorMixMSpeed,
     zoom,
+    colorSelect,
+    cto,
+    colorMSpeed,
+    colorMSpeedMode,
+    goboIndSpd,
+    goboSelect,
+    goboIndSpd2,
+    goboSelect2,
+    goboIndSpd3,
+    goboSelect3,
+    goboWheelSelectMSpeed,
+    goboWheelSelectMSpeedMode,
+    iris,
+    edge,
+    formMSpeed,
+    formMSpeedMode
   ];
 
   ParameterType(this.name);
