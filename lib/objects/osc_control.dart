@@ -191,15 +191,20 @@ class OSC {
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine!('${event.arguments[0]}');
+      } else if (event.address.startsWith("/eos/out/pantilt")) {
+        parameters[ParameterType.minPan] = [event.arguments[0] as double];
+        parameters[ParameterType.maxPan] = [event.arguments[1] as double];
+        parameters[ParameterType.minTilt] = [event.arguments[2] as double];
+        parameters[ParameterType.maxTilt] = [event.arguments[3] as double];
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
         debugPrint("args: ${event.arguments[0].toString().split(" ")}");
         String parameterName =
             "${event.arguments[0].toString().split(" ")[0]} ${event.arguments[0].toString().split(" ")[1]}";
+        debugPrint(parameterName);
         parameterName = parameterName.replaceAll(" ", "");
         debugPrint(parameters.toString());
         var key = ParameterType.getTypeByName(parameterName);
         if (key == null) {
-          debugPrint("Key is null at $parameterName");
           return;
         }
         if (!parameters.containsKey(key)) {
@@ -216,8 +221,7 @@ class OSC {
                 .replaceAll("]", ""))
           ];
           return;
-        }
-        if (key == ParameterType.pan || key == ParameterType.tilt) {
+        } else if (key == ParameterType.pan || key == ParameterType.tilt) {
           parameters[key] = [
             1,
             (key == ParameterType.tilt ? -1 : 1) *
@@ -229,9 +233,12 @@ class OSC {
                     .replaceAll("]", ""))
           ];
           return;
+        } else {
+          ParameterType? paramType = ParameterType.getTypeByName(parameterName);
+          if (paramType != null) {
+            parameters[paramType] = [event.arguments.last as double];
+          }
         }
-        parameters[ParameterType.getTypeByName(parameterName)]
-            .addAll(event.arguments.skip(1));
       } else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2) {
         double hue = double.parse(event.arguments[0].toString());
@@ -317,7 +324,7 @@ class OSC {
   }
 
   void sendCmd(String cmd) {
-    OSCMessage message = OSCMessage('/eos/cmd/="$cmd"', arguments: []);
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [cmd]);
     client.send(message);
     sleep100();
   }

@@ -2,17 +2,25 @@ import 'package:flutter/material.dart';
 
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/pages/controls.dart';
 
 class PanTiltControl extends StatefulWidget {
-  double maxPan = 200;
-  double minPan = -200;
-  double maxTilt = 200;
-  double minTilt = -200;
-  double currentPan = 0;
-  double currentTilt = 0;
+  late double maxPan;
+  late double minPan;
+  late double maxTilt;
+  late double minTilt;
+  late double currentPan;
+  late double currentTilt;
   final ParameterMap currentChannel;
   final OSC osc;
-  PanTiltControl({required this.currentChannel, required this.osc, super.key});
+  PanTiltControl({required this.currentChannel, required this.osc, super.key}) {
+    maxPan = currentChannel[ParameterType.maxPan]![0];
+    minPan = currentChannel[ParameterType.minPan]![0];
+    maxTilt = currentChannel[ParameterType.maxTilt]![0];
+    minTilt = currentChannel[ParameterType.minTilt]![0];
+    currentPan = currentChannel[ParameterType.pan]![1];
+    currentTilt = currentChannel[ParameterType.tilt]![1];
+  }
 
   @override
   PanTiltControlState createState() => PanTiltControlState();
@@ -95,12 +103,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
   Widget build(BuildContext context) {
     if (!(widget.currentChannel.containsKey(ParameterType.pan) &&
         widget.currentChannel.containsKey(ParameterType.tilt))) {
-      return const Center(
-        child: Text(
-          'No Pan Tilt Control for this channel',
-          textAlign: TextAlign.center,
-        ),
-      );
+      return noParametersForThisChannel("Pan Tilt");
     }
     widget.currentPan = widget.currentChannel[ParameterType.pan]![1];
     widget.currentTilt = widget.currentChannel[ParameterType.tilt]![1];

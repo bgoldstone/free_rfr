@@ -25,7 +25,7 @@ class _IntensityControlState extends State<IntensityControl> {
     if (!widget.currentChannel.containsKey(ParameterType.intens)) {
       return const Empty();
     }
-    var intens = widget.currentChannel[ParameterType.intens][1];
+    var intens = widget.currentChannel[ParameterType.intens]?[1] ?? 0;
     return RotatedBox(
       quarterTurns: 3,
       child: Slider(

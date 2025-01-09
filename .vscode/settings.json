@@ -1,3 +1,4 @@
 {
     "diffEditor.ignoreTrimWhitespace": true,
+    "java.configuration.updateBuildConfiguration": "interactive",
 }

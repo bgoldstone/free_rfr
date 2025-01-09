@@ -2,53 +2,84 @@ import 'package:flutter/material.dart';
 
 class ParameterType {
   String name;
+  ParameterRole role;
+  double minValue = 0;
+  double maxValue = 100;
+  ParameterType(this.name, this.role, {minValue, maxValue});
 
-  static ParameterType intens = ParameterType("Intens");
-  static ParameterType red = ParameterType("Red");
-  static ParameterType redOrange = ParameterType("RedOrange");
-  static ParameterType amber = ParameterType("Amber");
-  static ParameterType green = ParameterType("Green");
-  static ParameterType blue = ParameterType("Blue");
-  static ParameterType indigo = ParameterType("Indigo");
-  static ParameterType cyan = ParameterType("Cyan");
-  static ParameterType magenta = ParameterType("Magenta");
-  static ParameterType yellow = ParameterType("Yellow");
-  static ParameterType hue = ParameterType("Hue");
-  static ParameterType saturation = ParameterType("Saturation");
-  static ParameterType colorTemperature = ParameterType("ColorTemperature");
-  static ParameterType shutterStrobe = ParameterType("ShutterStrobe");
-  static ParameterType pan = ParameterType("Pan");
-  static ParameterType tilt = ParameterType("Tilt");
-  static ParameterType xFocus = ParameterType("X Focus");
-  static ParameterType yFocus = ParameterType("Y Focus");
-  static ParameterType zFocus = ParameterType("Z Focus");
-  static ParameterType positionMSpeed = ParameterType("Position MSpeed");
+  static ParameterType intens = ParameterType("Intens", ParameterRole.intens);
+  static ParameterType red = ParameterType("Red", ParameterRole.color);
+  static ParameterType redOrange =
+      ParameterType("Red Orange", ParameterRole.color);
+  static ParameterType amber = ParameterType("Amber", ParameterRole.color);
+  static ParameterType green = ParameterType("Green", ParameterRole.color);
+  static ParameterType blue = ParameterType("Blue", ParameterRole.color);
+  static ParameterType indigo = ParameterType("Indigo", ParameterRole.color);
+  static ParameterType cyan = ParameterType("Cyan", ParameterRole.color);
+  static ParameterType magenta = ParameterType("Magenta", ParameterRole.color);
+  static ParameterType yellow = ParameterType("Yellow", ParameterRole.color);
+  static ParameterType hue = ParameterType("Hue", ParameterRole.color);
+  static ParameterType saturation =
+      ParameterType("Saturation", ParameterRole.color);
+  static ParameterType colorTemperature =
+      ParameterType("Color Temperature", ParameterRole.color);
+  static ParameterType shutterStrobe =
+      ParameterType("Shutter Strobe", ParameterRole.form);
+  static ParameterType pan = ParameterType("Pan", ParameterRole.panTilt);
+  static ParameterType tilt = ParameterType("Tilt", ParameterRole.panTilt);
+  // static ParameterType xFocus = ParameterType("X Focus", ParameterRole.focus);
+  // static ParameterType yFocus = ParameterType("Y Focus", ParameterRole.focus);
+  // static ParameterType zFocus = ParameterType("Z Focus", ParameterRole.focus);
+  static ParameterType positionMSpeed = ParameterType(
+      "Position MSpeed", ParameterRole.focus,
+      minValue: 0, maxValue: 255);
   static ParameterType positionMSpeedMode =
-      ParameterType("Position MSpeed Mode");
-  static ParameterType positionBlink = ParameterType("PositionBlink");
-  static ParameterType ctc = ParameterType("CTC");
-  static ParameterType cto = ParameterType("CTO");
-  static ParameterType colorMix = ParameterType("ColorMix");
-  static ParameterType colorMixMSpeed = ParameterType("ColorMixMSpeed");
-  static ParameterType zoom = ParameterType("Zoom");
-  static ParameterType colorSelect = ParameterType("Color Select");
-  static ParameterType colorMSpeed = ParameterType("Color MSpeed");
-  static ParameterType colorMSpeedMode = ParameterType("Color MSpeed Mode");
-  static ParameterType goboIndSpd = ParameterType("Gobo Ind/Spd");
-  static ParameterType goboSelect = ParameterType("Gobo Select");
-  static ParameterType goboIndSpd2 = ParameterType("Gobo Ind/Spd 2");
-  static ParameterType goboSelect2 = ParameterType("Gobo Select 2");
-  //ADD BELOW
-  static ParameterType goboIndSpd3 = ParameterType("Gobo Ind/Spd 3");
-  static ParameterType goboSelect3 = ParameterType("Gobo Select 3");
+      ParameterType("Position MSpeed Mode", ParameterRole.focus);
+  static ParameterType positionBlink =
+      ParameterType("Position Blink", ParameterRole.focus);
+  static ParameterType ctc = ParameterType("CTC", ParameterRole.color);
+  static ParameterType cto = ParameterType("CTO", ParameterRole.color);
+  static ParameterType colorMix =
+      ParameterType("Color Mix", ParameterRole.color);
+  static ParameterType colorMixMSpeed =
+      ParameterType("ColorMixMSpeed", ParameterRole.color);
+  static ParameterType zoom = ParameterType("Zoom", ParameterRole.form);
+  static ParameterType colorSelect =
+      ParameterType("Color Select", ParameterRole.color);
+  static ParameterType colorMSpeed =
+      ParameterType("Color MSpeed", ParameterRole.color);
+  static ParameterType colorMSpeedMode =
+      ParameterType("Color MSpeed Mode", ParameterRole.color);
+  static ParameterType goboIndSpd =
+      ParameterType("Gobo Ind/Spd", ParameterRole.image);
+  static ParameterType goboSelect =
+      ParameterType("Gobo Select", ParameterRole.image);
+  static ParameterType goboIndSpd2 =
+      ParameterType("Gobo Ind/Spd 2", ParameterRole.image);
+  static ParameterType goboSelect2 =
+      ParameterType("Gobo Select 2", ParameterRole.image);
+  static ParameterType goboIndSpd3 =
+      ParameterType("Gobo Ind/Spd 3", ParameterRole.image);
+  static ParameterType goboSelect3 =
+      ParameterType("Gobo Select 3", ParameterRole.image);
   static ParameterType goboWheelSelectMSpeed =
-      ParameterType("Gobo Wheel Select MSpeed");
+      ParameterType("Gobo Wheel Select MSpeed", ParameterRole.image);
   static ParameterType goboWheelSelectMSpeedMode =
-      ParameterType("Gobo Wheel Select MSpeed Mode");
-  static ParameterType iris = ParameterType("Iris");
-  static ParameterType edge = ParameterType("Edge");
-  static ParameterType formMSpeed = ParameterType("Form MSpeed");
-  static ParameterType formMSpeedMode = ParameterType("Form MSpeed Mode");
+      ParameterType("Gobo Wheel Select MSpeed Mode", ParameterRole.image);
+  static ParameterType iris = ParameterType("Iris", ParameterRole.form);
+  static ParameterType edge = ParameterType("Edge", ParameterRole.form);
+  static ParameterType formMSpeed =
+      ParameterType("Form MSpeed", ParameterRole.form);
+  static ParameterType formMSpeedMode =
+      ParameterType("Form MSpeed Mode", ParameterRole.form);
+  static ParameterType goboWheel =
+      ParameterType("Gobo Wheel", ParameterRole.image);
+  static ParameterType maxPan = ParameterType("Max Pan", ParameterRole.panTilt);
+  static ParameterType maxTilt =
+      ParameterType("Max Tilt", ParameterRole.panTilt);
+  static ParameterType minPan = ParameterType("Min Pan", ParameterRole.panTilt);
+  static ParameterType minTilt =
+      ParameterType("Min Tilt", ParameterRole.panTilt);
 
   static List<ParameterType> values = [
     intens,
@@ -67,9 +98,9 @@ class ParameterType {
     shutterStrobe,
     pan,
     tilt,
-    xFocus,
-    yFocus,
-    zFocus,
+    // xFocus,
+    // yFocus,
+    // zFocus,
     positionMSpeed,
     positionMSpeedMode,
     positionBlink,
@@ -92,14 +123,13 @@ class ParameterType {
     iris,
     edge,
     formMSpeed,
-    formMSpeedMode
+    formMSpeedMode,
+    goboWheel,
   ];
-
-  ParameterType(this.name);
 
   static ParameterType? getTypeByName(String name) {
     for (var type in ParameterType.values) {
-      if (type.name.toLowerCase() == name.toLowerCase()) {
+      if (type.name.toLowerCase().replaceAll(" ", "") == name.toLowerCase()) {
         return type;
       }
     }
@@ -112,22 +142,37 @@ class ParameterType {
   }
 }
 
-typedef ParameterMap = Map<ParameterType, dynamic>;
+typedef ParameterMap = Map<ParameterType, List<double>?>;
 
 class ParameterRole {
   int index;
 
   ParameterRole(this.index);
 
-  static ParameterRole intens = ParameterRole(0);
-  static ParameterRole focus = ParameterRole(1);
-  static ParameterRole color = ParameterRole(2);
-  static ParameterRole form = ParameterRole(3);
+  static ParameterRole intens = ParameterRole(1);
+  static ParameterRole focus = ParameterRole(2);
+  static ParameterRole color = ParameterRole(3);
   static ParameterRole image = ParameterRole(4);
-  static ParameterRole shutter = ParameterRole(5);
+  static ParameterRole form = ParameterRole(5);
+  static ParameterRole shutter = ParameterRole(6);
+  static ParameterRole panTilt = ParameterRole(7);
 }
 
 abstract class ControlWidget<T extends StatefulWidget> extends State<T> {
   List<ParameterType> controllingParameters;
   ControlWidget({required this.controllingParameters});
+}
+
+/**
+ * Filters a ParameterMap by ParameterRole.
+ */
+ParameterMap filterByParameterType(ParameterMap map, ParameterRole role) {
+  ParameterMap result = {};
+  for (var parameterType in map.keys) {
+    ParameterRole parameterRole = parameterType.role;
+    if (parameterRole == role) {
+      result[parameterType] = map[parameterType];
+    }
+  }
+  return result;
 }
