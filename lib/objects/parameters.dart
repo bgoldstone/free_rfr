@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ParameterType {
-  String name;
+  String oscName;
   ParameterRole role;
-  double minValue = 0;
-  double maxValue = 100;
-  ParameterType(this.name, this.role, {minValue, maxValue});
+  double minValue;
+  double maxValue;
+  ParameterType(this.oscName, this.role,
+      {this.minValue = 0, this.maxValue = 100});
 
   static ParameterType intens = ParameterType("Intens", ParameterRole.intens);
   static ParameterType red = ParameterType("Red", ParameterRole.color);
@@ -33,8 +34,6 @@ class ParameterType {
   static ParameterType positionMSpeed = ParameterType(
       "Position MSpeed", ParameterRole.focus,
       minValue: 0, maxValue: 255);
-  static ParameterType positionMSpeedMode =
-      ParameterType("Position MSpeed Mode", ParameterRole.focus);
   static ParameterType positionBlink =
       ParameterType("Position Blink", ParameterRole.focus);
   static ParameterType ctc = ParameterType("CTC", ParameterRole.color);
@@ -102,7 +101,6 @@ class ParameterType {
     // yFocus,
     // zFocus,
     positionMSpeed,
-    positionMSpeedMode,
     positionBlink,
     ctc,
     colorMix,
@@ -129,16 +127,21 @@ class ParameterType {
 
   static ParameterType? getTypeByName(String name) {
     for (var type in ParameterType.values) {
-      if (type.name.toLowerCase().replaceAll(" ", "") == name.toLowerCase()) {
+      if (type.oscName.toLowerCase().replaceAll(" ", "") ==
+          name.toLowerCase()) {
         return type;
       }
     }
     return null;
   }
 
+  String getEosName() {
+    return oscName.replaceAll(" ", "_");
+  }
+
   @override
   String toString() {
-    return name;
+    return oscName;
   }
 }
 
@@ -146,16 +149,17 @@ typedef ParameterMap = Map<ParameterType, List<double>?>;
 
 class ParameterRole {
   int index;
+  String name;
 
-  ParameterRole(this.index);
+  ParameterRole(this.index, this.name);
 
-  static ParameterRole intens = ParameterRole(1);
-  static ParameterRole focus = ParameterRole(2);
-  static ParameterRole color = ParameterRole(3);
-  static ParameterRole image = ParameterRole(4);
-  static ParameterRole form = ParameterRole(5);
-  static ParameterRole shutter = ParameterRole(6);
-  static ParameterRole panTilt = ParameterRole(7);
+  static ParameterRole intens = ParameterRole(1, "intens");
+  static ParameterRole focus = ParameterRole(2, "focus");
+  static ParameterRole color = ParameterRole(3, "color");
+  static ParameterRole image = ParameterRole(4, "image");
+  static ParameterRole form = ParameterRole(5, "form");
+  static ParameterRole shutter = ParameterRole(6, "shutter");
+  static ParameterRole panTilt = ParameterRole(7, "panTilt");
 }
 
 abstract class ControlWidget<T extends StatefulWidget> extends State<T> {
@@ -163,9 +167,7 @@ abstract class ControlWidget<T extends StatefulWidget> extends State<T> {
   ControlWidget({required this.controllingParameters});
 }
 
-/**
- * Filters a ParameterMap by ParameterRole.
- */
+/// Filters a ParameterMap by ParameterRole.
 ParameterMap filterByParameterType(ParameterMap map, ParameterRole role) {
   ParameterMap result = {};
   for (var parameterType in map.keys) {

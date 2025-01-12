@@ -31,14 +31,24 @@ class _ControlsState extends State<Controls> {
   Widget build(BuildContext context) {
     List<Widget> pages = [
       IntensityControl(currentChannel: widget.currentChannel, osc: widget.osc),
-      PanTiltControl(currentChannel: widget.currentChannel, osc: widget.osc),
+      (widget.currentChannel[ParameterType.pan] != null &&
+              widget.currentChannel[ParameterType.tilt] != null &&
+              widget.currentChannel[ParameterType.maxPan] != null &&
+              widget.currentChannel[ParameterType.maxTilt] != null &&
+              widget.currentChannel[ParameterType.minPan] != null &&
+              widget.currentChannel[ParameterType.minTilt] != null)
+          ? PanTiltControl(
+              currentChannel: widget.currentChannel, osc: widget.osc)
+          : noParametersForThisChannel("Pan Tilt"),
       FocusControl(osc: widget.osc, currentChannel: widget.currentChannel),
-      ColorControl(widget.osc,
-          currentChannel: widget.currentChannel,
-          hueSaturation: widget.hueSaturation),
-      const ShutterControl(),
-      const ImageControl(),
-      const FormControl()
+      widget.hueSaturation.isNotEmpty
+          ? ColorControl(widget.osc,
+              currentChannel: widget.currentChannel,
+              hueSaturation: widget.hueSaturation)
+          : noParametersForThisChannel("Color"),
+      ShutterControl(osc: widget.osc, currentChannel: widget.currentChannel),
+      ImageControl(osc: widget.osc, currentChannel: widget.currentChannel),
+      FormControl(osc: widget.osc, currentChannel: widget.currentChannel)
     ];
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
@@ -91,39 +101,10 @@ class _ControlsState extends State<Controls> {
       body: pages[index],
     );
   }
-}
 
-class ControlFader {
-  String name = "";
-  ParameterType parameter;
-  double parameterValue;
-
-  ControlFader(this.name, this.parameter, this.parameterValue);
-
-  Widget buildFader(OSC osc, ParameterType parameterType,
-      void Function(ParameterType, double) updateState) {
-    return SizedBox(
-        height: 400,
-        child: Card(
-            child: Column(
-          children: [
-            Text(name),
-            RotatedBox(
-              quarterTurns: 3,
-              child: Slider(
-                value: parameterValue,
-                min: parameter.minValue,
-                max: parameter.maxValue,
-                onChanged: (newValue) {
-                  osc.sendCmd(
-                      "select_last ${name.replaceAll(" ", "_")} $parameterValue#");
-                  updateState(parameterType, newValue);
-                },
-                onChangeEnd: (value) {},
-              ),
-            )
-          ],
-        )));
+  @override
+  void initState() {
+    super.initState();
   }
 }
 

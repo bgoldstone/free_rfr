@@ -12,6 +12,7 @@ class OSC {
   final InternetAddress hostIP;
   final int hostPort = 8000;
   final int clientPort = 8001;
+  List<double> hueSaturation = [0, 0];
   final Function(ParameterMap)? setCurrentChannel;
   final Function(String)? setCommandLine;
   final void Function(int)? setCurrentCueList;
@@ -188,21 +189,30 @@ class OSC {
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     ParameterMap parameters = {};
     listenSocket.listen((event) {
+      debugPrint(
+          "Is hs:${event.address.startsWith('/eos/out/color/hs')}, actual :${event.address}");
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine!('${event.arguments[0]}');
-      } else if (event.address.startsWith("/eos/out/pantilt")) {
+      } else if (event.address.startsWith("/eos/out/pantilt") &&
+          event.arguments.length >= 4) {
         parameters[ParameterType.minPan] = [event.arguments[0] as double];
         parameters[ParameterType.maxPan] = [event.arguments[1] as double];
         parameters[ParameterType.minTilt] = [event.arguments[2] as double];
         parameters[ParameterType.maxTilt] = [event.arguments[3] as double];
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        debugPrint("args: ${event.arguments[0].toString().split(" ")}");
-        String parameterName =
-            "${event.arguments[0].toString().split(" ")[0]} ${event.arguments[0].toString().split(" ")[1]}";
-        debugPrint(parameterName);
+        var args = event.arguments[0].toString().split(" ");
+        debugPrint("args: $args");
+        String parameterName = "";
+        for (int i = 0; i < args.length; i++) {
+          if (i + 1 < args.length) {
+            parameterName += "${args[i]} ";
+          }
+        }
+        debugPrint("Parameter Name: $parameterName");
         parameterName = parameterName.replaceAll(" ", "");
         debugPrint(parameters.toString());
+
         var key = ParameterType.getTypeByName(parameterName);
         if (key == null) {
           return;
@@ -240,9 +250,10 @@ class OSC {
           }
         }
       } else if (event.address.startsWith('/eos/out/color/hs') &&
-          event.arguments.length == 2) {
+          event.arguments.isNotEmpty) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
+        debugPrint("HUESAT: $hue $saturation");
         setHueSaturation!(hue, saturation);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
@@ -281,13 +292,15 @@ class OSC {
           if (components[6] == "name") {
             var faderPage = int.parse(components[4]);
             var faderIndex = int.parse(components[5]);
-            if (event.arguments.toString() == "[]") {
-              debugPrint("Empty arguments");
-              faderControlsState!
-                  .updateFader(faderIndex, 0, "", 0, forceUpdate: true);
-            } else {
-              faderControlsState!
-                  .updateFader(faderIndex, 0, event.arguments.join(" "), 0);
+            if (faderControlsState != null) {
+              if (event.arguments.toString() == "[]") {
+                debugPrint("Empty arguments");
+                faderControlsState!
+                    .updateFader(faderIndex, 0, "", 0, forceUpdate: true);
+              } else {
+                faderControlsState!
+                    .updateFader(faderIndex, 0, event.arguments.join(" "), 0);
+              }
             }
           }
         }

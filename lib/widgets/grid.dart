@@ -11,7 +11,7 @@ class Grid extends StatelessWidget {
     return GridView.count(
       crossAxisCount: columns,
       physics: const ScrollPhysics(),
-      childAspectRatio: MediaQuery.of(context).size.aspectRatio * scale,
+      childAspectRatio: MediaQuery.of(context).size.aspectRatio / 2 * scale,
       children: children,
     );
   }

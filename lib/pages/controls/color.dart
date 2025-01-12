@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/widgets/button.dart';
 
 class ColorControl extends StatefulWidget {
   final OSC osc;
@@ -28,8 +29,9 @@ class _ColorControlState extends State<ColorControl> {
                 1, widget.hueSaturation[0], widget.hueSaturation[1], 1)
             .toColor()
         : Colors.white;
-    return Scaffold(
-      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         ColorPicker(
           pickerColor: currentColor ?? colorFromEos,
           onColorChanged: (newColor) {
@@ -40,6 +42,12 @@ class _ColorControlState extends State<ColorControl> {
           enableAlpha: false,
           paletteType: PaletteType.hueWheel,
         ),
+        Button("Color Home", () {
+          widget.osc.sendCmd("select_last Color Home#");
+          setState(() {
+            currentColor = Colors.white;
+          });
+        }),
         // TODO: implement this page.
         // ElevatedButton(
         //     onPressed: () {
