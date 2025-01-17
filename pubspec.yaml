@@ -58,12 +58,16 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icons/free_rfr.png"
+  adaptive_icon_foreground: "assets/icons/free_rfr.png"
   remove_alpha_ios: true
   background_color: "#00000000"
   windows:
     generate: true
     image_path: "assets/icons/free_rfr.png"
     icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/free_rfr.png"
 
 dependency_overrides:
     charts_flutter:
