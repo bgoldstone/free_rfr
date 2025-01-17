@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
 import '../pages/controls/pan_tilt_control.dart';
-import '../pages/facepanels/fader.dart';
+import '../pages/facepanels/faders.dart';
 
 class OSC {
   final InternetAddress hostIP;

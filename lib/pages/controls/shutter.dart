@@ -7,7 +7,7 @@ import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 class ShutterControl extends StatefulWidget {
   final OSC osc;
   final ParameterMap currentChannel;
-  List<ParameterType> controls = [];
+  final List<ParameterType> controls = [];
   ShutterControl({super.key, required this.osc, required this.currentChannel}) {
     currentChannel.forEach((parameterType, _) {
       if (parameterType.role == ParameterRole.shutter) {
