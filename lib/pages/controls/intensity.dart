@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/widgets/button.dart';
 
 class IntensityControl extends StatefulWidget {
   final ParameterMap currentChannel;
@@ -26,18 +27,72 @@ class _IntensityControlState extends State<IntensityControl> {
       return const Empty();
     }
     var intens = widget.currentChannel[ParameterType.intens]?[1] ?? 0;
-    return RotatedBox(
-      quarterTurns: 3,
-      child: Slider(
-        value: intens,
-        min: 0,
-        max: 100,
-        onChanged: (value) {
-          widget.osc.setParameter('intens', value.roundToDouble());
-          setState(() {
-            intens = value;
-          });
-        },
+    var boxHeight = MediaQuery.of(context).size.height * 0.7;
+    return SingleChildScrollView(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SizedBox(
+            height: boxHeight * .75,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Button("Full", () {
+                  widget.osc.setParameter('Intens', 100);
+                  setState(() {
+                    intens = 100;
+                  });
+                }),
+                Button("75%", () {
+                  widget.osc.setParameter('Intens', 75);
+                  setState(() {
+                    intens = 100;
+                  });
+                }),
+                Button("50%", () {
+                  widget.osc.setParameter('Intens', 50);
+                  setState(() {
+                    intens = 100;
+                  });
+                }),
+                Button("25%", () {
+                  widget.osc.setParameter('Intens', 25);
+                  setState(() {
+                    intens = 100;
+                  });
+                }),
+                Button("Out", () {
+                  widget.osc.setParameter('Intens', 0);
+                  setState(() {
+                    intens = 100;
+                  });
+                }),
+              ],
+            ),
+          ),
+          Column(
+            children: [
+              Text("Intensity: ${intens.toStringAsFixed(2)}"),
+              SizedBox(
+                height: boxHeight,
+                child: RotatedBox(
+                  quarterTurns: 3,
+                  child: Slider(
+                    value: intens,
+                    min: 0,
+                    max: 100,
+                    onChanged: (value) {
+                      widget.osc.setParameter('Intens', value.roundToDouble());
+                      setState(() {
+                        intens = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
