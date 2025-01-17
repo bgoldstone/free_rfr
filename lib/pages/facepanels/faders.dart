@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../objects/osc_control.dart';
-import '../../widgets/slider.dart';
 
 class FaderControls extends StatefulWidget {
   final OSC osc;

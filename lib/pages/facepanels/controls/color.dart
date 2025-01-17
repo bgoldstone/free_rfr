@@ -43,14 +43,14 @@ class _ColorControlState extends State<ColorControl> {
           enableAlpha: false,
           paletteType: PaletteType.hueWheel,
         ),
-        Container(
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.25,
           child: Button("Color Home", () {
             widget.osc.sendCmd("select_last Color Home#");
             setState(() {
               currentColor = Colors.white;
             });
           }),
-          width: MediaQuery.of(context).size.width * 0.25,
         ),
         // TODO: implement this page.
         // ElevatedButton(

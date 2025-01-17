@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 
+// ignore: must_be_immutable
 class PanTiltControl extends StatefulWidget {
   late double maxPan;
   late double minPan;

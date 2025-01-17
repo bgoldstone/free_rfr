@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
-import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 
 class ImageControl extends StatefulWidget {
   final OSC osc;
   final ParameterMap currentChannel;
-  List<ParameterType> controls = [];
+  final List<ParameterType> controls = [];
   ImageControl({super.key, required this.osc, required this.currentChannel}) {
     currentChannel.forEach((parameterType, _) {
       debugPrint(parameterType.oscName);

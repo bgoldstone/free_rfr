@@ -298,13 +298,13 @@ class OSC {
         var components = event.address.split("/");
         debugPrint(components.toString());
         if (components[4] == "range") {
-          var faderPage = int.parse(components[5]);
+          // var faderPage = int.parse(components[5]);
           var faderIndex = int.parse(components[6]);
           var faderRange = int.parse(event.arguments[1].toString());
           faderControlsState!.updateFader(faderIndex, 0, "", faderRange);
         } else if (components.length == 7) {
           if (components[6] == "name") {
-            var faderPage = int.parse(components[4]);
+            // var faderPage = int.parse(components[4]);
             var faderIndex = int.parse(components[5]);
             if (faderControlsState != null) {
               if (event.arguments.toString() == "[]") {
@@ -320,7 +320,7 @@ class OSC {
         }
       } else if (event.address.startsWith("/eos/fader/")) {
         var components = event.address.split("/");
-        var faderPage = int.parse(components[3]);
+        // var faderPage = int.parse(components[3]);
         var faderIndex = int.parse(components[4]);
         faderControlsState!.updateFader(
             faderIndex, double.parse(event.arguments[0].toString()), "", 0);
