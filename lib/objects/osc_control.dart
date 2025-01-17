@@ -269,11 +269,25 @@ class OSC {
       } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
+          setNextCueText!(text);
+        } else {
+          setNextCueText!('');
+        }
+      } else if (event.address.startsWith('/eos/out/pending/cue/')) {
+        List<String> address = event.address.split('/');
+        try {
+          setNextCue!(double.parse(address.last));
+        } catch (e) {
+          setNextCue!(0);
+        }
+      } else if (event.address.startsWith('/eos/out/previous/cue/text')) {
+        String text = event.arguments[0].toString();
+        if (text.length > 1) {
           setPreviousCueText!(text);
         } else {
           setPreviousCueText!('');
         }
-      } else if (event.address.startsWith('/eos/out/pending/cue/')) {
+      } else if (event.address.startsWith('/eos/out/previous/cue/')) {
         List<String> address = event.address.split('/');
         try {
           setPreviousCue!(double.parse(address.last));
