@@ -2,6 +2,7 @@
 
 A new RFR for ETC Eos-based consoles using OSC Communication
 
+[![Flutter Build](https://github.com/bgoldstone/free_rfr/actions/workflows/flutter_build.yml/badge.svg?branch=main)](https://github.com/bgoldstone/free_rfr/actions/workflows/flutter_build.yml)
 
 > **Warning**  
 > This project is under active development and breaking changes are likely. Use at your own risk!
