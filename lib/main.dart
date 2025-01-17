@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
@@ -22,11 +23,11 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
-  ParameterList currentChannel = [];
+  ParameterMap currentChannel = {};
   List<double> hueSaturation = [];
   String commandLine = '';
   double currentCue = -1;
-  int currentCueList = -1;
+  int currentCueList = 1;
   String currentCueText = '';
   double previousCue = -1;
   String previousCueText = '';
@@ -85,6 +86,16 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void addToCommandLine(String command) {
+    try {
+      setState(() {
+        commandLine += command;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   String getCommandLine() {
     return commandLine;
   }
@@ -93,10 +104,8 @@ class _MyAppState extends State<MyApp> {
     hueSaturation = [hue, saturation];
   }
 
-  void setCurrentChannel(ParameterList channel) {
-    setState(() {
-      currentChannel = channel;
-    });
+  void setCurrentChannel(ParameterMap channel) {
+    currentChannel = channel;
   }
 
   void setActiveConnection(Map<String, dynamic> connection, int index) {
@@ -117,6 +126,7 @@ class _MyAppState extends State<MyApp> {
           setCurrentCue,
           setCurrentCueText,
           setPreviousCue,
+          addToCommandLine,
           setPreviousCueText,
           setNextCue,
           setNextCueText,
@@ -125,14 +135,20 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void setCurrentConnection(int index) {
+    setState(() {
+      currentConnectionIndex = index;
+    });
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     const Color primaryColor = Color.fromARGB(255, 255, 196, 0);
     return MaterialApp(
+      scrollBehavior: FreeRFRScrollBehavior(),
       title: 'Free RFR',
       theme: ThemeData(
-        primarySwatch: Colors.yellow,
         primaryColor: primaryColor,
         useMaterial3: true,
         brightness: Brightness.light,
@@ -150,20 +166,19 @@ class _MyAppState extends State<MyApp> {
               currentConnectionIndex: currentConnectionIndex,
             ),
         '/home': (context) => FreeRFR(
-              osc: osc,
-              setCurrentChannel: setCurrentChannel,
-              currentChannel: currentChannel,
-              hueSaturation: hueSaturation,
-              setCommandLine: setCommandLine,
-              commandLine: getCommandLine(),
-              currentCue: currentCue,
-              currentCueList: currentCueList,
-              currentCueText: currentCueText,
-              nextCue: nextCue,
-              nextCueText: nextCueText,
-              previousCue: previousCue,
-              previousCueText: previousCueText,
-            ),
+            osc: osc,
+            currentChannel: currentChannel,
+            hueSaturation: hueSaturation,
+            setCommandLine: setCommandLine,
+            commandLine: getCommandLine(),
+            currentCue: currentCue,
+            currentCueList: currentCueList,
+            currentCueText: currentCueText,
+            nextCue: nextCue,
+            nextCueText: nextCueText,
+            previousCue: previousCue,
+            previousCueText: previousCueText,
+            setCurrentConnection: setCurrentConnection),
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,

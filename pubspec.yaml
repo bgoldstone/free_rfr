@@ -37,9 +37,9 @@ dependencies:
   cupertino_icons: ^1.0.6
   osc: ^1.0.0
   path_provider: ^2.1.2
-  flutter_colorpicker: ^1.0.3
+  flutter_colorpicker: ^1.1.0
   material_symbols_icons: ^4.2719.3
-  
+
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +58,22 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icons/free_rfr.png"
+  adaptive_icon_foreground: "assets/icons/free_rfr.png"
   remove_alpha_ios: true
+  background_color: "#00000000"
+  windows:
+    generate: true
+    image_path: "assets/icons/free_rfr.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/free_rfr.png"
+
+dependency_overrides:
+    charts_flutter:
+      git:
+        url: https://github.com/google/charts
+        path: charts_flutter
 
 # The following section is specific to Flutter packages.
 flutter:

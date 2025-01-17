@@ -27,8 +27,6 @@ class Cues extends StatefulWidget {
 
 class _CuesState extends State<Cues> {
   List<Cue> cueList = [];
-  int currentCue = -1;
-
   @override
   void initState() {
     super.initState();
@@ -36,6 +34,7 @@ class _CuesState extends State<Cues> {
 
   @override
   Widget build(BuildContext context) {
+    const currentCueStyle = TextStyle(fontWeight: FontWeight.bold);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -52,10 +51,28 @@ class _CuesState extends State<Cues> {
           padding: const EdgeInsets.all(8.0),
           child: Card(
             child: ListTile(
-              title: const Text('Current Cue'),
-              subtitle: Text(widget.currentCueText),
+                title: const Text('Previous Cue'),
+                subtitle: Text(widget.previousCueText),
+                onLongPress: () {
+                  editLabel(context, widget.previousCue);
+                }),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: Theme.of(context).secondaryHeaderColor,
+            child: ListTile(
+              title: const Text(
+                'Current Cue',
+                style: currentCueStyle,
+              ),
+              subtitle: Text(
+                widget.currentCueText,
+                style: currentCueStyle,
+              ),
               onLongPress: () {
-                editLabel(context, widget.nextCue);
+                editLabel(context, widget.currentCue);
               },
             ),
           ),
@@ -72,17 +89,6 @@ class _CuesState extends State<Cues> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            child: ListTile(
-                title: const Text('Previous Cue'),
-                subtitle: Text(widget.previousCueText),
-                onLongPress: () {
-                  editLabel(context, widget.previousCue);
-                }),
-          ),
-        ),
         Wrap(
           alignment: WrapAlignment.spaceAround,
           children: [
@@ -95,7 +101,7 @@ class _CuesState extends State<Cues> {
                   },
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.red)),
+                          WidgetStatePropertyAll<Color>(Colors.red)),
                   child: const Text('Stop/Back')),
             ),
             Padding(
@@ -104,7 +110,7 @@ class _CuesState extends State<Cues> {
                   onPressed: () => widget.osc.sendKey('go_0'),
                   style: const ButtonStyle(
                       foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.green)),
+                          WidgetStatePropertyAll<Color>(Colors.green)),
                   child: const Text('Go')),
             ),
           ],

@@ -4,8 +4,10 @@ class Button extends StatelessWidget {
   final Function() onPressed;
   final String text;
   final double? fontSize;
+  final double padding;
 
-  const Button(this.text, this.onPressed, {super.key, this.fontSize = 20});
+  const Button(this.text, this.onPressed,
+      {super.key, this.fontSize = 20, this.padding = 8.0});
 
   @override
   Widget build(BuildContext context) {
@@ -17,18 +19,20 @@ class Button extends StatelessWidget {
     );
     double aspectRatio = MediaQuery.of(context).size.aspectRatio;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(padding),
       child: ElevatedButton(
         onPressed: onPressed,
         style: buttonStyle,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: (fontSize! * aspectRatio * 1.5),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: (fontSize! * aspectRatio),
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );

@@ -5,7 +5,13 @@ import 'package:free_rfr/widgets/grid.dart';
 
 class Keypad extends StatelessWidget {
   final OSC osc;
-  const Keypad({super.key, required this.osc});
+  final bool isKeypadWindow;
+  final double scale;
+  const Keypad(
+      {super.key,
+      required this.osc,
+      this.isKeypadWindow = false,
+      this.scale = 2});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,7 @@ class Keypad extends StatelessWidget {
       Button('-', () {
         osc.sendKey('-');
       }, fontSize: 30),
-      Button('Grp', () {
+      Button('Group', () {
         osc.sendKey('group');
       }, fontSize: 20),
       Button(
@@ -104,6 +110,7 @@ class Keypad extends StatelessWidget {
       }),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
+        osc.setCommandLine!('LIVE: ');
       }, fontSize: 18.5),
       Button('0', () {
         osc.sendKey('0');
@@ -113,8 +120,9 @@ class Keypad extends StatelessWidget {
       }, fontSize: 30),
       Button('Enter', () {
         osc.sendKey('enter');
+        isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return Grid(4, keypad, 2);
+    return Grid(4, keypad, scale);
   }
 }

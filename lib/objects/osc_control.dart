@@ -1,24 +1,33 @@
+import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
+import '../pages/facepanels/controls/pan_tilt_control.dart';
+import '../pages/facepanels/faders.dart';
 
 class OSC {
   final InternetAddress hostIP;
   final int hostPort = 8000;
   final int clientPort = 8001;
-  final Function(ParameterList) setCurrentChannel;
-  final Function(String) setCommandLine;
-  final void Function(int) setCurrentCueList;
-  final void Function(double) setCurrentCue;
-  final void Function(String) setCurrentCueText;
-  final void Function(double) setPreviousCue;
-  final void Function(String) setPreviousCueText;
-  final void Function(double) setNextCue;
-  final void Function(String) setNextCueText;
-  final void Function(double, double) setHueSaturation;
+  List<double> hueSaturation = [0, 0];
+  final Function(ParameterMap)? setCurrentChannel;
+  final Function(String)? setCommandLine;
+  final void Function(int)? setCurrentCueList;
+  final void Function(double)? setCurrentCue;
+  final void Function(String)? setCurrentCueText;
+  final void Function(String)? addToCommandLine;
+  final void Function(double)? setPreviousCue;
+  final void Function(String)? setPreviousCueText;
+  final void Function(double)? setNextCue;
+  final void Function(String)? setNextCueText;
+  final void Function(double, double)? setHueSaturation;
+
+  FaderControlsState? faderControlsState;
+  List<ControlWidget> controlStates = [];
+
   late final OSCSocket client;
 
   OSC(
@@ -29,6 +38,7 @@ class OSC {
       this.setCurrentCue,
       this.setCurrentCueText,
       this.setPreviousCue,
+      this.addToCommandLine,
       this.setPreviousCueText,
       this.setNextCue,
       this.setNextCueText,
@@ -38,9 +48,56 @@ class OSC {
     client.send(message);
     message = OSCMessage('/eos/ping', arguments: ['free rfr']);
     client.send(message);
-    OSCSocket(destinationPort: 8001).listen((msg) {});
     _updateEosOutput();
     _setUDPTXIP();
+  }
+
+  OSC.simple(this.hostIP,
+      {this.setCommandLine,
+      this.setCurrentChannel,
+      this.setCurrentCueList,
+      this.setCurrentCue,
+      this.setCurrentCueText,
+      this.setPreviousCue,
+      this.addToCommandLine,
+      this.setPreviousCueText,
+      this.setNextCue,
+      this.setNextCueText,
+      this.setHueSaturation}) {
+    client = OSCSocket(destination: hostIP, destinationPort: hostPort);
+    OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
+    client.send(message);
+    message = OSCMessage('/eos/ping', arguments: ['free rfr']);
+    client.send(message);
+    _updateEosOutput();
+    _setUDPTXIP();
+  }
+
+  void registerControlState(ControlWidget controlWidget) {
+    controlStates
+        .removeWhere((e) => e.runtimeType == controlWidget.runtimeType);
+    controlStates.add(controlWidget);
+    debugPrint("added $controlWidget to controlstates");
+  }
+
+  ControlWidget? getControlWidgetForType(ParameterType type) {
+    for (var control in controlStates) {
+      if (control.controllingParameters.contains(type)) {
+        return control;
+      }
+    }
+    return null;
+  }
+
+  void shutdownMultiConsole() {
+    sendKey('multiconsole_power_off');
+    sendKey('confirm_command');
+    sleep(const Duration(milliseconds: 500));
+    try {
+      sendKey('quit');
+      sendKey('confirm_command');
+    } catch (_) {}
+    _setUDPTXIPDefault();
   }
 
   void _setUDPTXIP() async {
@@ -54,17 +111,28 @@ class OSC {
       }
     }
     OSCMessage message;
-    message = OSCMessage('/eos/newcmd',
-        arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
+    //get system language of the phone
+    String locale = Platform.localeName;
+    var split = locale.split('_');
+    if (split[0].toLowerCase() == "en") {
+      message = OSCMessage('/eos/newcmd',
+          arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
+    } else {
+      message = OSCMessage('/eos/newcmd',
+          arguments: ['OSC_UDP_TX_IP_ADRESSE ${addresses.join(',')}#']);
+    }
     await client.send(message);
     sleep100();
+    /*
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     listenSocket.listen((event) {
       if (event.address == '/eos/out/cmd') {
-        setCommandLine('${event.arguments[0]}');
+        setCommandLine!('${event.arguments[0]}');
         debugPrint(event.arguments[0].toString());
       }
     });
+
+     */
     sendLive();
   }
 
@@ -83,90 +151,221 @@ class OSC {
   void sendBlind() {
     OSCMessage message = OSCMessage('/eos/key/blind', arguments: [1]);
     client.send(message);
+    setCommandLine!('BLIND : ');
   }
 
   void sendLive() {
     OSCMessage message = OSCMessage('/eos/key/live', arguments: [1]);
     client.send(message);
+    setCommandLine!('LIVE : ');
   }
 
-  void sendKey(String key) async {
+  void sendKey(String key,
+      {bool withUpdate = true, double sleepMillis = 100}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     client.send(message);
-    sleep100();
+    sleep(Duration(milliseconds: sleepMillis.toInt()));
     _updateEosOutput();
+  }
+
+  Future<int> requestCountOfType(String type) async {
+    OSCMessage message = OSCMessage('/eos/get/$type/count', arguments: []);
+    client.send(message);
+    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    Completer<int> compl = Completer();
+    listenSocket.listen((msg) {
+      if (msg.address == '/eos/out/get/$type/count') {
+        compl.complete(int.parse(msg.arguments[0].toString()));
+        return;
+      }
+    });
+    listenSocket.close();
+    return compl.future;
   }
 
   void _updateEosOutput() {
     debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    ParameterList parameters = [];
-    for (ParameterType _ in ParameterType.values) {
-      parameters.add([]);
-    }
-    int wheelIndex = 1;
+    ParameterMap parameters = {};
     listenSocket.listen((event) {
+      debugPrint(
+          "Is hs:${event.address.startsWith('/eos/out/color/hs')}, actual :${event.address}");
       debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
-        setCommandLine('${event.arguments[0]}');
+        setCommandLine!('${event.arguments[0]}');
+      } else if (event.address.startsWith("/eos/out/pantilt") &&
+          event.arguments.length >= 4) {
+        parameters[ParameterType.minPan] = [event.arguments[0] as double];
+        parameters[ParameterType.maxPan] = [event.arguments[1] as double];
+        parameters[ParameterType.minTilt] = [event.arguments[2] as double];
+        parameters[ParameterType.maxTilt] = [event.arguments[3] as double];
       } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        String parameterName = event.arguments[0].toString().split(" ")[0];
-        int parameterIndex = int.parse(event.arguments[1].toString());
-        double parameterValue = double.parse(event.arguments[2].toString());
-        parameters[parameterIndex]
-            .add([wheelIndex, parameterName, parameterValue]);
-        wheelIndex++;
-      } else if (event.address.startsWith('/eos/out/pantilt') &&
-          event.arguments.isNotEmpty) {
-        double minPan = double.parse(event.arguments[0].toString());
-        double maxPan = double.parse(event.arguments[1].toString());
-        double minTilt = double.parse(event.arguments[2].toString());
-        double maxTilt = double.parse(event.arguments[3].toString());
-        parameters[ParameterType.PT.index]
-            .add([minPan, maxPan, minTilt, maxTilt]);
+        var args = event.arguments[0].toString().split(" ");
+        debugPrint("args: $args");
+        String parameterName = "";
+        for (int i = 0; i < args.length; i++) {
+          if (i + 1 < args.length) {
+            parameterName += "${args[i]} ";
+          }
+        }
+        debugPrint("Parameter Name: $parameterName");
+        parameterName = parameterName.replaceAll(" ", "");
+        debugPrint(parameters.toString());
+
+        var key = ParameterType.getTypeByName(parameterName);
+        if (key == null) {
+          return;
+        }
+        if (!parameters.containsKey(key)) {
+          parameters[key] = [];
+        }
+        if (key == ParameterType.intens) {
+          parameters[ParameterType.intens] = [
+            0,
+            double.parse(event.arguments[0]
+                .toString()
+                .split(" ")
+                .last
+                .replaceAll("[", "")
+                .replaceAll("]", ""))
+          ];
+          return;
+        } else if (key == ParameterType.pan || key == ParameterType.tilt) {
+          parameters[key] = [
+            1,
+            (key == ParameterType.tilt ? -1 : 1) *
+                double.parse(event.arguments[0]
+                    .toString()
+                    .split(" ")
+                    .last
+                    .replaceAll("[", "")
+                    .replaceAll("]", ""))
+          ];
+          return;
+        } else {
+          ParameterType? paramType = ParameterType.getTypeByName(parameterName);
+          if (paramType != null) {
+            parameters[paramType] = [event.arguments.last as double];
+          }
+        }
       } else if (event.address.startsWith('/eos/out/color/hs') &&
-          event.arguments.length == 2) {
+          event.arguments.isNotEmpty) {
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
-        setHueSaturation(hue, saturation);
+        debugPrint("HUESAT: $hue $saturation");
+        setHueSaturation!(hue, saturation);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
-          setCurrentCueText(text);
+          setCurrentCueText!(text);
         } else {
-          setCurrentCueText('');
+          setCurrentCueText!('');
         }
       } else if (event.address.startsWith('/eos/out/active/cue/')) {
         List<String> address = event.address.split('/');
-        setCurrentCue(double.parse(address.last));
-        setCurrentCueList(int.parse(address[address.length - 2]));
+        setCurrentCue!(double.parse(address.last));
+        setCurrentCueList!(int.parse(address[address.length - 2]));
       } else if (event.address.startsWith('/eos/out/pending/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
-          setPreviousCueText(text);
+          setNextCueText!(text);
         } else {
-          setPreviousCueText('');
+          setNextCueText!('');
         }
       } else if (event.address.startsWith('/eos/out/pending/cue/')) {
         List<String> address = event.address.split('/');
         try {
-          setPreviousCue(double.parse(address.last));
+          setNextCue!(double.parse(address.last));
         } catch (e) {
-          setPreviousCue(0);
+          setNextCue!(0);
+        }
+      } else if (event.address.startsWith('/eos/out/previous/cue/text')) {
+        String text = event.arguments[0].toString();
+        if (text.length > 1) {
+          setPreviousCueText!(text);
+        } else {
+          setPreviousCueText!('');
+        }
+      } else if (event.address.startsWith('/eos/out/previous/cue/')) {
+        List<String> address = event.address.split('/');
+        try {
+          setPreviousCue!(double.parse(address.last));
+        } catch (e) {
+          setPreviousCue!(0);
+        }
+      } else if (event.address.startsWith("/eos/out/fader")) {
+        var components = event.address.split("/");
+        debugPrint(components.toString());
+        if (components[4] == "range") {
+          // var faderPage = int.parse(components[5]);
+          var faderIndex = int.parse(components[6]);
+          var faderRange = int.parse(event.arguments[1].toString());
+          faderControlsState!.updateFader(faderIndex, 0, "", faderRange);
+        } else if (components.length == 7) {
+          if (components[6] == "name") {
+            // var faderPage = int.parse(components[4]);
+            var faderIndex = int.parse(components[5]);
+            if (faderControlsState != null) {
+              if (event.arguments.toString() == "[]") {
+                debugPrint("Empty arguments");
+                faderControlsState!
+                    .updateFader(faderIndex, 0, "", 0, forceUpdate: true);
+              } else {
+                faderControlsState!
+                    .updateFader(faderIndex, 0, event.arguments.join(" "), 0);
+              }
+            }
+          }
+        }
+      } else if (event.address.startsWith("/eos/fader/")) {
+        var components = event.address.split("/");
+        // var faderPage = int.parse(components[3]);
+        var faderIndex = int.parse(components[4]);
+        faderControlsState!.updateFader(
+            faderIndex, double.parse(event.arguments[0].toString()), "", 0);
+      } else if (event.address.startsWith("/eos/out/pantilt")) {
+        if (getControlWidgetForType(ParameterType.pan) == null) return;
+        PanTiltControlState state =
+            getControlWidgetForType(ParameterType.pan)! as PanTiltControlState;
+        var args = event.arguments;
+        if (args.isNotEmpty && args.length <= 4) {
+          state.updateValues(
+              double.parse(args[0].toString()),
+              double.parse(args[1].toString()),
+              double.parse(args[2].toString()),
+              double.parse(args[3].toString()));
         }
       }
 
-      setCurrentChannel(parameters);
+      setCurrentChannel!(parameters);
     });
-    listenSocket.close();
+  }
+
+  void setupFaderBank(int count, FaderControlsState state) {
+    OSCMessage message = OSCMessage('/eos/fader/1/config/10', arguments: []);
+    client.send(message);
+    debugPrint('Sent: $message, configuration done!');
+    faderControlsState = state;
+    _updateEosOutput();
+  }
+
+  void sendCmd(String cmd) {
+    OSCMessage message = OSCMessage('/eos/cmd', arguments: [cmd]);
+    client.send(message);
+    sleep100();
+  }
+
+  void send(String cmd, List<Object> list) {
+    OSCMessage message = OSCMessage(cmd, arguments: list);
+    client.send(message);
+    debugPrint('Sent: $message');
   }
 
   void setParameter(String attributeName, double parameterValue) {
     OSCMessage message =
         OSCMessage('/eos/cmd', arguments: ['$attributeName $parameterValue#']);
     client.send(message);
-    sleep100();
   }
 
   void setLabel(double cueNumber, String label) {
@@ -177,6 +376,14 @@ class OSC {
         OSCMessage('/eos/newcmd', arguments: ['Cue $cueNumber Label $label#']);
     client.send(message);
     sendLive();
+  }
+
+  Future<String> getCmdLine() async {
+    OSCMessage message = OSCMessage('/eos/get/cmd', arguments: []);
+    var i = await client.send(message);
+    debugPrint(i.toString());
+    _updateEosOutput();
+    return "";
   }
 
   // void setCommandLine(void Function(String) setCommandLine) {
@@ -241,6 +448,12 @@ class OSC {
     sleep(const Duration(milliseconds: 250));
   }
 
+  void updatePanTilt(double pan, double tilt) {
+    OSCMessage message =
+        OSCMessage('/eos/param/pan/tilt', arguments: [pan, tilt]);
+    client.send(message);
+  }
+
   int getCurrentCueIndex() {
     OSCMessage message = OSCMessage('/eos/out/active/cue/', arguments: []);
     client.send(message);
@@ -261,6 +474,20 @@ class OSC {
     OSCMessage message =
         OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
     client.send(message);
+  }
+
+  Future<List<Fader>> getFader(int faderPage) {
+    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
+    List<Fader> faders = [];
+    listenSocket.listen((msg) {
+      if (msg.address.contains('/eos/out/fader/$faderPage')) {
+        var message = msg.address.split('/');
+        var index = int.parse(message[4]);
+        faders.add(Fader(msg.arguments.join(" "), index, faderPage, 0));
+      }
+    });
+    listenSocket.close();
+    return Future.value(faders);
   }
 }
 

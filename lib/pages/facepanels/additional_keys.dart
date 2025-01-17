@@ -9,44 +9,50 @@ class AdditionalKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double? fontSize = 30;
     List<Button> additionalKeys = [
       Button('Mark', () {
         osc.sendKey('mark');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Sneak', () {
         osc.sendKey('sneak');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Rem Dim', () {
         osc.sendKey('rem_dim');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Select Manual', () {
         osc.sendKey('select_manual');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Select Last', () {
         osc.sendKey('select_last');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Select Active', () {
         osc.sendKey('select_active');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Home', () {
         osc.sendKey('home');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Level', () {
         osc.sendKey('level');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Time', () {
         osc.sendKey('time');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
       Button('Live', () {
-        osc.sendKey('live');
-      }, fontSize: 30),
+        osc.sendLive();
+      }, fontSize: fontSize),
       Button('Blind', () {
-        osc.sendKey('blind');
-      }, fontSize: 30),
+        osc.sendBlind();
+      }, fontSize: fontSize),
       Button('Undo', () {
         osc.sendKey('undo');
-      }, fontSize: 30),
+      }, fontSize: fontSize),
+      Button('', () {}),
+      Button('', () {}),
+      Button('Enter', () {
+        osc.sendKey('enter');
+      }, fontSize: fontSize),
     ];
-    return Grid(3, additionalKeys, 1.8);
+    return Grid(3, additionalKeys, 2.2);
   }
 }

@@ -30,7 +30,7 @@ class _ParameterSliderState extends State<ParameterSlider> {
           currentValue = value.round().toDouble();
         });
         widget.osc.setParameter(widget.attributes[1], value);
-        // widget.superSetState(() {});
+        widget.superSetState(() {});
       }
     });
   }
@@ -58,7 +58,9 @@ class _ParameterSliderState extends State<ParameterSlider> {
             value: currentValue,
             min: widget.minValue,
             max: widget.maxValue,
-            onChanged: (value) {},
+            onChanged: (value) {
+              updateValue(value);
+            },
             onChangeEnd: updateValue,
             divisions: (widget.maxValue - widget.minValue).toInt(),
           ),

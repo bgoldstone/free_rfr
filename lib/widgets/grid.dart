@@ -8,10 +8,10 @@ class Grid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: columns,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: MediaQuery.of(context).size.aspectRatio * scale,
+    return GridView(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          childAspectRatio: MediaQuery.of(context).size.aspectRatio * 2),
       children: children,
     );
   }
