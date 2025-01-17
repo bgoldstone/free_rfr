@@ -20,6 +20,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: 3.24.3
       - run: flutter build appbundle
       - run: flutter build windows
       - run: flutter build linux
