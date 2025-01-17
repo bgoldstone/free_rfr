@@ -4,6 +4,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
+import 'package:free_rfr/pages/direct_selects.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
@@ -76,6 +77,7 @@ class _FreeRFRState extends State<FreeRFR> {
         previousCue: widget.previousCue,
         previousCueText: widget.previousCueText,
       ),
+      DirectSelects(osc: widget.osc, currentChannel: widget.currentChannel),
     ];
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
@@ -134,6 +136,8 @@ class _FreeRFRState extends State<FreeRFR> {
                 icon: Icon(Icons.settings), label: 'Controls'),
             BottomNavigationBarItem(
                 icon: Icon(Symbols.play_pause), label: 'Playback'),
+            BottomNavigationBarItem(
+                icon: Icon(Symbols.grid_on), label: 'Direct Selects'),
           ],
           selectedItemColor: Colors.yellow,
           currentIndex: index,
