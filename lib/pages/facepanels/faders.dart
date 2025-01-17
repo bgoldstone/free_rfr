@@ -96,7 +96,7 @@ class FaderControlsState extends State<FaderControls> {
 class Fader {
   String name = "";
   int index = 0;
-  int faderPage = 0;
+  int faderPage = 1;
   double intensity = 0;
 
   Fader(this.name, this.index, this.faderPage, this.intensity);
@@ -117,7 +117,7 @@ class Fader {
                 onChanged: (value) {
                   setState(() {
                     intensity = value / 100;
-                    osc.send("/eos/fader/$faderPage/$index", [intensity]);
+                    osc.send("/eos/fader/1/$index", [intensity]);
                   });
                 },
                 onChangeEnd: (value) {},

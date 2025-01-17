@@ -5,7 +5,7 @@ import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
-import 'package:free_rfr/pages/facepanels/fader.dart';
+import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -127,7 +127,7 @@ class _FreeRFRState extends State<FreeRFR> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.keyboard), label: 'Facepanel'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
+                icon: Icon(Symbols.instant_mix), label: 'Faders'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.lightbulb), label: 'Channel Check'),
             BottomNavigationBarItem(
