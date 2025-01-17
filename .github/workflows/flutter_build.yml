@@ -21,6 +21,9 @@ jobs:
         with:
           channel: 'stable'
           flutter-version: 3.24.3
+      - run: flutter clean
+      - run: flutter pub get
+      - run: flutter analyze
       - run: flutter build appbundle
       - run: flutter build windows
       - run: flutter build linux
