@@ -29,7 +29,7 @@ class Button extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: (fontSize! * aspectRatio * 1),
+              fontSize: (fontSize! * aspectRatio),
             ),
             textAlign: TextAlign.center,
           ),
