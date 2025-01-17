@@ -12,7 +12,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,6 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build appbundle
-      - run: flutter build windows
       - run: flutter build linux
       - run: |
           sudo apt-get update -y
@@ -33,4 +32,31 @@ jobs:
       - run: flutter build ios
       - run: flutter build macos
       #- run: flutter test
-            
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+        - uses: actions/checkout@v4
+        - uses: subosito/flutter-action@v2
+          with:
+            channel: 'stable'
+            flutter-version: 3.24.3
+        - run: flutter pub get
+        - run: flutter analyze
+        - run: flutter build windows
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+        - uses: actions/checkout@v4
+        - uses: subosito/flutter-action@v2
+          with:
+            channel: 'stable'
+            flutter-version: 3.24.3
+        - run: flutter pub get
+        - run: flutter analyze
+        - run: flutter build ios --release --no-codesign
+        - run: flutter build macos
+    
+  
+  
