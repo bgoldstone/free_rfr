@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Flutter Tasks
+name: Flutter Build
 
 on:
   push:
@@ -20,9 +20,6 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter clean
-      - run: flutter pub get
-      - run: flutter analyze
       - run: flutter build appbundle
       - run: flutter build windows
       - run: flutter build linux
