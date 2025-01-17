@@ -11,8 +11,7 @@ class Grid extends StatelessWidget {
     return GridView(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: columns,
-          childAspectRatio:
-              MediaQuery.of(context).size.aspectRatio / 1.5 * scale),
+          childAspectRatio: MediaQuery.of(context).size.aspectRatio * 2),
       children: children,
     );
   }

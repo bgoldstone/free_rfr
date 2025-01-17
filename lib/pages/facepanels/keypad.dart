@@ -37,7 +37,7 @@ class Keypad extends StatelessWidget {
       Button('-', () {
         osc.sendKey('-');
       }, fontSize: 30),
-      Button('Grp', () {
+      Button('Group', () {
         osc.sendKey('group');
       }, fontSize: 20),
       Button(
