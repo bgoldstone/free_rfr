@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/pages/controls/color.dart';
-import 'package:free_rfr/pages/controls/pan_tilt_control.dart';
+import 'package:free_rfr/pages/facepanels/controls/color.dart';
+import 'package:free_rfr/pages/facepanels/controls/pan_tilt_control.dart';
 
 import '../objects/parameters.dart';
-import 'controls/focus.dart';
-import 'controls/form.dart';
-import 'controls/image.dart';
-import 'controls/intensity.dart';
-import 'controls/shutter.dart';
+import 'facepanels/controls/focus.dart';
+import 'facepanels/controls/form.dart';
+import 'facepanels/controls/image.dart';
+import 'facepanels/controls/intensity.dart';
+import 'facepanels/controls/shutter.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
