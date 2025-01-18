@@ -2,9 +2,12 @@
 
 A new RFR for ETC Eos-based consoles using OSC Communication
 
+[![Flutter Build](https://github.com/bgoldstone/free_rfr/actions/workflows/flutter_build.yml/badge.svg?branch=main)](https://github.com/bgoldstone/free_rfr/actions/workflows/flutter_build.yml)
 
 > **Warning**  
 > This project is under active development and breaking changes are likely. Use at your own risk!
+# Flutter Version
+Current Flutter Version: 3.24.3
 
 ## Getting Started
 1. Please set up these settings on your console and ensure everything in the red box is configured as in the screenshot.
