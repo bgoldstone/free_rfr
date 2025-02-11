@@ -43,10 +43,6 @@ dependencies:
   file_picker: ^8.0.5
   flutter_svg: ^2.0.9
   material_symbols_icons: ^4.2719.3
-  samba_browser:
-    git:
-      url: https://github.com/alexmrtzgnlz/samba-browser-flutter.git
-      ref: main # branch name
 
 
 dev_dependencies:
