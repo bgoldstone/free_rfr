@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/extensions/Extensions.dart';
+import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
+import '../main.dart';
 import '../pages/controls/pan_tilt_control.dart';
 import '../pages/facepanels/fader.dart';
 
@@ -17,7 +21,6 @@ class OSC {
   final void Function(int)? setCurrentCueList;
   final void Function(double)? setCurrentCue;
   final void Function(String)? setCurrentCueText;
-  final void Function(String)? addToCommandLine;
   final void Function(double)? setPreviousCue;
   final void Function(String)? setPreviousCueText;
   final void Function(double)? setNextCue;
@@ -37,7 +40,6 @@ class OSC {
       this.setCurrentCue,
       this.setCurrentCueText,
       this.setPreviousCue,
-      this.addToCommandLine,
       this.setPreviousCueText,
       this.setNextCue,
       this.setNextCueText,
@@ -49,9 +51,10 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
+    loginAsUser();
   }
 
-  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.addToCommandLine = null,this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
+  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -59,6 +62,7 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
+    loginAsUser();
     }
 
     void registerControlState(ControlWidget controlWidget) {
@@ -88,7 +92,6 @@ class OSC {
       }
     }
     OSCMessage message;
-    //get system language of the phone
     String locale = Platform.localeName;
     var split = locale.split('_');
     if(split[0].toLowerCase() == "en") {
@@ -98,6 +101,7 @@ class OSC {
       message = OSCMessage('/eos/newcmd',
           arguments: ['OSC_UDP_TX_IP_ADRESSE ${addresses.join(',')}#']);
     }
+
     await client.send(message);
     sleep100();
     /*
@@ -144,7 +148,6 @@ class OSC {
     client.send(message);
     sleep(Duration(milliseconds: sleepMillis.toInt()));
     _updateEosOutput();
-
   }
 
   Future<int> requestCountOfType(String type) async{
@@ -162,44 +165,96 @@ class OSC {
     return compl.future;
   }
 
+  void loginAsUser({String? id}) {
+    var ip = InternetAddress.anyIPv4;
+    id ??= ip.address.split(".").last;
+    OSCMessage message = OSCMessage('/eos/user/$id', arguments: []);
+    client.send(message);
+  }
+
+  Map<int, List<String>> currentResponse = {};
+  int maxChannel = 0;
+  List<int> currentChannel = [];
+  bool isCheckingColors = false;
+  Completer<int> compl = Completer();
 
   void _updateEosOutput() {
-    debugPrint('Updating Eos Output');
     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
     ParameterMap parameters = {};
     listenSocket.listen((event) {
-      debugPrint(event.toString());
       if (event.address == '/eos/out/cmd') {
         setCommandLine!('${event.arguments[0]}');
-      } else if (event.address.startsWith('/eos/out/active/wheel/')) {
-        debugPrint("args: " +event.arguments[0].toString().split(" ").toString());
+      }
+      debugPrint(event.address);
+      if(event.address.startsWith("/eos/out/active/chan")) {
+
+        if(currentResponse.keys.isNotEmpty) {
+          if(currentResponse.keys.last >= maxChannel) {
+            if(!compl.isCompleted) {
+              compl.complete(maxChannel);
+            }
+          }
+        }
+
+        if(event.arguments.isEmpty || event.arguments.toString()=="[]") {
+          return;
+        }
+        if(compl.isCompleted && !isCheckingColors) {
+          compl = Completer();
+          debugPrint("channel args: ${event.address} : ${event.arguments}");
+          //todo: multiple selected channel
+          var c = getChannelsFromCurrentChannel(event.arguments[0].toString());
+          currentChannel = [];
+          currentChannel.addAll(c);
+          debugPrint(currentChannel.toString());
+          return;
+        }
+        debugPrint("args:" + event.arguments.toString());
+        var c = int.parse(event.arguments[0].toString().split(" ")[0]);
+        currentResponse[c] = [];
+
+      }
+      //TODO: only do this in special commands, secondary user
+
+        if (event.address.startsWith('/eos/out/active/wheel/')) {
+          addResponseToCache(event);
         String parameterName = event.arguments[0].toString().split(" ")[0] + " " + event.arguments[0].toString().split(" ")[1];
         parameterName = parameterName.replaceAll(" ", "");
-        debugPrint(parameters.toString());
         var key = ParameterType.getTypeByName(parameterName);
         if(key == null) {
-          debugPrint("Key is null at $parameterName");
           return;
         }
         if(!parameters.containsKey(key)) {
-          parameters[key!] = [];
+          parameters[key] = [];
         }
         if(key == ParameterType.intens) {
+          debugPrint("key is intens");
           parameters[ParameterType.intens] = [0, double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""))];
           return;
         }
         if(key == ParameterType.pan || key == ParameterType.tilt) {
             parameters[key] = [1, (key == ParameterType.tilt ? -1 : 1) *  double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""))];
-            return;
+          return;
+        }
+        if(key == ParameterType.colorTemperature) {
+          var temp = double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""));
+          parameters[key] = [0, temp];
+          return;
+        }
+        if(key.isColorWheel()) {
+          parameters[key] = double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""));
+
+          return;
         }
         parameters[ParameterType.getTypeByName(parameterName)]
             .addAll(event.arguments.skip(1));
       }
        else if (event.address.startsWith('/eos/out/color/hs') &&
-          event.arguments.length == 2) {
+          event.arguments.length == 2){
         double hue = double.parse(event.arguments[0].toString());
         double saturation = double.parse(event.arguments[1].toString()) / 255;
         setHueSaturation!(hue, saturation);
+        addResponseToCache(event);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
         if (text.length > 1) {
@@ -257,12 +312,185 @@ class OSC {
          if(getControlWidgetForType(ParameterType.pan) == null) return;
         PanTiltControlState state = getControlWidgetForType(ParameterType.pan)! as PanTiltControlState;
         var args = event.arguments;
-        state.updateValues(double.parse(args[0].toString()),
-            double.parse(args[1].toString()), double.parse(args[2].toString()), double.parse(args[3].toString()));
+        if(args.length == 6) {
+          state.updateValues(double.parse(args[0].toString()),
+              double.parse(args[1].toString()), double.parse(args[2].toString()), double.parse(args[3].toString()));
+        }
+         addResponseToCache(event);
       }
 
       setCurrentChannel!(parameters);
     });
+    FreeRFR.sheet?.update();
+    currentChannel = [];
+  }
+
+  void addResponseToCache(OSCMessage event) {
+    if(currentResponse.keys.isNotEmpty && FreeRFR.sheet != null) {
+      if(currentChannel.isNotEmpty) {
+        for(var c in currentChannel) {
+          currentResponse[c]!.removeWhere((e) => e.startsWith(event.address));
+          currentResponse[c]!.add("${event.address}:${event.arguments}");
+          debugPrint("---> ${event.address}:${event.arguments}");
+          Channel? channel = FreeRFR.sheet?.channels.where((e) => e.number == c).first;
+          debugPrint("current Channel: " + channel.toString());
+          var response = getColorFromResponse(currentResponse[c]!, isUpdate: true);
+
+          var color = _getColorFromList(response, c);
+          debugPrint("response: $response -> color: $color");
+          channel?.color = color;
+          FreeRFR.sheet?.update();
+        }
+      }else {
+        currentResponse[currentResponse.keys.last]!.add("${event.address}:${event.arguments}");
+      }
+    }
+  }
+
+  List<int> getChannelsFromCurrentChannel(String arg0) {
+    List<int> channels = [];
+
+
+    for(var e in arg0.split(",")) {
+      debugPrint("e: $e");
+      e = e.contains("  ") ? e.split("  ")[0] : e;
+      if(e.contains("-")) {
+        var split = e.split("-");
+        var start = int.parse(split[0]);
+        var end = int.parse(split[1].split("  ")[0]);
+        channels.addAll(List.generate(end-start+1, (index) => start+index));
+      }
+      else {
+
+        channels.add(int.parse(e));
+      }
+    }
+   if(arg0.contains("-") && !arg0.contains(",")) {
+     var split = arg0.split("-");
+     var start = int.parse(split[0]);
+     var spl1 = split[1];
+     spl1 = spl1.contains("  ") ? spl1.split("  ")[0] : spl1;
+     var end = int.parse(spl1);
+     channels.addAll(List.generate(end - start + 1, (index) => start + index));
+     return channels;
+   }
+
+    if(!arg0.contains(",") && !arg0.contains("-")) {
+      var spl0 = arg0.contains("  ") ? arg0.split("  ")[0] : arg0;
+      return [int.parse(spl0)];
+    }
+    return channels;
+  }
+
+  double currentValue = 0;
+  double currentTemperature = 0;
+  double latestHue = 0;
+  double latestSaturation = 0;
+
+  Future<void> getColorsForEveryChannel(int maxChannel) async{
+    this.maxChannel = maxChannel;
+    this.isCheckingColors = true;
+    for(var i = 1; i<=maxChannel+1; i++) {
+      sendNumber(i);
+      sendKey("enter", sleepMillis: 155);
+    }
+    await compl.future;
+    for(var i = 1; i<=maxChannel; i++) {
+      var list = getColorFromResponse(currentResponse[i]!);
+      var c = _getColorFromList(list, i);
+      debugPrint("color for channel $i: $c");
+      var channel = Channel()..number = i..color = c;
+      channel.color = channel.constructColor();
+      FreeRFR.sheet!.channels.add(channel);
+
+        //..hue = latestHue..saturation = latestSaturation..value = currentValue/100..temperature = currentTemperature);
+    }
+    this.isCheckingColors = false;
+    FreeRFR.sheet!.channels.map((e) => debugPrint(e.toString()));
+  }
+
+  Color _getColorFromList(List<double?> list, int channel) {
+    var hue = list[0];
+    var saturation = list[1];
+    var currentValue = list[2] ?? 0;
+    var currentTemperature = list[3] ?? 0;
+    debugPrint("hue: $hue, saturation: $saturation, value: $currentValue, temperature: $currentTemperature, color here: ${HSVColor.fromAHSV(1, hue??0, saturation??0, currentValue/100).toColor()}");
+    if(hue == null || saturation == null) {
+      var c = FreeRFR.sheet!.channels.firstWhere((element) => element.number == channel-1).color;
+      var hsv = HSVColor.fromColor(c!);
+      debugPrint("value: $currentValue");
+      if(currentValue == 0) {
+        return Colors.black;
+      }
+      var construct = HSVColor.fromAHSV(1, hsv.hue, hsv.saturation, currentValue/100).toColor();
+      if(currentTemperature == 0) {
+        return construct;
+      }
+      return construct.kelvinToRGB(currentTemperature*1.5);
+    }
+
+    //hue and saturation are vertically mirrored:
+    debugPrint("value: $currentValue");
+    //if(currentTemperature == 0) {
+      return HSVColor.fromAHSV(1, hue, saturation, currentValue/100).toColor();
+    //}
+    //return HSVColor.fromAHSV(1, hue, saturation, currentValue/100).toColor().kelvinToRGB(currentTemperature*1.5);
+
+  }
+
+  List<double?> getColorFromResponse(List<String> responses, {bool isUpdate = false}) {
+    double? hue;
+    double? saturation;
+    int channel = currentResponse.keys.where((e) => currentResponse[e]==responses).first;
+    if(isUpdate) {
+      var hsv = HSVColor.fromColor(FreeRFR.sheet!.channels.firstWhere((element) => element.number == channel).color!);
+      hue = hsv.hue;
+      saturation = hsv.saturation;
+      currentValue = hsv.value;
+    }
+    currentTemperature = 0;
+    for(var response in responses) {
+      if(response.startsWith("/eos/out/color/hs")) {
+        response = response.split(":")[1];
+        var args = response.split(" ");
+        if(args.length == 2) {
+          hue = double.parse(args[0].replaceAll("[", "").replaceAll("]", "").replaceAll(",", ""));
+          saturation = double.parse(args[1].replaceAll("[", "").replaceAll("]", ""))/100;
+        }else {
+          if(!isUpdate) {
+            hue = 0;
+            saturation = 0;
+          }
+        }
+        latestHue = hue!;
+        latestSaturation = saturation!;
+      }
+      if(response.startsWith("/eos/out/active/wheel/")) {
+        var arguments = response.split(":")[1].split(",");
+        String parameterName = "${arguments[0].toString().split(" ")[0]} ${arguments[0].toString().split(" ")[1]}";
+        parameterName = parameterName.replaceAll("[", "").replaceAll(" ", "");
+        var key = ParameterType.getTypeByName(parameterName);
+        if(key == null) {
+          continue;
+        }
+        if(key == ParameterType.intens) {
+          var d = arguments[0].toString().split("  ")[1].replaceAll("[", "").replaceAll("]", "");
+          currentValue = double.parse(d);
+        }
+        if(key == ParameterType.colorTemperature) {
+          var d = arguments[0].toString().split("  ")[1].replaceAll("[", "").replaceAll("]", "");
+          currentTemperature = double.parse(d);
+        }
+
+      }
+    }
+    debugPrint("channel: $channel ---> hue: $hue, saturation: $saturation, value: $currentValue");
+
+    return [hue, saturation, currentValue, currentTemperature];
+  }
+
+  bool isChannelSelected(num channelNumber) {
+   return currentChannel.contains(channelNumber);
   }
 
  void setupFaderBank(int count, FaderControlsState state) {
@@ -283,6 +511,16 @@ class OSC {
     OSCMessage message = OSCMessage(cmd, arguments: list);
     client.send(message);
     debugPrint('Sent: $message');
+  }
+
+  void sendNumber(int num) {
+    for (var digit in num.toString().split("")) {
+
+        sendKey("$digit", sleepMillis: 0, withUpdate: false);
+        continue;
+
+
+  }
   }
 
   void setParameter(String attributeName, double parameterValue) {

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 15.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   width="59.055996"
+   height="124.73263"
+   viewBox="0 0 59.055998 124.73263"
+   enable-background="new 0 0 57.6 223.2"
+   xml:space="preserve"
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="Source_4_LED_Fresnel.svg"><metadata
+   id="metadata14"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
+   id="defs12" /><sodipodi:namedview
+   pagecolor="#000000"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="1"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1440"
+   inkscape:window-height="837"
+   id="namedview10"
+   showgrid="false"
+   fit-margin-top="2"
+   fit-margin-left="2"
+   fit-margin-bottom="2"
+   fit-margin-right="2"
+   inkscape:zoom="2.0076381"
+   inkscape:cx="-104.75913"
+   inkscape:cy="78.835929"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="etc_symbol_base" />
+<g
+   id="etc_symbol_base"
+   transform="translate(1.0900016,-7.4125612)">
+	<path
+   d="m 53.287,114.314 c -2.129,-0.021 -0.258,-0.04 -2.387,-0.061 0,-1.441 0,-20.883 0,-22.324 1.627,0 -0.748,0 0.878,0 0.025,-25.955 -0.167,-43.523 -1.282,-69.639 -0.033,-0.809 -0.357,-1.578 -0.909,-2.171 -2.012,-2.154 -4.022,-6.31 -6.034,-8.465 -5.096,0 -10.193,0 -15.29,0 -5.097,0 -10.192,0 -15.289,0 -2.012,2.155 -4.023,6.311 -6.034,8.465 -0.553,0.593 -0.875,1.362 -0.91,2.171 -1.114,26.117 -1.308,43.685 -1.281,69.64 1.626,0 -0.7480001,0 0.8779999,0 0,1.441 0,20.883 0,22.324 -2.012,0.021 -0.025,0.04 -2.0369999,0.061 l -0.6799995,14.10267 c 8.5089995,0 17.0179995,0 25.5279995,0 8.508,0 17.017999,0 25.527999,0 z"
+   id="path5"
+   inkscape:connector-curvature="0"
+   style="fill:#294663"
+   sodipodi:nodetypes="cccccccsccccccccscc" />
+</g>
+<g
+   id="etc_symbol_outline"
+   transform="translate(1.0899996,-9.6540011)">
+	<path
+   stroke-miterlimit="10"
+   d="m 53.287,116.314 c -2.129,-0.021 -0.258,-0.04 -2.387,-0.061 0,-1.441 0,-22.883 0,-24.324 1.627,0 -0.748,0 0.878,0 0.025,-25.955 -0.167,-43.523 -1.282,-69.639 -0.033,-0.809 -0.357,-1.578 -0.909,-2.171 -2.012,-2.154 -4.022,-4.31 -6.034,-6.465 -5.096,0 -10.193,0 -15.29,0 -5.097,0 -10.192,0 -15.289,0 -2.012,2.155 -4.023,4.311 -6.034,6.465 -0.553,0.593 -0.875,1.362 -0.91,2.171 -1.114,26.117 -1.308,43.685 -1.281,69.64 1.626,0 -0.7480001,0 0.8779999,0 0,1.441 0,22.883 0,24.324 -2.012,0.021 -0.025,0.04 -2.0369999,0.061 l -0.6799995,14.07163 c 8.5089995,0 17.0179995,0 25.5279995,0 8.508,0 17.017999,0 25.527999,0 z"
+   id="path8"
+   inkscape:connector-curvature="0"
+   style="fill:none;stroke:#ffffff;stroke-width:4;stroke-miterlimit:10"
+   sodipodi:nodetypes="cccccccsccccccccscc" />
+</g>
+</svg>

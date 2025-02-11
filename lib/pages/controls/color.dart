@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 
@@ -35,6 +36,9 @@ class _ColorControlState extends State<ColorControl> {
           onColorChanged: (newColor) {
             widget.osc.sendColor(
                 newColor.red / 255, newColor.green / 255, newColor.blue / 255);
+            for(var c in widget.osc.currentChannel) {
+              FreeRFR.sheet?.channels.where((element) => element.number == c).first.color = newColor;
+            }
             currentColor = newColor;
           },
           enableAlpha: false,

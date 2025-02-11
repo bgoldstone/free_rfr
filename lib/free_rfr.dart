@@ -1,3 +1,7 @@
+
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
@@ -5,9 +9,18 @@ import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/fader.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:free_rfr/widgets/button.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:samba_browser/samba_browser.dart';
+import 'package:xml/xml.dart';
+import 'package:xml/xml_events.dart';
+
+import 'objects/magic_sheet.dart';
 
 class FreeRFR extends StatefulWidget {
+  static MagicSheet? sheet;
   final OSC osc;
   final void Function(ParameterMap) setCurrentChannel;
   final List<double> hueSaturation;
@@ -21,7 +34,7 @@ class FreeRFR extends StatefulWidget {
   final String previousCueText;
   final String currentCueText;
   final String nextCueText;
-  const FreeRFR({
+  FreeRFR({
     super.key,
     required this.osc,
     required this.setCurrentChannel,
@@ -50,12 +63,21 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   void initState() {
     super.initState();
+    widget.osc.setCommandLine!('LIVE: ');
+    connectToSMBServer();
+  }
+
+  void connectToSMBServer() async {
+    //TODO:
+    SambaBrowser.getShareList('smb://192.168.0.60/', "Users",'Guest', '' )
+        .then((shares) => debugPrint('Shares found: ${shares.cast<String>()}'));
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
+      MagicSheetController(osc: widget.osc),
       FaderControls(osc: widget.osc),
       Controls(
         key: const Key('Controls'),
@@ -121,6 +143,7 @@ class _FreeRFRState extends State<FreeRFR> {
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.keyboard), label: 'Facepanel'),
+          BottomNavigationBarItem(icon: Icon(Icons.grid_on), label: 'MagicSheet'),
           BottomNavigationBarItem(
               icon: Icon(Icons.space_dashboard_rounded), label: 'Fader'),
           BottomNavigationBarItem(

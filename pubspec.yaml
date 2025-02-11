@@ -38,7 +38,15 @@ dependencies:
   osc: ^1.0.0
   path_provider: ^2.1.2
   flutter_colorpicker: ^1.1.0
+  xml: ^6.5.0
+  charset: ^2.0.1
+  file_picker: ^8.0.5
+  flutter_svg: ^2.0.9
   material_symbols_icons: ^4.2719.3
+  samba_browser:
+    git:
+      url: https://github.com/alexmrtzgnlz/samba-browser-flutter.git
+      ref: main # branch name
 
 
 dev_dependencies:
@@ -73,6 +81,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+
+  assets:
+    - assets/symbols/
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

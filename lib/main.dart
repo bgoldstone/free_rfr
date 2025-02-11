@@ -7,17 +7,21 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/connections.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(RFR.INSTANCE = RFR());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class RFR extends StatefulWidget {
+
+  RFRState? state;
+  static RFR? INSTANCE;
+
+  RFR({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<RFR> createState() => state = RFRState();
 }
 
-class _MyAppState extends State<MyApp> {
+class RFRState extends State<RFR> {
   late OSC osc;
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
@@ -127,7 +131,6 @@ class _MyAppState extends State<MyApp> {
           setCurrentCue,
           setCurrentCueText,
           setPreviousCue,
-          addToCommandLine,
           setPreviousCueText,
           setNextCue,
           setNextCueText,

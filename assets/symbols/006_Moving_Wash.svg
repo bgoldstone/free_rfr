@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 15.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="108px"
+	 height="158.4px" viewBox="0 0 108 158.4" enable-background="new 0 0 108 158.4" xml:space="preserve">
+<g id="etc_symbol_base">
+	<g>
+		<polygon fill="#294663" points="10.12,52.755 98.723,52.755 105.511,52.755 105.511,59.543 105.511,97.418 105.511,103.831 
+			99.097,103.831 93.08,103.831 15.762,103.831 9.746,103.831 3.332,103.831 3.332,97.418 3.332,59.543 3.332,52.755 		"/>
+		<polyline fill="#294663" points="15.762,103.831 15.762,144.728 15.762,154.909 54.421,154.909 93.08,154.909 93.08,144.728 
+			93.08,103.831 		"/>
+		<path fill="#294663" d="M93.08,52.755c0-10.253-4.073-20.086-11.322-27.336c-7.25-7.25-17.084-11.323-27.336-11.323
+			s-20.085,4.073-27.335,11.322c-7.25,7.25-11.324,17.083-11.324,27.337"/>
+	</g>
+</g>
+<g id="etc_symbol_outline">
+	<g>
+		<polygon fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" points="10.12,52.755 
+			98.723,52.755 105.511,52.755 105.511,59.543 105.511,97.418 105.511,103.831 99.097,103.831 93.08,103.831 15.762,103.831 
+			9.746,103.831 3.332,103.831 3.332,97.418 3.332,59.543 3.332,52.755 		"/>
+		<polyline fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" points="15.762,103.831 
+			15.762,144.728 15.762,154.909 54.421,154.909 93.08,154.909 93.08,144.728 93.08,103.831 		"/>
+		<path fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M93.08,52.755
+			c0-10.253-4.073-20.086-11.322-27.336c-7.25-7.25-17.084-11.323-27.336-11.323s-20.085,4.073-27.335,11.322
+			c-7.25,7.25-11.324,17.083-11.324,27.337"/>
+	</g>
+</g>
+</svg>

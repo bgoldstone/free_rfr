@@ -91,10 +91,12 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
       widget.osc.updatePanTilt(x!, y! * -1);
     });
   }
+  var yCache;
+  var xCache;
 
   @override
   Widget build(BuildContext context) {
-    if(!(widget.currentChannel.containsKey(ParameterType.pan) && widget.currentChannel.containsKey(ParameterType.tilt))) {
+    if(!(widget.currentChannel.containsKey(ParameterType.pan) || widget.currentChannel.containsKey(ParameterType.tilt))) {
       return const Center(
         child: Text(
           'No Pan Tilt Control for this channel',
@@ -107,6 +109,8 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
       x = widget.currentPan;
       y = widget.currentTilt;
     size = MediaQuery.of(context).size;
+    xCache ??=x;
+    yCache??=y;
     if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
       return const Center(
           child: Text('Screen too small to support Pan Tilt Grid Control.'));
@@ -127,10 +131,28 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   onChanged: (value) {
                     setState(() {
                       x = value;
+                      xCache = x;
                       widget.osc.updatePanTilt(x!, y! * -1);
                     });
                   },
                   onChangeEnd: (value) {},
+                ),
+                Slider(
+                  value: x!,
+                  min: xCache! - 10,
+                  max: xCache! +10,
+                  onChanged: (value) {
+                    setState(() {
+                      x = value;
+                      widget.osc.updatePanTilt(x!, y! * -1);
+                    });
+                  },
+                  onChangeEnd: (value) {
+                    setState(() {
+                      xCache = value;
+                    });
+
+                  },
                 ),
                 Row(
                   children: [
@@ -164,21 +186,45 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   ],
                 ),
                 //same for tilt
-                RotatedBox(quarterTurns: 3, child:
-                Slider(
-                  value: -y!,
-                  min: widget.minTilt,
-                  max: widget.maxTilt,
-                  onChanged: (value) {
-                    setState(() {
-                      y = -value;
-                      widget.osc.updatePanTilt(x!, y! * -1);
-                    });
-                  },
-                  onChangeEnd: (value) {
-                  },
-                )
+                Row(
+                  children: [
+                    RotatedBox(quarterTurns: 3, child:
+                    Slider(
+                      value: -y!,
+                      min: widget.minTilt,
+                      max: widget.maxTilt,
+                      onChanged: (value) {
+                        setState(() {
+                          y = -value;
+                          yCache = y;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      onChangeEnd: (value) {
+                      },
+                    )
+                    ),
+                    RotatedBox(quarterTurns: 3, child:
+                    Slider(
+                      value: -y!,
+                      min: -yCache-10,
+                      max: -yCache + 10,
+                      onChanged: (value) {
+                        setState(() {
+                          y = -value;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      onChangeEnd: (value) {
+                        setState(() {
+                          yCache = -value;
+                        });
+                      },
+                    )
+                    ),
+                  ]
                 ),
+
                 Row(children: [
                   ElevatedButton(
                     onPressed: () {
