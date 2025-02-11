@@ -13,7 +13,6 @@ import 'package:free_rfr/pages/facepanels/fader.dart';
 import 'package:http/http.dart' as http;
 import 'package:free_rfr/widgets/button.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:samba_browser/samba_browser.dart';
 import 'package:xml/xml.dart';
 import 'package:xml/xml_events.dart';
 
@@ -64,14 +63,8 @@ class _FreeRFRState extends State<FreeRFR> {
   void initState() {
     super.initState();
     widget.osc.setCommandLine!('LIVE: ');
-    connectToSMBServer();
   }
 
-  void connectToSMBServer() async {
-    //TODO:
-    SambaBrowser.getShareList('smb://192.168.0.60/', "Users",'Guest', '' )
-        .then((shares) => debugPrint('Shares found: ${shares.cast<String>()}'));
-  }
 
   @override
   Widget build(BuildContext context) {
