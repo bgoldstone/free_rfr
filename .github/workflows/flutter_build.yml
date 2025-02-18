@@ -23,7 +23,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: "$FLUTTER_VERSION"
+          flutter-version: ${{FLUTTER_VERSION}}
       - run: flutter clean
       - run: flutter pub get
       - run: flutter analyze
@@ -51,7 +51,7 @@ jobs:
         - uses: subosito/flutter-action@v2
           with:
             channel: 'stable'
-            flutter-version: "$FLUTTER_VERSION"
+            flutter-version: ${{FLUTTER_VERSION}}
         - run: flutter pub get
         - run: flutter analyze
         - run: flutter build windows
@@ -68,7 +68,7 @@ jobs:
         - uses: subosito/flutter-action@v2
           with:
             channel: 'stable'
-            flutter-version: "$FLUTTER_VERSION"
+            flutter-version: ${{FLUTTER_VERSION}}
         - run: flutter pub get
         - run: flutter analyze
         - run: flutter build ios --release --no-codesign
