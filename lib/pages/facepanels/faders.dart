@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/shortcuts.dart';
 
 import '../../objects/osc_control.dart';
 
@@ -48,7 +49,8 @@ class FaderControlsState extends State<FaderControls> {
   Widget build(BuildContext context) {
     //return grid of faders
     debugPrint(faders.toString());
-    return SingleChildScrollView(
+    return FreeRFRShortcutManager(
+      SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
           children: [
@@ -88,7 +90,10 @@ class FaderControlsState extends State<FaderControls> {
               ),
             )
           ],
-        ));
+        ),
+      ),
+      widget.osc,
+    );
   }
 }
 

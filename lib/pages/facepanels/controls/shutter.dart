@@ -3,6 +3,7 @@ import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
+import 'package:free_rfr/shortcuts.dart';
 
 class ShutterControl extends StatefulWidget {
   final OSC osc;
@@ -30,11 +31,14 @@ class _FocusControlState extends State<ShutterControl> {
         .map((parameter) =>
             ParameterWidget(parameterType: parameter, osc: widget.osc))
         .toList();
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: targets,
+    return FreeRFRShortcutManager(
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: targets,
+        ),
       ),
+      widget.osc,
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/shortcuts.dart';
 import 'package:free_rfr/widgets/button.dart';
 
 class ColorControl extends StatefulWidget {
@@ -30,39 +31,42 @@ class _ColorControlState extends State<ColorControl> {
                 1, widget.hueSaturation[0], widget.hueSaturation[1], 1)
             .toColor()
         : Colors.white;
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ColorPicker(
-          pickerColor: currentColor ?? colorFromEos,
-          onColorChanged: (newColor) {
-            widget.osc.sendColor(
-                newColor.red / 255, newColor.green / 255, newColor.blue / 255);
-            currentColor = newColor;
-          },
-          enableAlpha: false,
-          paletteType: PaletteType.hueWheel,
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.25,
-          child: Button("Color Home", () {
-            widget.osc.sendCmd("select_last Color Home#");
-            setState(() {
-              currentColor = Colors.white;
-            });
-          }),
-        ),
-        // TODO: implement this page.
-        // ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.of(context).push(
-        //         MaterialPageRoute(
-        //           builder: (context) => colorSliderControl(widget.osc),
-        //         ),
-        //       );
-        //     },
-        //     child: const Text("Color Sliders")),
-      ]),
+    return FreeRFRShortcutManager(
+      SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          ColorPicker(
+            pickerColor: currentColor ?? colorFromEos,
+            onColorChanged: (newColor) {
+              widget.osc.sendColor(newColor.red / 255, newColor.green / 255,
+                  newColor.blue / 255);
+              currentColor = newColor;
+            },
+            enableAlpha: false,
+            paletteType: PaletteType.hueWheel,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.25,
+            child: Button("Color Home", () {
+              widget.osc.sendCmd("select_last Color Home#");
+              setState(() {
+                currentColor = Colors.white;
+              });
+            }),
+          ),
+          // TODO: implement this page.
+          // ElevatedButton(
+          //     onPressed: () {
+          //       Navigator.of(context).push(
+          //         MaterialPageRoute(
+          //           builder: (context) => colorSliderControl(widget.osc),
+          //         ),
+          //       );
+          //     },
+          //     child: const Text("Color Sliders")),
+        ]),
+      ),
+      widget.osc,
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:free_rfr/pages/direct_selects.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
+import 'package:free_rfr/shortcuts.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
