@@ -4,7 +4,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 
-class ShutterControl extends StatefulWidget {
+class ShutterControl extends StatelessWidget {
   final OSC osc;
   final ParameterMap currentChannel;
   final List<ParameterType> controls = [];
@@ -17,18 +17,12 @@ class ShutterControl extends StatefulWidget {
   }
 
   @override
-  State<ShutterControl> createState() => _FocusControlState();
-}
-
-class _FocusControlState extends State<ShutterControl> {
-  @override
   Widget build(BuildContext context) {
-    if (widget.controls.isEmpty) {
+    if (controls.isEmpty) {
       return noParametersForThisChannel("Shutter");
     }
-    List<ParameterWidget> targets = widget.controls
-        .map((parameter) =>
-            ParameterWidget(parameterType: parameter, osc: widget.osc))
+    List<ParameterWidget> targets = controls
+        .map((parameter) => ParameterWidget(parameterType: parameter, osc: osc))
         .toList();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -36,10 +30,5 @@ class _FocusControlState extends State<ShutterControl> {
         children: targets,
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 }

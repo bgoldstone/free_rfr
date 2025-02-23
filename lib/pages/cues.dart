@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 
-class Cues extends StatefulWidget {
+class Cues extends StatelessWidget {
   final OSC osc;
   final double previousCue;
   final double currentCue;
@@ -10,7 +10,8 @@ class Cues extends StatefulWidget {
   final String previousCueText;
   final String currentCueText;
   final String nextCueText;
-  const Cues(
+  final List<Cue> cueList = [];
+  Cues(
       {required this.osc,
       super.key,
       required this.previousCue,
@@ -20,17 +21,6 @@ class Cues extends StatefulWidget {
       required this.currentCueText,
       required this.nextCueText,
       required this.currentCueList});
-
-  @override
-  State<Cues> createState() => _CuesState();
-}
-
-class _CuesState extends State<Cues> {
-  List<Cue> cueList = [];
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +33,7 @@ class _CuesState extends State<Cues> {
           padding: const EdgeInsets.all(8.0),
           child: Center(
               child: Text(
-            'Cue List: ${widget.currentCueList}',
+            'Cue List: $currentCueList',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           )),
         ),
@@ -52,9 +42,9 @@ class _CuesState extends State<Cues> {
           child: Card(
             child: ListTile(
                 title: const Text('Previous Cue'),
-                subtitle: Text(widget.previousCueText),
+                subtitle: Text(previousCueText),
                 onLongPress: () {
-                  editLabel(context, widget.previousCue);
+                  editLabel(context, previousCue);
                 }),
           ),
         ),
@@ -68,11 +58,11 @@ class _CuesState extends State<Cues> {
                 style: currentCueStyle,
               ),
               subtitle: Text(
-                widget.currentCueText,
+                currentCueText,
                 style: currentCueStyle,
               ),
               onLongPress: () {
-                editLabel(context, widget.currentCue);
+                editLabel(context, currentCue);
               },
             ),
           ),
@@ -82,9 +72,9 @@ class _CuesState extends State<Cues> {
           child: Card(
             child: ListTile(
               title: const Text('Next Cue'),
-              subtitle: Text(widget.nextCueText),
+              subtitle: Text(nextCueText),
               onLongPress: () {
-                editLabel(context, widget.nextCue);
+                editLabel(context, nextCue);
               },
             ),
           ),
@@ -95,11 +85,9 @@ class _CuesState extends State<Cues> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    widget.osc.sendKey('stop');
-                  },
+                  onPressed: () => osc.sendKey('stop'),
                   onLongPress: () {
-                    editLabel(context, widget.previousCue);
+                    editLabel(context, previousCue);
                   },
                   style: const ButtonStyle(
                       foregroundColor:
@@ -109,9 +97,7 @@ class _CuesState extends State<Cues> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    widget.osc.sendKey('go_0');
-                  },
+                  onPressed: () => osc.sendKey('go_0'),
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.green)),
@@ -143,7 +129,7 @@ class _CuesState extends State<Cues> {
               TextButton(
                 child: const Text('Ok'),
                 onPressed: () {
-                  widget.osc.setLabel(cueNumber, text);
+                  osc.setLabel(cueNumber, text);
                   Navigator.of(context).pop();
                 },
               ),

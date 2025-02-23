@@ -27,7 +27,7 @@ class _ColorControlState extends State<ColorControl> {
     debugPrint(widget.hueSaturation.toString());
     Color colorFromEos = widget.hueSaturation.isNotEmpty
         ? HSLColor.fromAHSL(
-                1, widget.hueSaturation[0], widget.hueSaturation[1], 1)
+                0.5, widget.hueSaturation[0], widget.hueSaturation[1], 1)
             .toColor()
         : Colors.white;
     return SingleChildScrollView(
