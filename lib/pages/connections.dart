@@ -86,8 +86,9 @@ class _ConnectionsState extends State<Connections> {
               debugPrint("Message received: ${message.address}");
             });
           }),
-          Expanded(child:  connectionsList(),)
-
+          Expanded(
+            child: connectionsList(),
+          )
         ],
       ),
     );

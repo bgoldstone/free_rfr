@@ -105,9 +105,12 @@ class ChannelCheck extends StatelessWidget {
       Button('3', () {
         osc.sendKey('3');
       }, fontSize: 30),
-      Button('At', () {
-        osc.sendKey('at');
-      }),
+      Button(
+        'At',
+        () {
+          osc.sendKey('at');
+        },
+      ),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
       }, fontSize: 18.5),

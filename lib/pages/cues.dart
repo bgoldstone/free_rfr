@@ -95,7 +95,9 @@ class _CuesState extends State<Cues> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => widget.osc.sendKey('stop'),
+                  onPressed: () {
+                    widget.osc.sendKey('stop');
+                  },
                   onLongPress: () {
                     editLabel(context, widget.previousCue);
                   },
@@ -107,7 +109,9 @@ class _CuesState extends State<Cues> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => widget.osc.sendKey('go_0'),
+                  onPressed: () {
+                    widget.osc.sendKey('go_0');
+                  },
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.green)),

@@ -8,6 +8,8 @@ import 'package:free_rfr/pages/direct_selects.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
+import 'package:free_rfr/shortcuts.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class FreeRFR extends StatefulWidget {
@@ -52,6 +54,13 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   void initState() {
     super.initState();
+    registerHotKeys(widget.osc);
+  }
+
+  @override
+  void dispose() {
+    hotKeyManager.unregisterAll();
+    super.dispose();
   }
 
   @override
@@ -67,16 +76,15 @@ class _FreeRFRState extends State<FreeRFR> {
         hueSaturation: widget.hueSaturation,
       ),
       Cues(
-        key: const Key('CueList'),
-        osc: widget.osc,
-        currentCue: widget.currentCue,
-        currentCueList: widget.currentCueList,
-        currentCueText: widget.currentCueText,
-        nextCue: widget.nextCue,
-        nextCueText: widget.nextCueText,
-        previousCue: widget.previousCue,
-        previousCueText: widget.previousCueText,
-      ),
+          key: const Key('CueList'),
+          osc: widget.osc,
+          currentCue: widget.currentCue,
+          currentCueList: widget.currentCueList,
+          currentCueText: widget.currentCueText,
+          nextCue: widget.nextCue,
+          nextCueText: widget.nextCueText,
+          previousCue: widget.previousCue,
+          previousCueText: widget.previousCueText),
       DirectSelects(osc: widget.osc, currentChannel: widget.currentChannel),
     ];
     return PopScope(
@@ -192,7 +200,9 @@ class _FreeRFRState extends State<FreeRFR> {
                   'Are you sure you want to shut down your Eos Console?'),
               actions: [
                 TextButton(
-                    onPressed: (() => Navigator.of(context).pop()),
+                    onPressed: (() {
+                      Navigator.of(context).pop();
+                    }),
                     child: const Text('Cancel')),
                 TextButton(
                     onPressed: () {

@@ -24,7 +24,7 @@ class _IntensityControlState extends State<IntensityControl> {
   Widget build(BuildContext context) {
     debugPrint(widget.currentChannel.toString());
     if (!widget.currentChannel.containsKey(ParameterType.intens)) {
-      return const Empty();
+      return Empty(widget.osc);
     }
     var intens = widget.currentChannel[ParameterType.intens]?[1] ?? 0;
     var boxHeight = MediaQuery.of(context).size.height * 0.7;
@@ -37,36 +37,51 @@ class _IntensityControlState extends State<IntensityControl> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Button("Full", () {
-                  widget.osc.setParameter('Intens', 100);
-                  setState(() {
-                    intens = 100;
-                  });
-                }),
-                Button("75%", () {
-                  widget.osc.setParameter('Intens', 75);
-                  setState(() {
-                    intens = 100;
-                  });
-                }),
-                Button("50%", () {
-                  widget.osc.setParameter('Intens', 50);
-                  setState(() {
-                    intens = 100;
-                  });
-                }),
-                Button("25%", () {
-                  widget.osc.setParameter('Intens', 25);
-                  setState(() {
-                    intens = 100;
-                  });
-                }),
-                Button("Out", () {
-                  widget.osc.setParameter('Intens', 0);
-                  setState(() {
-                    intens = 100;
-                  });
-                }),
+                Button(
+                  "Full",
+                  () {
+                    widget.osc.setParameter('Intens', 100);
+                    setState(() {
+                      intens = 100;
+                    });
+                  },
+                ),
+                Button(
+                  "75%",
+                  () {
+                    widget.osc.setParameter('Intens', 75);
+                    setState(() {
+                      intens = 100;
+                    });
+                  },
+                ),
+                Button(
+                  "50%",
+                  () {
+                    widget.osc.setParameter('Intens', 50);
+                    setState(() {
+                      intens = 100;
+                    });
+                  },
+                ),
+                Button(
+                  "25%",
+                  () {
+                    widget.osc.setParameter('Intens', 25);
+                    setState(() {
+                      intens = 100;
+                    });
+                  },
+                ),
+                Button(
+                  "Out",
+                  () {
+                    widget.osc.setParameter('Intens', 0);
+                    setState(() {
+                      intens = 100;
+                    });
+                  },
+                ),
               ],
             ),
           ),
@@ -99,7 +114,9 @@ class _IntensityControlState extends State<IntensityControl> {
 }
 
 class Empty extends StatelessWidget {
-  const Empty({
+  final OSC osc;
+  const Empty(
+    this.osc, {
     super.key,
   });
 

@@ -25,7 +25,10 @@ class _FocusControlState extends State<ImageControl> {
   @override
   Widget build(BuildContext context) {
     return ParameterWidgets(
-        type: "Image", currentChannel: widget.currentChannel, osc: widget.osc);
+      type: "Image",
+      currentChannel: widget.currentChannel,
+      osc: widget.osc,
+    );
   }
 
   @override

@@ -72,16 +72,15 @@ class ParameterWidget extends StatelessWidget {
 }
 
 class ParameterWidgets extends StatefulWidget {
-  const ParameterWidgets({
-    super.key,
-    required this.type,
-    required this.currentChannel,
-    required this.osc,
-  });
-
   final ParameterMap currentChannel;
   final OSC osc;
   final String type;
+
+  const ParameterWidgets(
+      {super.key,
+      required this.type,
+      required this.currentChannel,
+      required this.osc});
 
   @override
   State<ParameterWidgets> createState() => _ParameterWidgetsState();

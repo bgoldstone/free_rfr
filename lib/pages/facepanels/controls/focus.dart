@@ -17,10 +17,7 @@ class _FocusControlState extends State<FocusControl> {
   @override
   Widget build(BuildContext context) {
     return ParameterWidgets(
-      type: 'Focus',
-      currentChannel: widget.currentChannel,
-      osc: widget.osc,
-    );
+        type: 'Focus', currentChannel: widget.currentChannel, osc: widget.osc);
   }
 
   @override

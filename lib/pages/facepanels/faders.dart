@@ -49,46 +49,47 @@ class FaderControlsState extends State<FaderControls> {
     //return grid of faders
     debugPrint(faders.toString());
     return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (faderPage == 1) return;
-                      widget.osc.send("/eos/fader/1/page/-1", []);
-                      faderPage--;
-                    });
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                Text('Faders (${pageLocale[locale]} $faderPage)'),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      widget.osc.send("/eos/fader/1/page/1", []);
-                      faderPage++;
-                    });
-                  },
-                  icon: const Icon(Icons.arrow_forward),
-                ),
-              ],
-            ),
-            SizedBox(
-              width: MediaQuery.sizeOf(context).width * 1,
-              height: MediaQuery.sizeOf(context).height * 2,
-              child: GridView.count(
-                crossAxisCount: 5,
-                children: faders
-                    .map((fader) => fader.buildFader(widget.osc, setState))
-                    .toList(),
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    if (faderPage == 1) return;
+                    widget.osc.send("/eos/fader/1/page/-1", []);
+                    faderPage--;
+                  });
+                },
+                icon: const Icon(Icons.arrow_back),
               ),
-            )
-          ],
-        ));
+              Text('Faders (${pageLocale[locale]} $faderPage)'),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    widget.osc.send("/eos/fader/1/page/1", []);
+                    faderPage++;
+                  });
+                },
+                icon: const Icon(Icons.arrow_forward),
+              ),
+            ],
+          ),
+          SizedBox(
+            width: MediaQuery.sizeOf(context).width * 1,
+            height: MediaQuery.sizeOf(context).height * 2,
+            child: GridView.count(
+              crossAxisCount: 5,
+              children: faders
+                  .map((fader) => fader.buildFader(widget.osc, setState))
+                  .toList(),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
 

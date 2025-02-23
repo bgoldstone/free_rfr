@@ -15,6 +15,10 @@ class DirectSelects extends StatefulWidget {
 class _DirectSelectsState extends State<DirectSelects> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Center(
+        child: Text(
+      "Coming Soon!",
+      style: TextStyle(fontSize: MediaQuery.of(context).size.aspectRatio * 15),
+    ));
   }
 }
