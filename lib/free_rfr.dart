@@ -116,6 +116,7 @@ class _FreeRFRState extends State<FreeRFR> {
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
+        widget.osc.close();
       },
       child: Scaffold(
         appBar: AppBar(
@@ -236,6 +237,7 @@ class _FreeRFRState extends State<FreeRFR> {
                       Navigator.pop(context);
                       Navigator.of(context).pop();
                       widget.setCurrentConnection(-1);
+                      widget.osc.close();
                     },
                     child: const Text('OK')),
               ],

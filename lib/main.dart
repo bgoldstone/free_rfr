@@ -113,7 +113,6 @@ class _MyAppState extends State<MyApp> {
 
   void setActiveConnection(Map<String, dynamic> connection, int index) {
     if (isOSCInitialized) {
-      osc.close();
       isOSCInitialized = false;
     }
 

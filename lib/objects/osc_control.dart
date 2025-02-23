@@ -114,12 +114,13 @@ class OSC {
     //get system language of the phone
     String locale = Platform.localeName;
     var split = locale.split('_');
+    //Eos 3.0 and later
     if (split[0].toLowerCase() == "en") {
-      message = OSCMessage('/eos/newcmd',
-          arguments: ['OSC_UDP_TX_IP_ADDRESS ${addresses.join(',')}#']);
+      message = OSCMessage('/eos/newcmd/OSC_UDP_TX_IP_ADDRESS',
+          arguments: ['${addresses.join(',')}#']);
     } else {
-      message = OSCMessage('/eos/newcmd',
-          arguments: ['OSC_UDP_TX_IP_ADRESSE ${addresses.join(',')}#']);
+      message = OSCMessage('/eos/newcmd/OSC_UDP_TX_IP_ADDRESSE',
+          arguments: ['${addresses.join(',')}#']);
     }
     await client.send(message);
     sleep100();
