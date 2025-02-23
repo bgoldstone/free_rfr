@@ -71,12 +71,6 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/icons/free_rfr.png"
 
-dependency_overrides:
-    charts_flutter:
-      git:
-        url: https://github.com/google/charts
-        path: charts_flutter
-
 # The following section is specific to Flutter packages.
 flutter:
 
