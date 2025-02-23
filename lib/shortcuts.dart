@@ -9,14 +9,14 @@ void registerHotKeys(OSC osc) async {
       modifiers: [HotKeyModifier.control, HotKeyModifier.shift],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(goToCue,
-      keyDownHandler: (key) => osc.sendCmd('go_to_cue'));
+      keyDownHandler: (key) => osc.sendKey('go_to_cue'));
   /**One Modifier */
   HotKey address = HotKey(
       key: LogicalKeyboardKey.keyA,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(address,
-      keyDownHandler: (key) => osc.sendCmd('address'));
+      keyDownHandler: (key) => osc.sendKey('address'));
 
   HotKey clearCommandLine = HotKey(
       key: LogicalKeyboardKey.backspace,
@@ -79,95 +79,91 @@ void registerHotKeys(OSC osc) async {
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(selectActive,
-      keyDownHandler: (key) => osc.sendCmd('select_active'));
+      keyDownHandler: (key) => osc.sendKey('select_active'));
 
   HotKey selectLast = HotKey(
       key: LogicalKeyboardKey.keyL,
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(selectLast,
-      keyDownHandler: (key) => osc.sendCmd('select_last'));
+      keyDownHandler: (key) => osc.sendKey('select_last'));
 
   HotKey home = HotKey(
       key: LogicalKeyboardKey.keyH,
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
-  hotKeyManager.register(home, keyDownHandler: (key) => osc.sendCmd('home'));
+  hotKeyManager.register(home, keyDownHandler: (key) => osc.sendKey('home'));
 
   HotKey level = HotKey(
       key: LogicalKeyboardKey.keyL,
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
-  hotKeyManager.register(level, keyDownHandler: (key) => osc.sendCmd('level'));
-
-  HotKey time = HotKey(
-      key: LogicalKeyboardKey.keyI,
-      modifiers: [HotKeyModifier.control],
-      scope: HotKeyScope.inapp);
-  hotKeyManager.register(time, keyDownHandler: (key) => osc.sendCmd('time'));
+  hotKeyManager.register(level, keyDownHandler: (key) => osc.sendKey('level'));
 
   HotKey saveShow = HotKey(
       key: LogicalKeyboardKey.keyU,
       modifiers: [HotKeyModifier.shift],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(saveShow,
-      keyDownHandler: (key) => osc.sendCmd('save_show'));
+      keyDownHandler: (key) => osc.sendKey('save_show'));
 
   HotKey colorPalette = HotKey(
       key: LogicalKeyboardKey.keyC,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(colorPalette,
-      keyDownHandler: (key) => osc.sendCmd('color_palette'));
+      keyDownHandler: (key) => osc.sendKey('color_palette'));
 
   HotKey intensityPalette = HotKey(
       key: LogicalKeyboardKey.keyI,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(intensityPalette,
-      keyDownHandler: (key) => osc.sendCmd('intensity_palette'));
+      keyDownHandler: (key) => osc.sendKey('intensity_palette'));
 
   HotKey focusPalette = HotKey(
       key: LogicalKeyboardKey.keyF,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(focusPalette,
-      keyDownHandler: (key) => osc.sendCmd('focus_palette'));
+      keyDownHandler: (key) => osc.sendKey('focus_palette'));
 
   HotKey beamPalette = HotKey(
       key: LogicalKeyboardKey.keyB,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(beamPalette,
-      keyDownHandler: (key) => osc.sendCmd('beam_palette'));
+      keyDownHandler: (key) => osc.sendKey('beam_palette'));
 
   HotKey preset = HotKey(
       key: LogicalKeyboardKey.keyP,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(preset,
-      keyDownHandler: (key) => osc.sendCmd('preset'));
+      keyDownHandler: (key) => osc.sendKey('preset'));
 
   HotKey record = HotKey(
       key: LogicalKeyboardKey.keyR,
       modifiers: [HotKeyModifier.alt],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(record,
-      keyDownHandler: (key) => osc.sendCmd('record'));
+      keyDownHandler: (key) => osc.sendKey('record'));
 
   HotKey recordOnly = HotKey(
       key: LogicalKeyboardKey.keyR,
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
   hotKeyManager.register(recordOnly,
-      keyDownHandler: (key) => osc.sendCmd('record_only'));
+      keyDownHandler: (key) => osc.sendKey('record_only'));
 
   HotKey stop = HotKey(
       key: LogicalKeyboardKey.space,
       modifiers: [HotKeyModifier.control],
       scope: HotKeyScope.inapp);
-  hotKeyManager.register(stop, keyDownHandler: (key) => osc.sendCmd('stop'));
+  hotKeyManager.register(stop, keyDownHandler: (key) => osc.sendKey('stop'));
   /**Keys without modifiers */
+  HotKey time = HotKey(key: LogicalKeyboardKey.keyI, scope: HotKeyScope.inapp);
+  hotKeyManager.register(time, keyDownHandler: (key) => osc.sendKey('time'));
   HotKey clear =
       HotKey(key: LogicalKeyboardKey.backspace, scope: HotKeyScope.inapp);
   hotKeyManager.register(clear,
@@ -177,22 +173,18 @@ void registerHotKeys(OSC osc) async {
       HotKey(key: LogicalKeyboardKey.enter, scope: HotKeyScope.inapp);
   hotKeyManager.register(enter, keyDownHandler: (key) => (osc.sendCmd('#')));
 
-  // HotKey enterNumpad =
-  //     HotKey(key: LogicalKeyboardKey.numpadEnter, scope: HotKeyScope.inapp);
-  // hotKeyManager.register(enterNumpad, keyDownHandler: (key) => (osc.sendCmd('#')));
-
   HotKey group = HotKey(key: LogicalKeyboardKey.keyG, scope: HotKeyScope.inapp);
-  hotKeyManager.register(group, keyDownHandler: (key) => osc.sendCmd('group'));
+  hotKeyManager.register(group, keyDownHandler: (key) => osc.sendKey('group'));
   HotKey last =
       HotKey(key: LogicalKeyboardKey.pageUp, scope: HotKeyScope.inapp);
-  hotKeyManager.register(last, keyDownHandler: (key) => osc.sendCmd('last'));
+  hotKeyManager.register(last, keyDownHandler: (key) => osc.sendKey('last'));
 
   HotKey next =
       HotKey(key: LogicalKeyboardKey.pageDown, scope: HotKeyScope.inapp);
-  hotKeyManager.register(next, keyDownHandler: (key) => osc.sendCmd('next'));
+  hotKeyManager.register(next, keyDownHandler: (key) => osc.sendKey('next'));
 
   HotKey mark = HotKey(key: LogicalKeyboardKey.keyK, scope: HotKeyScope.inapp);
-  hotKeyManager.register(mark, keyDownHandler: (key) => osc.sendCmd('mark'));
+  hotKeyManager.register(mark, keyDownHandler: (key) => osc.sendKey('mark'));
 
   HotKey live = HotKey(key: LogicalKeyboardKey.f1, scope: HotKeyScope.inapp);
   hotKeyManager.register(live, keyDownHandler: (key) => osc.sendLive());
@@ -201,7 +193,7 @@ void registerHotKeys(OSC osc) async {
   hotKeyManager.register(blind, keyDownHandler: (key) => osc.sendBlind());
 
   HotKey undo = HotKey(key: LogicalKeyboardKey.keyX, scope: HotKeyScope.inapp);
-  hotKeyManager.register(undo, keyDownHandler: (key) => osc.sendCmd('undo'));
+  hotKeyManager.register(undo, keyDownHandler: (key) => osc.sendKey('undo'));
 
   HotKey update =
       HotKey(key: LogicalKeyboardKey.keyU, scope: HotKeyScope.inapp);
@@ -209,10 +201,10 @@ void registerHotKeys(OSC osc) async {
       keyDownHandler: (key) => osc.sendCmd('update'));
 
   HotKey full = HotKey(key: LogicalKeyboardKey.keyF, scope: HotKeyScope.inapp);
-  hotKeyManager.register(full, keyDownHandler: (key) => osc.sendCmd('full'));
+  hotKeyManager.register(full, keyDownHandler: (key) => osc.sendKey('full'));
 
   HotKey out = HotKey(key: LogicalKeyboardKey.keyO, scope: HotKeyScope.inapp);
-  hotKeyManager.register(out, keyDownHandler: (key) => osc.sendCmd('out'));
+  hotKeyManager.register(out, keyDownHandler: (key) => osc.sendKey('out'));
   /** Number Keys */
   HotKey zeroKey =
       HotKey(key: LogicalKeyboardKey.digit0, scope: HotKeyScope.inapp);
@@ -297,59 +289,59 @@ void registerHotKeys(OSC osc) async {
   /** End of Number Keys */
 
   HotKey sneak = HotKey(key: LogicalKeyboardKey.keyN, scope: HotKeyScope.inapp);
-  hotKeyManager.register(sneak, keyDownHandler: (key) => osc.sendCmd('sneak'));
+  hotKeyManager.register(sneak, keyDownHandler: (key) => osc.sendKey('sneak'));
 
   HotKey delete =
       HotKey(key: LogicalKeyboardKey.delete, scope: HotKeyScope.inapp);
   hotKeyManager.register(delete,
-      keyDownHandler: (key) => osc.sendCmd('delete'));
+      keyDownHandler: (key) => osc.sendKey('delete'));
 
   HotKey cue = HotKey(key: LogicalKeyboardKey.keyQ, scope: HotKeyScope.inapp);
-  hotKeyManager.register(cue, keyDownHandler: (key) => osc.sendCmd('cue'));
+  hotKeyManager.register(cue, keyDownHandler: (key) => osc.sendKey('cue'));
 
   HotKey sub = HotKey(key: LogicalKeyboardKey.keyS, scope: HotKeyScope.inapp);
-  hotKeyManager.register(sub, keyDownHandler: (key) => osc.sendCmd('sub'));
+  hotKeyManager.register(sub, keyDownHandler: (key) => osc.sendKey('sub'));
 
   HotKey delay = HotKey(key: LogicalKeyboardKey.keyD, scope: HotKeyScope.inapp);
-  hotKeyManager.register(delay, keyDownHandler: (key) => osc.sendCmd('delay'));
+  hotKeyManager.register(delay, keyDownHandler: (key) => osc.sendKey('delay'));
 
   HotKey recallFrom =
       HotKey(key: LogicalKeyboardKey.keyE, scope: HotKeyScope.inapp);
   hotKeyManager.register(recallFrom,
-      keyDownHandler: (key) => osc.sendCmd('recall_from'));
+      keyDownHandler: (key) => osc.sendKey('recall_from'));
 
   HotKey thru = HotKey(key: LogicalKeyboardKey.keyT, scope: HotKeyScope.inapp);
-  hotKeyManager.register(thru, keyDownHandler: (key) => osc.sendCmd('thru'));
+  hotKeyManager.register(thru, keyDownHandler: (key) => osc.sendKey('thru'));
 
   HotKey cueonlytrack =
       HotKey(key: LogicalKeyboardKey.keyX, scope: HotKeyScope.inapp);
   hotKeyManager.register(cueonlytrack,
-      keyDownHandler: (key) => osc.sendCmd('cueonlytrack'));
+      keyDownHandler: (key) => osc.sendKey('cueonlytrack'));
 
   HotKey copyTo =
       HotKey(key: LogicalKeyboardKey.keyC, scope: HotKeyScope.inapp);
   hotKeyManager.register(copyTo,
-      keyDownHandler: (key) => osc.sendCmd('copy_to'));
+      keyDownHandler: (key) => osc.sendKey('copy_to'));
 
   HotKey part = HotKey(key: LogicalKeyboardKey.keyP, scope: HotKeyScope.inapp);
-  hotKeyManager.register(part, keyDownHandler: (key) => osc.sendCmd('part'));
+  hotKeyManager.register(part, keyDownHandler: (key) => osc.sendKey('part'));
 
   HotKey go0 = HotKey(key: LogicalKeyboardKey.space, scope: HotKeyScope.inapp);
-  hotKeyManager.register(go0, keyDownHandler: (key) => osc.sendCmd('go_0'));
+  hotKeyManager.register(go0, keyDownHandler: (key) => osc.sendKey('go_0'));
 
   HotKey at = HotKey(key: LogicalKeyboardKey.keyA, scope: HotKeyScope.inapp);
-  hotKeyManager.register(at, keyDownHandler: (key) => osc.sendCmd('@'));
+  hotKeyManager.register(at, keyDownHandler: (key) => osc.sendKey('at'));
 
   HotKey peroid =
       HotKey(key: LogicalKeyboardKey.period, scope: HotKeyScope.inapp);
-  hotKeyManager.register(peroid, keyDownHandler: (key) => osc.sendCmd('.'));
+  hotKeyManager.register(peroid, keyDownHandler: (key) => osc.sendKey('.'));
 
-  HotKey plus = HotKey(key: LogicalKeyboardKey.add, scope: HotKeyScope.inapp);
-  hotKeyManager.register(plus, keyDownHandler: (key) => osc.sendCmd('+'));
+  HotKey plus = HotKey(key: LogicalKeyboardKey.equal, scope: HotKeyScope.inapp);
+  hotKeyManager.register(plus, keyDownHandler: (key) => osc.sendKey('+'));
 
   HotKey minus =
       HotKey(key: LogicalKeyboardKey.minus, scope: HotKeyScope.inapp);
-  hotKeyManager.register(minus, keyDownHandler: (key) => osc.sendCmd('-'));
+  hotKeyManager.register(minus, keyDownHandler: (key) => osc.sendKey('-'));
 
   HotKey plus10 = HotKey(
       key: LogicalKeyboardKey.add,
@@ -371,13 +363,17 @@ void registerHotKeys(OSC osc) async {
       HotKey(key: LogicalKeyboardKey.colon, scope: HotKeyScope.inapp);
   hotKeyManager.register(colon, keyDownHandler: (key) => osc.sendCmd(':'));
 
-  HotKey parenthesisLeft =
-      HotKey(key: LogicalKeyboardKey.parenthesisLeft, scope: HotKeyScope.inapp);
+  HotKey parenthesisLeft = HotKey(
+      key: LogicalKeyboardKey.digit9,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
   hotKeyManager.register(parenthesisLeft,
       keyDownHandler: (key) => osc.sendCmd('('));
 
   HotKey parenthesisRight = HotKey(
-      key: LogicalKeyboardKey.parenthesisRight, scope: HotKeyScope.inapp);
+      key: LogicalKeyboardKey.digit0,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
   hotKeyManager.register(parenthesisRight,
       keyDownHandler: (key) => osc.sendCmd(')'));
 }

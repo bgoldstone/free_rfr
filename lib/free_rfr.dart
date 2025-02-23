@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/channel_check.dart';
@@ -49,23 +50,13 @@ class FreeRFR extends StatefulWidget {
 class _FreeRFRState extends State<FreeRFR> {
   Map<String, dynamic> activeConnection = {};
   int index = 0;
+  List<Widget> pages = [];
+
   int currentConnectionIndex = -1;
 
   @override
   void initState() {
-    super.initState();
-    registerHotKeys(widget.osc);
-  }
-
-  @override
-  void dispose() {
-    hotKeyManager.unregisterAll();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> pages = [
+    pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
       FaderControls(osc: widget.osc),
       ChannelCheck(osc: widget.osc),
@@ -87,6 +78,41 @@ class _FreeRFRState extends State<FreeRFR> {
           previousCueText: widget.previousCueText),
       DirectSelects(osc: widget.osc, currentChannel: widget.currentChannel),
     ];
+    registerHotKeys(widget.osc);
+    setFreeRFRHotKeys();
+    super.initState();
+  }
+
+  void setFreeRFRHotKeys() {
+    HotKey pageLeft =
+        HotKey(key: LogicalKeyboardKey.home, scope: HotKeyScope.inapp);
+    hotKeyManager.register(pageLeft, keyDownHandler: (key) {
+      if (index > 0) {
+        setState(() => index--);
+      } else {
+        setState(() {});
+      }
+    });
+    HotKey pageRight =
+        HotKey(key: LogicalKeyboardKey.end, scope: HotKeyScope.inapp);
+    hotKeyManager.register(pageRight, keyDownHandler: (key) {
+      debugPrint("${index + 1} < ${pages.length}");
+      if (index + 1 < pages.length) {
+        setState(() => index++);
+      } else {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    hotKeyManager.unregisterAll();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
