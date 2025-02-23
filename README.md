@@ -15,7 +15,9 @@ Most of the hotkeys are mapped to eos hotkeys which are found [here](https://www
 The exception is the <ins>**home**</ins> key for page left and <ins>**end**</ins> key for page right
 
 ## Requirements
-I have gotten this to work on Eos v3.2, but could work on versions earlier. This uses UDP protocol, so port must be configured properly. see [Getting Started](#getting-started)
+I have gotten this to work on Eos v3.2, but could work on versions earlier. 
+
+This uses UDP protocol, so the port must be configured properly. See [Getting Started](#getting-started)
 
 ## Getting Started
 1. Please set up these settings on your console and ensure everything in the red box is configured as in the screenshot.
