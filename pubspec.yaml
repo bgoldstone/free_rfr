@@ -58,7 +58,7 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 flutter_launcher_icons:
   android: "launcher_icon"
-  ios: true
+  ios: "free_rfr.png"
   image_path: "assets/icons/free_rfr.png"
   adaptive_icon_foreground: "assets/icons/free_rfr.png"
   remove_alpha_ios: true
