@@ -9,6 +9,14 @@ A new RFR for ETC Eos-based consoles using OSC Communication
 # Flutter Version
 Current Flutter Version: 3.24.3
 
+## Hot Keys
+Most of the hotkeys are mapped to eos hotkeys which are found [here](https://www.etcconnect.com/webdocs/Controls/EosFamilyOnlineHelp/en-us/Content/03_System_Basics/Keyboard_Shortcuts.htm).
+
+The exception is the <ins>**home**</ins> key for page left and <ins>**end**</ins> key for page right
+
+## Requirements
+I have gotten this to work on Eos v3.2, but could work on versions earlier. This uses UDP protocol, so port must be configured properly. see [Getting Started](#getting-started)
+
 ## Getting Started
 1. Please set up these settings on your console and ensure everything in the red box is configured as in the screenshot.
 2. These settings can be found in the Browser -> System Settings -> System -> Show Control -> OSC Tab
