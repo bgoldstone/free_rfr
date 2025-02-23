@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
-import 'package:free_rfr/shortcuts.dart';
 
 class ImageControl extends StatefulWidget {
   final OSC osc;
@@ -25,12 +24,10 @@ class ImageControl extends StatefulWidget {
 class _FocusControlState extends State<ImageControl> {
   @override
   Widget build(BuildContext context) {
-    return FreeRFRShortcutManager(
-      ParameterWidgets(
-          type: "Image",
-          currentChannel: widget.currentChannel,
-          osc: widget.osc),
-      widget.osc,
+    return ParameterWidgets(
+      type: "Image",
+      currentChannel: widget.currentChannel,
+      osc: widget.osc,
     );
   }
 

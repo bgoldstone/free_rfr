@@ -1,201 +1,383 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:free_rfr/objects/osc_control.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 
-class FreeRFRShortcutManager extends StatefulWidget {
-  final Widget child;
-  final OSC osc;
-  const FreeRFRShortcutManager(this.child, this.osc, {super.key});
+void registerHotKeys(OSC osc) async {
+  /**Two Modifiers */
+  HotKey goToCue = HotKey(
+      key: LogicalKeyboardKey.keyG,
+      modifiers: [HotKeyModifier.control, HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(goToCue,
+      keyDownHandler: (key) => osc.sendCmd('go_to_cue'));
+  /**One Modifier */
+  HotKey address = HotKey(
+      key: LogicalKeyboardKey.keyA,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(address,
+      keyDownHandler: (key) => osc.sendCmd('address'));
 
-  @override
-  State<FreeRFRShortcutManager> createState() => _FreeRFRShortcutManagerState();
-}
+  HotKey clearCommandLine = HotKey(
+      key: LogicalKeyboardKey.backspace,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(clearCommandLine,
+      keyDownHandler: (key) => osc.sendKey('clear_cmdline'));
+  /** Softkeys */
+  HotKey softkey1 = HotKey(
+      key: LogicalKeyboardKey.digit1,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey1,
+      keyDownHandler: (key) => osc.sendKey('softkey_1'));
 
-class _FreeRFRShortcutManagerState extends State<FreeRFRShortcutManager> {
-  final FocusNode focusNode = FocusNode();
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    focusNode.requestFocus();
-  }
+  HotKey softkey2 = HotKey(
+      key: LogicalKeyboardKey.digit2,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey2,
+      keyDownHandler: (key) => osc.sendKey('softkey_2'));
 
-  @override
-  Widget build(BuildContext context) {
-    return KeyboardListener(
-        focusNode: focusNode,
-        child: widget.child,
-        onKeyEvent: (event) {
-          var isCtrlPressed = false;
-          var isShiftPressed = false;
-          var isAltPressed = false;
-          if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
-              event.logicalKey == LogicalKeyboardKey.controlRight) {
-            isCtrlPressed = true;
-          }
-          if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
-              event.logicalKey == LogicalKeyboardKey.shiftRight) {
-            isShiftPressed = true;
-          }
-          if (event.logicalKey == LogicalKeyboardKey.altLeft ||
-              event.logicalKey == LogicalKeyboardKey.altRight) {
-            isAltPressed = true;
-          }
-          /**Two Modifiers */
-          if (isCtrlPressed &&
-              isShiftPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyG) {
-            widget.osc.sendKey("go_to_cue");
-          }
-          /** One Modifiers */
-          else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyA) {
-            widget.osc.sendKey("address");
-          } else if (isShiftPressed &&
-              event.logicalKey == LogicalKeyboardKey.backspace) {
-            widget.osc.sendKey("clear_cmdline");
-          }
-          //soft keys
-          else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit1) {
-            widget.osc.sendKey("softkey1");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit2) {
-            widget.osc.sendKey("softkey2");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit3) {
-            widget.osc.sendKey("softkey3");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit4) {
-            widget.osc.sendKey("softkey4");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit5) {
-            widget.osc.sendKey("softkey5");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.digit6) {
-            widget.osc.sendKey("softkey6");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyA) {
-            widget.osc.sendKey("select_active");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyL) {
-            widget.osc.sendKey("select_last");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyH) {
-            widget.osc.sendKey("home");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyV) {
-            widget.osc.sendKey("level");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyI) {
-            widget.osc.sendKey("time");
-          } else if (isShiftPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyU) {
-            widget.osc.sendKey("save_show");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyC) {
-            widget.osc.sendKey("color_palette");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyI) {
-            widget.osc.sendKey("intensity_palette");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyF) {
-            widget.osc.sendKey("focus_palette");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyB) {
-            widget.osc.sendKey("beam_palette");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyP) {
-            widget.osc.sendKey("preset");
-          } else if (isAltPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyR) {
-            widget.osc.sendKey("record");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyR) {
-            widget.osc.sendKey("record_only");
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.space) {
-            widget.osc.sendKey("stop");
-          }
+  HotKey softkey3 = HotKey(
+      key: LogicalKeyboardKey.digit3,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey3,
+      keyDownHandler: (key) => osc.sendKey('softkey_3'));
 
-          /** Keys without Modifiers */
-          else if (event.logicalKey == LogicalKeyboardKey.backspace) {
-            widget.osc.sendKey("clear");
-          } else if (event.logicalKey == LogicalKeyboardKey.enter) {
-            widget.osc.sendKey("#");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyG) {
-            widget.osc.sendKey("group");
-          } else if (event.logicalKey == LogicalKeyboardKey.pageUp) {
-            widget.osc.sendKey("last");
-          } else if (event.logicalKey == LogicalKeyboardKey.pageDown) {
-            widget.osc.sendKey("next");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyK) {
-            widget.osc.sendKey("mark");
-          } else if (event.logicalKey == LogicalKeyboardKey.f1) {
-            widget.osc.sendLive();
-          } else if (event.logicalKey == LogicalKeyboardKey.f2) {
-            widget.osc.sendBlind();
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyX) {
-            widget.osc.sendKey("undo");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyU) {
-            widget.osc.sendKey("update");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyF) {
-            widget.osc.sendKey("full");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyO) {
-            widget.osc.sendKey("out");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad0 ||
-              event.logicalKey == LogicalKeyboardKey.digit0) {
-            widget.osc.sendKey("0");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad1 ||
-              event.logicalKey == LogicalKeyboardKey.digit1) {
-            widget.osc.sendKey("1");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad2 ||
-              event.logicalKey == LogicalKeyboardKey.digit2) {
-            widget.osc.sendKey("2");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad3 ||
-              event.logicalKey == LogicalKeyboardKey.digit3) {
-            widget.osc.sendKey("3");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad4 ||
-              event.logicalKey == LogicalKeyboardKey.digit4) {
-            widget.osc.sendKey("4");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad5 ||
-              event.logicalKey == LogicalKeyboardKey.digit5) {
-            widget.osc.sendKey("5");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad6 ||
-              event.logicalKey == LogicalKeyboardKey.digit6) {
-            widget.osc.sendKey("6");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad7 ||
-              event.logicalKey == LogicalKeyboardKey.digit7) {
-            widget.osc.sendKey("7");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad8 ||
-              event.logicalKey == LogicalKeyboardKey.digit8) {
-            widget.osc.sendKey("8");
-          } else if (event.logicalKey == LogicalKeyboardKey.numpad9 ||
-              event.logicalKey == LogicalKeyboardKey.digit9) {
-            widget.osc.sendKey("9");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyN) {
-            widget.osc.sendKey("sneak");
-          } else if (event.logicalKey == LogicalKeyboardKey.delete) {
-            widget.osc.sendKey("delete");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyQ) {
-            widget.osc.sendKey("cue");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
-            widget.osc.sendKey("sub");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
-            widget.osc.sendKey("delay");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyE) {
-            widget.osc.sendKey("recall_from");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyT) {
-            widget.osc.sendKey("thru");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyX) {
-            widget.osc.sendKey("cueonlytrack");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyC) {
-            widget.osc.sendKey("copy_to");
-          } else if (event.logicalKey == LogicalKeyboardKey.keyP) {
-            widget.osc.sendKey("part");
-          } else if (event.logicalKey == LogicalKeyboardKey.space) {
-            widget.osc.sendKey("go_0");
-          }
-        });
-  }
+  HotKey softkey4 = HotKey(
+      key: LogicalKeyboardKey.digit4,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey4,
+      keyDownHandler: (key) => osc.sendKey('softkey_4'));
+
+  HotKey softkey5 = HotKey(
+      key: LogicalKeyboardKey.digit5,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey5,
+      keyDownHandler: (key) => osc.sendKey('softkey_5'));
+
+  HotKey softkey6 = HotKey(
+      key: LogicalKeyboardKey.digit6,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(softkey6,
+      keyDownHandler: (key) => osc.sendKey('softkey_6'));
+
+  HotKey moreSoftkeys = HotKey(
+      key: LogicalKeyboardKey.digit7,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(moreSoftkeys,
+      keyDownHandler: (key) => osc.sendKey('more_softkeys'));
+
+  HotKey selectActive = HotKey(
+      key: LogicalKeyboardKey.keyA,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(selectActive,
+      keyDownHandler: (key) => osc.sendCmd('select_active'));
+
+  HotKey selectLast = HotKey(
+      key: LogicalKeyboardKey.keyL,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(selectLast,
+      keyDownHandler: (key) => osc.sendCmd('select_last'));
+
+  HotKey home = HotKey(
+      key: LogicalKeyboardKey.keyH,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(home, keyDownHandler: (key) => osc.sendCmd('home'));
+
+  HotKey level = HotKey(
+      key: LogicalKeyboardKey.keyL,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(level, keyDownHandler: (key) => osc.sendCmd('level'));
+
+  HotKey time = HotKey(
+      key: LogicalKeyboardKey.keyI,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(time, keyDownHandler: (key) => osc.sendCmd('time'));
+
+  HotKey saveShow = HotKey(
+      key: LogicalKeyboardKey.keyU,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(saveShow,
+      keyDownHandler: (key) => osc.sendCmd('save_show'));
+
+  HotKey colorPalette = HotKey(
+      key: LogicalKeyboardKey.keyC,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(colorPalette,
+      keyDownHandler: (key) => osc.sendCmd('color_palette'));
+
+  HotKey intensityPalette = HotKey(
+      key: LogicalKeyboardKey.keyI,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(intensityPalette,
+      keyDownHandler: (key) => osc.sendCmd('intensity_palette'));
+
+  HotKey focusPalette = HotKey(
+      key: LogicalKeyboardKey.keyF,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(focusPalette,
+      keyDownHandler: (key) => osc.sendCmd('focus_palette'));
+
+  HotKey beamPalette = HotKey(
+      key: LogicalKeyboardKey.keyB,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(beamPalette,
+      keyDownHandler: (key) => osc.sendCmd('beam_palette'));
+
+  HotKey preset = HotKey(
+      key: LogicalKeyboardKey.keyP,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(preset,
+      keyDownHandler: (key) => osc.sendCmd('preset'));
+
+  HotKey record = HotKey(
+      key: LogicalKeyboardKey.keyR,
+      modifiers: [HotKeyModifier.alt],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(record,
+      keyDownHandler: (key) => osc.sendCmd('record'));
+
+  HotKey recordOnly = HotKey(
+      key: LogicalKeyboardKey.keyR,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(recordOnly,
+      keyDownHandler: (key) => osc.sendCmd('record_only'));
+
+  HotKey stop = HotKey(
+      key: LogicalKeyboardKey.space,
+      modifiers: [HotKeyModifier.control],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(stop, keyDownHandler: (key) => osc.sendCmd('stop'));
+  /**Keys without modifiers */
+  HotKey clear =
+      HotKey(key: LogicalKeyboardKey.backspace, scope: HotKeyScope.inapp);
+  hotKeyManager.register(clear,
+      keyDownHandler: (key) => osc.sendKey('clear_cmd'));
+
+  HotKey enter =
+      HotKey(key: LogicalKeyboardKey.enter, scope: HotKeyScope.inapp);
+  hotKeyManager.register(enter, keyDownHandler: (key) => (osc.sendCmd('#')));
+
+  // HotKey enterNumpad =
+  //     HotKey(key: LogicalKeyboardKey.numpadEnter, scope: HotKeyScope.inapp);
+  // hotKeyManager.register(enterNumpad, keyDownHandler: (key) => (osc.sendCmd('#')));
+
+  HotKey group = HotKey(key: LogicalKeyboardKey.keyG, scope: HotKeyScope.inapp);
+  hotKeyManager.register(group, keyDownHandler: (key) => osc.sendCmd('group'));
+  HotKey last =
+      HotKey(key: LogicalKeyboardKey.pageUp, scope: HotKeyScope.inapp);
+  hotKeyManager.register(last, keyDownHandler: (key) => osc.sendCmd('last'));
+
+  HotKey next =
+      HotKey(key: LogicalKeyboardKey.pageDown, scope: HotKeyScope.inapp);
+  hotKeyManager.register(next, keyDownHandler: (key) => osc.sendCmd('next'));
+
+  HotKey mark = HotKey(key: LogicalKeyboardKey.keyK, scope: HotKeyScope.inapp);
+  hotKeyManager.register(mark, keyDownHandler: (key) => osc.sendCmd('mark'));
+
+  HotKey live = HotKey(key: LogicalKeyboardKey.f1, scope: HotKeyScope.inapp);
+  hotKeyManager.register(live, keyDownHandler: (key) => osc.sendLive());
+
+  HotKey blind = HotKey(key: LogicalKeyboardKey.f2, scope: HotKeyScope.inapp);
+  hotKeyManager.register(blind, keyDownHandler: (key) => osc.sendBlind());
+
+  HotKey undo = HotKey(key: LogicalKeyboardKey.keyX, scope: HotKeyScope.inapp);
+  hotKeyManager.register(undo, keyDownHandler: (key) => osc.sendCmd('undo'));
+
+  HotKey update =
+      HotKey(key: LogicalKeyboardKey.keyU, scope: HotKeyScope.inapp);
+  hotKeyManager.register(update,
+      keyDownHandler: (key) => osc.sendCmd('update'));
+
+  HotKey full = HotKey(key: LogicalKeyboardKey.keyF, scope: HotKeyScope.inapp);
+  hotKeyManager.register(full, keyDownHandler: (key) => osc.sendCmd('full'));
+
+  HotKey out = HotKey(key: LogicalKeyboardKey.keyO, scope: HotKeyScope.inapp);
+  hotKeyManager.register(out, keyDownHandler: (key) => osc.sendCmd('out'));
+  /** Number Keys */
+  HotKey zeroKey =
+      HotKey(key: LogicalKeyboardKey.digit0, scope: HotKeyScope.inapp);
+  hotKeyManager.register(zeroKey, keyDownHandler: (key) => osc.sendCmd('0'));
+
+  HotKey numpad0 =
+      HotKey(key: LogicalKeyboardKey.numpad0, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad0, keyDownHandler: (key) => osc.sendCmd('0'));
+
+  HotKey oneKey =
+      HotKey(key: LogicalKeyboardKey.digit1, scope: HotKeyScope.inapp);
+  hotKeyManager.register(oneKey, keyDownHandler: (key) => osc.sendCmd('1'));
+
+  HotKey numpad1 =
+      HotKey(key: LogicalKeyboardKey.numpad1, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad1, keyDownHandler: (key) => osc.sendCmd('1'));
+
+  HotKey twoKey =
+      HotKey(key: LogicalKeyboardKey.digit2, scope: HotKeyScope.inapp);
+  hotKeyManager.register(twoKey, keyDownHandler: (key) => osc.sendCmd('2'));
+
+  HotKey numpad2 =
+      HotKey(key: LogicalKeyboardKey.numpad2, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad2, keyDownHandler: (key) => osc.sendCmd('2'));
+
+  HotKey threeKey =
+      HotKey(key: LogicalKeyboardKey.digit3, scope: HotKeyScope.inapp);
+  hotKeyManager.register(threeKey, keyDownHandler: (key) => osc.sendCmd('3'));
+
+  HotKey numpad3 =
+      HotKey(key: LogicalKeyboardKey.numpad3, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad3, keyDownHandler: (key) => osc.sendCmd('3'));
+
+  HotKey fourKey =
+      HotKey(key: LogicalKeyboardKey.digit4, scope: HotKeyScope.inapp);
+  hotKeyManager.register(fourKey, keyDownHandler: (key) => osc.sendCmd('4'));
+
+  HotKey numpad4 =
+      HotKey(key: LogicalKeyboardKey.numpad4, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad4, keyDownHandler: (key) => osc.sendCmd('4'));
+
+  HotKey fiveKey =
+      HotKey(key: LogicalKeyboardKey.digit5, scope: HotKeyScope.inapp);
+  hotKeyManager.register(fiveKey, keyDownHandler: (key) => osc.sendCmd('5'));
+
+  HotKey numpad5 =
+      HotKey(key: LogicalKeyboardKey.numpad5, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad5, keyDownHandler: (key) => osc.sendCmd('5'));
+
+  HotKey sixKey =
+      HotKey(key: LogicalKeyboardKey.digit6, scope: HotKeyScope.inapp);
+  hotKeyManager.register(sixKey, keyDownHandler: (key) => osc.sendCmd('6'));
+
+  HotKey numpad6 =
+      HotKey(key: LogicalKeyboardKey.numpad6, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad6, keyDownHandler: (key) => osc.sendCmd('6'));
+
+  HotKey sevenKey =
+      HotKey(key: LogicalKeyboardKey.digit7, scope: HotKeyScope.inapp);
+  hotKeyManager.register(sevenKey, keyDownHandler: (key) => osc.sendCmd('7'));
+
+  HotKey numpad7 =
+      HotKey(key: LogicalKeyboardKey.numpad7, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad7, keyDownHandler: (key) => osc.sendCmd('7'));
+
+  HotKey eightKey =
+      HotKey(key: LogicalKeyboardKey.digit8, scope: HotKeyScope.inapp);
+  hotKeyManager.register(eightKey, keyDownHandler: (key) => osc.sendCmd('8'));
+
+  HotKey numpad8 =
+      HotKey(key: LogicalKeyboardKey.numpad8, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad8, keyDownHandler: (key) => osc.sendCmd('8'));
+
+  HotKey nineKey =
+      HotKey(key: LogicalKeyboardKey.digit9, scope: HotKeyScope.inapp);
+  hotKeyManager.register(nineKey, keyDownHandler: (key) => osc.sendCmd('9'));
+
+  HotKey numpad9 =
+      HotKey(key: LogicalKeyboardKey.numpad9, scope: HotKeyScope.inapp);
+  hotKeyManager.register(numpad9, keyDownHandler: (key) => osc.sendCmd('9'));
+
+  /** End of Number Keys */
+
+  HotKey sneak = HotKey(key: LogicalKeyboardKey.keyN, scope: HotKeyScope.inapp);
+  hotKeyManager.register(sneak, keyDownHandler: (key) => osc.sendCmd('sneak'));
+
+  HotKey delete =
+      HotKey(key: LogicalKeyboardKey.delete, scope: HotKeyScope.inapp);
+  hotKeyManager.register(delete,
+      keyDownHandler: (key) => osc.sendCmd('delete'));
+
+  HotKey cue = HotKey(key: LogicalKeyboardKey.keyQ, scope: HotKeyScope.inapp);
+  hotKeyManager.register(cue, keyDownHandler: (key) => osc.sendCmd('cue'));
+
+  HotKey sub = HotKey(key: LogicalKeyboardKey.keyS, scope: HotKeyScope.inapp);
+  hotKeyManager.register(sub, keyDownHandler: (key) => osc.sendCmd('sub'));
+
+  HotKey delay = HotKey(key: LogicalKeyboardKey.keyD, scope: HotKeyScope.inapp);
+  hotKeyManager.register(delay, keyDownHandler: (key) => osc.sendCmd('delay'));
+
+  HotKey recallFrom =
+      HotKey(key: LogicalKeyboardKey.keyE, scope: HotKeyScope.inapp);
+  hotKeyManager.register(recallFrom,
+      keyDownHandler: (key) => osc.sendCmd('recall_from'));
+
+  HotKey thru = HotKey(key: LogicalKeyboardKey.keyT, scope: HotKeyScope.inapp);
+  hotKeyManager.register(thru, keyDownHandler: (key) => osc.sendCmd('thru'));
+
+  HotKey cueonlytrack =
+      HotKey(key: LogicalKeyboardKey.keyX, scope: HotKeyScope.inapp);
+  hotKeyManager.register(cueonlytrack,
+      keyDownHandler: (key) => osc.sendCmd('cueonlytrack'));
+
+  HotKey copyTo =
+      HotKey(key: LogicalKeyboardKey.keyC, scope: HotKeyScope.inapp);
+  hotKeyManager.register(copyTo,
+      keyDownHandler: (key) => osc.sendCmd('copy_to'));
+
+  HotKey part = HotKey(key: LogicalKeyboardKey.keyP, scope: HotKeyScope.inapp);
+  hotKeyManager.register(part, keyDownHandler: (key) => osc.sendCmd('part'));
+
+  HotKey go0 = HotKey(key: LogicalKeyboardKey.space, scope: HotKeyScope.inapp);
+  hotKeyManager.register(go0, keyDownHandler: (key) => osc.sendCmd('go_0'));
+
+  HotKey at = HotKey(key: LogicalKeyboardKey.keyA, scope: HotKeyScope.inapp);
+  hotKeyManager.register(at, keyDownHandler: (key) => osc.sendCmd('@'));
+
+  HotKey peroid =
+      HotKey(key: LogicalKeyboardKey.period, scope: HotKeyScope.inapp);
+  hotKeyManager.register(peroid, keyDownHandler: (key) => osc.sendCmd('.'));
+
+  HotKey plus = HotKey(key: LogicalKeyboardKey.add, scope: HotKeyScope.inapp);
+  hotKeyManager.register(plus, keyDownHandler: (key) => osc.sendCmd('+'));
+
+  HotKey minus =
+      HotKey(key: LogicalKeyboardKey.minus, scope: HotKeyScope.inapp);
+  hotKeyManager.register(minus, keyDownHandler: (key) => osc.sendCmd('-'));
+
+  HotKey plus10 = HotKey(
+      key: LogicalKeyboardKey.add,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(plus10, keyDownHandler: (key) => osc.sendCmd('+%'));
+
+  HotKey minus10 = HotKey(
+      key: LogicalKeyboardKey.minus,
+      modifiers: [HotKeyModifier.shift],
+      scope: HotKeyScope.inapp);
+  hotKeyManager.register(minus10, keyDownHandler: (key) => osc.sendCmd('-%'));
+
+  HotKey slash =
+      HotKey(key: LogicalKeyboardKey.slash, scope: HotKeyScope.inapp);
+  hotKeyManager.register(slash, keyDownHandler: (key) => osc.sendCmd('/'));
+
+  HotKey colon =
+      HotKey(key: LogicalKeyboardKey.colon, scope: HotKeyScope.inapp);
+  hotKeyManager.register(colon, keyDownHandler: (key) => osc.sendCmd(':'));
+
+  HotKey parenthesisLeft =
+      HotKey(key: LogicalKeyboardKey.parenthesisLeft, scope: HotKeyScope.inapp);
+  hotKeyManager.register(parenthesisLeft,
+      keyDownHandler: (key) => osc.sendCmd('('));
+
+  HotKey parenthesisRight = HotKey(
+      key: LogicalKeyboardKey.parenthesisRight, scope: HotKeyScope.inapp);
+  hotKeyManager.register(parenthesisRight,
+      keyDownHandler: (key) => osc.sendCmd(')'));
 }

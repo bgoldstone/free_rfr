@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/shortcuts.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
 
@@ -106,9 +105,12 @@ class ChannelCheck extends StatelessWidget {
       Button('3', () {
         osc.sendKey('3');
       }, fontSize: 30),
-      Button('At', () {
-        osc.sendKey('at');
-      }),
+      Button(
+        'At',
+        () {
+          osc.sendKey('at');
+        },
+      ),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
       }, fontSize: 18.5),
@@ -123,6 +125,6 @@ class ChannelCheck extends StatelessWidget {
         isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return FreeRFRShortcutManager(Grid(4, channelCheck, scale), osc);
+    return Grid(4, channelCheck, scale);
   }
 }

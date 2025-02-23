@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/shortcuts.dart';
 
 class Cues extends StatefulWidget {
   final OSC osc;
@@ -36,90 +35,91 @@ class _CuesState extends State<Cues> {
   @override
   Widget build(BuildContext context) {
     const currentCueStyle = TextStyle(fontWeight: FontWeight.bold);
-    return FreeRFRShortcutManager(
-      Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-                child: Text(
-              'Cue List: ${widget.currentCueList}',
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            )),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+              child: Text(
+            'Cue List: ${widget.currentCueList}',
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          )),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+                title: const Text('Previous Cue'),
+                subtitle: Text(widget.previousCueText),
+                onLongPress: () {
+                  editLabel(context, widget.previousCue);
+                }),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: ListTile(
-                  title: const Text('Previous Cue'),
-                  subtitle: Text(widget.previousCueText),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: Theme.of(context).secondaryHeaderColor,
+            child: ListTile(
+              title: const Text(
+                'Current Cue',
+                style: currentCueStyle,
+              ),
+              subtitle: Text(
+                widget.currentCueText,
+                style: currentCueStyle,
+              ),
+              onLongPress: () {
+                editLabel(context, widget.currentCue);
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: ListTile(
+              title: const Text('Next Cue'),
+              subtitle: Text(widget.nextCueText),
+              onLongPress: () {
+                editLabel(context, widget.nextCue);
+              },
+            ),
+          ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.spaceAround,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    widget.osc.sendKey('stop');
+                  },
                   onLongPress: () {
                     editLabel(context, widget.previousCue);
-                  }),
+                  },
+                  style: const ButtonStyle(
+                      foregroundColor:
+                          WidgetStatePropertyAll<Color>(Colors.red)),
+                  child: const Text('Stop/Back')),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              color: Theme.of(context).secondaryHeaderColor,
-              child: ListTile(
-                title: const Text(
-                  'Current Cue',
-                  style: currentCueStyle,
-                ),
-                subtitle: Text(
-                  widget.currentCueText,
-                  style: currentCueStyle,
-                ),
-                onLongPress: () {
-                  editLabel(context, widget.currentCue);
-                },
-              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    widget.osc.sendKey('go_0');
+                  },
+                  style: const ButtonStyle(
+                      foregroundColor:
+                          WidgetStatePropertyAll<Color>(Colors.green)),
+                  child: const Text('Go')),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: ListTile(
-                title: const Text('Next Cue'),
-                subtitle: Text(widget.nextCueText),
-                onLongPress: () {
-                  editLabel(context, widget.nextCue);
-                },
-              ),
-            ),
-          ),
-          Wrap(
-            alignment: WrapAlignment.spaceAround,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                    onPressed: () => widget.osc.sendKey('stop'),
-                    onLongPress: () {
-                      editLabel(context, widget.previousCue);
-                    },
-                    style: const ButtonStyle(
-                        foregroundColor:
-                            WidgetStatePropertyAll<Color>(Colors.red)),
-                    child: const Text('Stop/Back')),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(
-                    onPressed: () => widget.osc.sendKey('go_0'),
-                    style: const ButtonStyle(
-                        foregroundColor:
-                            WidgetStatePropertyAll<Color>(Colors.green)),
-                    child: const Text('Go')),
-              ),
-            ],
-          ),
-        ],
-      ),
-      widget.osc,
+          ],
+        ),
+      ],
     );
   }
 

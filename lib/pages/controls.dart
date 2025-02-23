@@ -30,7 +30,10 @@ class _ControlsState extends State<Controls> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      IntensityControl(currentChannel: widget.currentChannel, osc: widget.osc),
+      IntensityControl(
+        currentChannel: widget.currentChannel,
+        osc: widget.osc,
+      ),
       (widget.currentChannel[ParameterType.pan] != null &&
               widget.currentChannel[ParameterType.tilt] != null &&
               widget.currentChannel[ParameterType.maxPan] != null &&
@@ -38,17 +41,31 @@ class _ControlsState extends State<Controls> {
               widget.currentChannel[ParameterType.minPan] != null &&
               widget.currentChannel[ParameterType.minTilt] != null)
           ? PanTiltControl(
-              currentChannel: widget.currentChannel, osc: widget.osc)
+              currentChannel: widget.currentChannel,
+              osc: widget.osc,
+            )
           : noParametersForThisChannel("Pan Tilt"),
-      FocusControl(osc: widget.osc, currentChannel: widget.currentChannel),
+      FocusControl(
+        osc: widget.osc,
+        currentChannel: widget.currentChannel,
+      ),
       widget.hueSaturation.isNotEmpty
           ? ColorControl(widget.osc,
               currentChannel: widget.currentChannel,
               hueSaturation: widget.hueSaturation)
           : noParametersForThisChannel("Color"),
-      ShutterControl(osc: widget.osc, currentChannel: widget.currentChannel),
-      ImageControl(osc: widget.osc, currentChannel: widget.currentChannel),
-      FormControl(osc: widget.osc, currentChannel: widget.currentChannel)
+      ShutterControl(
+        osc: widget.osc,
+        currentChannel: widget.currentChannel,
+      ),
+      ImageControl(
+        osc: widget.osc,
+        currentChannel: widget.currentChannel,
+      ),
+      FormControl(
+        osc: widget.osc,
+        currentChannel: widget.currentChannel,
+      )
     ];
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
@@ -90,7 +107,9 @@ class _ControlsState extends State<Controls> {
           ),
         ],
         currentIndex: index,
-        onTap: (index) => setState(() => this.index = index),
+        onTap: (index) => setState(() {
+          this.index = index;
+        }),
         selectedItemColor: Colors.yellow,
         unselectedItemColor:
             MediaQuery.of(context).platformBrightness == Brightness.dark

@@ -4,7 +4,6 @@ import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/pages/facepanels/additional_keys.dart';
 import 'package:free_rfr/pages/facepanels/targets.dart';
 
-
 class FacePanel extends StatefulWidget {
   final OSC osc;
   const FacePanel({required this.osc, super.key});
@@ -38,7 +37,9 @@ class _FacePanelState extends State<FacePanel> {
           BottomNavigationBarItem(
               icon: Icon(Icons.light_mode), label: 'Additional Keys'),
         ],
-        onTap: (index) => setState(() => this.index = index),
+        onTap: (index) => setState(() {
+          this.index = index;
+        }),
         unselectedItemColor:
             MediaQuery.of(context).platformBrightness == Brightness.dark
                 ? Colors.white

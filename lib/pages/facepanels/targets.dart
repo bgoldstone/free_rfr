@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/shortcuts.dart';
 import 'package:free_rfr/widgets/button.dart';
 
 import '../../widgets/grid.dart';
@@ -82,6 +81,6 @@ class Target extends StatelessWidget {
         osc.sendKey('enter');
       }, fontSize: 30),
     ];
-    return FreeRFRShortcutManager(Grid(3, targets, 2.22), osc);
+    return Grid(3, targets, 2.22);
   }
 }
