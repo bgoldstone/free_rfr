@@ -9,8 +9,11 @@ import 'package:free_rfr/pages/connections.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await hotKeyManager.unregisterAll();
+  if (!(Platform.isAndroid || Platform.isIOS)) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await hotKeyManager.unregisterAll();
+  }
+
   runApp(const MyApp());
 }
 
