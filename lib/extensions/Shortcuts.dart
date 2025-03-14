@@ -56,7 +56,7 @@ class _ShortcutState extends State<Shortcut> {
       GestureDetector(
         onTap: () {
           if(widget.osc_message == null) {
-            widget.onTap!(osc);
+            isToggled ? widget.onTap!(osc) : widget.shortcutAfterTap?.onTap!(osc);
             isToggled = !isToggled;
             setState(() {});
             return;
