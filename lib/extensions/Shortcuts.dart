@@ -6,13 +6,20 @@ import '../objects/osc_control.dart';
 
 class Shortcut extends StatefulWidget {
   final String name;
-  final String osc_message;
+  final String? osc_message;
+
+  //Note:
+  // Two different types of shortcuts: one with simple osc message command :
+  // (osc message != null && onTap is irrelevant)
+  // and one with complex osc function:
+  // (osc_message = null && onTap called on tap)
+
   String? shortcutDescription;
   Shortcut? shortcutAfterTap;
   late OSC osc;
   List<Object> args = [];
   Color? color;
-  Function()? onTap;
+  Function(OSC osc)? onTap;
 
   Shortcut(this.name, this.osc_message,
       {this.args = const [],
@@ -46,11 +53,15 @@ class _ShortcutState extends State<Shortcut> {
     Column(children: [
       GestureDetector(
         onTap: () {
+          if(widget.osc_message == null) {
+            widget.onTap!(osc);
+            return;
+          }
           osc.send(
               isToggled
-                  ? (widget.osc_message)
+                  ? (widget.osc_message!)
                   : (widget.shortcutAfterTap?.osc_message ??
-                      widget.osc_message),
+                      widget.osc_message!),
               isToggled
                   ? widget.args
                   : (widget.shortcutAfterTap?.args ?? widget.args));
