@@ -17,6 +17,7 @@ class OSC {
   final InternetAddress hostIP;
   final int hostPort = 8000;
   final int clientPort = 8001;
+  int? user;
   final Function(ParameterMap)? setCurrentChannel;
   final Function(String)? setCommandLine;
   final void Function(int)? setCurrentCueList;
@@ -44,7 +45,8 @@ class OSC {
       this.setPreviousCueText,
       this.setNextCue,
       this.setNextCueText,
-      this.setHueSaturation) {
+      this.setHueSaturation,
+      this.user) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -52,10 +54,10 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
-    loginAsUser(id:"1");
+    loginAsUser(id:user == null ? "1" : user.toString());
   }
 
-  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
+  OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null, this.user}) {
     client = OSCSocket(destination: hostIP, destinationPort: hostPort);
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     client.send(message);
@@ -63,7 +65,7 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
-    loginAsUser(id:"1");
+    loginAsUser(id:user == null ? "1" : user.toString());
     }
 
     void registerControlState(ControlWidget controlWidget) {

@@ -8,7 +8,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/connections.dart';
 
 void main() {
-  runApp(RFR.INSTANCE = RFR());
+  runApp(RFR.INSTANCE = RFR(user: 10));
 }
 
 class RFR extends StatefulWidget {
@@ -17,8 +17,9 @@ class RFR extends StatefulWidget {
   static RFR? INSTANCE;
   List<Shortcut> shortcuts = [];
   bool onlyShowShortcuts = false;
+  int? user;
 
-  RFR({this.shortcuts = const [], this.onlyShowShortcuts = false, super.key});
+  RFR({this.shortcuts = const [], this.onlyShowShortcuts = false, this.user, super.key});
 
   @override
   State<RFR> createState() => state = RFRState();
@@ -138,7 +139,9 @@ class RFRState extends State<RFR> {
           setPreviousCueText,
           setNextCue,
           setNextCueText,
-          setHueSaturation);
+          setHueSaturation,
+        widget.user
+      );
       isOSCInitialized = true;
     });
   }
