@@ -10,7 +10,7 @@ class PanTiltControl extends StatefulWidget {
    double minTilt = -200;
   double currentPan = 0;
   double currentTilt = 0;
-  final ParameterMap currentChannel;
+  ParameterMap currentChannel;
   final OSC osc;
   PanTiltControl(
       {
@@ -28,6 +28,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
   double? panSize;
   double? tiltSize;
   Size? size;
+  ParameterMap? currentChannel;
 
   PanTiltControlState() : super(controllingParameters: [ParameterType.pan, ParameterType.tilt]); // Current size of the point
 
@@ -38,7 +39,17 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
     y = widget.currentTilt;
     panSize = widget.maxPan.abs() + widget.minPan.abs();
     tiltSize = widget.maxTilt.abs() + widget.minTilt.abs();
+    currentChannel??=widget.currentChannel;
     widget.osc.registerControlState(this);
+  }
+
+  @override
+  void updateCurrentChannel(ParameterMap m) {
+    if(!mounted) return;
+    setState(() {
+      currentChannel = m;
+      debugPrint('Updated current channel: ${currentChannel.toString()}');
+    });
   }
 
   void updateValues(double minPan, double maxPan, double minTilt, double maxTilt) {
@@ -68,7 +79,6 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
         y = widget.maxTilt;
       }
       debugPrint('Pan: $x, Tilt: ${y! * -1}');
-
       widget.osc.updatePanTilt(x!, y! * -1);
     });
   }
@@ -91,12 +101,10 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
       widget.osc.updatePanTilt(x!, y! * -1);
     });
   }
-  var yCache;
-  var xCache;
-
   @override
   Widget build(BuildContext context) {
-    if(!(widget.currentChannel.containsKey(ParameterType.pan) || widget.currentChannel.containsKey(ParameterType.tilt))) {
+    debugPrint(currentChannel.toString());
+    if(!(currentChannel!.containsKey(ParameterType.pan) || currentChannel!.containsKey(ParameterType.tilt))) {
       return const Center(
         child: Text(
           'No Pan Tilt Control for this channel',
@@ -104,13 +112,12 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
         ),
       );
     }
-      widget.currentPan = widget.currentChannel[ParameterType.pan]![1];
-      widget.currentTilt = widget.currentChannel[ParameterType.tilt]![1];
+      widget.currentPan = currentChannel![ParameterType.pan]![1];
+      widget.currentTilt = currentChannel![ParameterType.tilt]![1];
       x = widget.currentPan;
       y = widget.currentTilt;
     size = MediaQuery.of(context).size;
-    xCache ??=x;
-    yCache??=y;
+
     if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
       return const Center(
           child: Text('Screen too small to support Pan Tilt Grid Control.'));
@@ -131,30 +138,55 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   onChanged: (value) {
                     setState(() {
                       x = value;
-                      xCache = x;
                       widget.osc.updatePanTilt(x!, y! * -1);
                     });
                   },
                   onChangeEnd: (value) {},
                 ),
-                Slider(
-                  value: x!,
-                  min: xCache! - 10,
-                  max: xCache! +10,
-                  onChanged: (value) {
-                    setState(() {
-                      x = value;
-                      widget.osc.updatePanTilt(x!, y! * -1);
-                    });
-                  },
-                  onChangeEnd: (value) {
-                    setState(() {
-                      xCache = value;
-                    });
-
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    //+10, +5, -5, -10 buttons for pan
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          x = x!+10;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      child: const Text('+10'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          x = x!+5;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      child: const Text('+5'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          x = x!-5;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      child: const Text('-5'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          x = x!-10;
+                          widget.osc.updatePanTilt(x!, y! * -1);
+                        });
+                      },
+                      child: const Text('-10'),
+                    ),
+                  ],
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     //max and min buttons for pan
 
@@ -187,6 +219,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                 ),
                 //same for tilt
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     RotatedBox(quarterTurns: 3, child:
                     Slider(
@@ -196,7 +229,6 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                       onChanged: (value) {
                         setState(() {
                           y = -value;
-                          yCache = y;
                           widget.osc.updatePanTilt(x!, y! * -1);
                         });
                       },
@@ -204,28 +236,54 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                       },
                     )
                     ),
-                    RotatedBox(quarterTurns: 3, child:
-                    Slider(
-                      value: -y!,
-                      min: -yCache-10,
-                      max: -yCache + 10,
-                      onChanged: (value) {
-                        setState(() {
-                          y = -value;
-                          widget.osc.updatePanTilt(x!, y! * -1);
-                        });
-                      },
-                      onChangeEnd: (value) {
-                        setState(() {
-                          yCache = -value;
-                        });
-                      },
+                    Column(
+                      children: [
+                        //+10, +5, -5, -10 buttons for tilt
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              y = y!-10;
+                              widget.osc.updatePanTilt(x!, y! * -1);
+                            });
+                          },
+                          child: const Text('+10'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              y = y!-5;
+                              widget.osc.updatePanTilt(x!, y! * -1);
+                            });
+                          },
+                          child: const Text('+5'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              y = y!+5;
+                              widget.osc.updatePanTilt(x!, y! * -1);
+                            });
+                          },
+                          child: const Text('-5'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              y = y!+10;
+                              widget.osc.updatePanTilt(x!, y! * -1);
+                            });
+                          },
+                          child: const Text('-10'),
+                        ),
+                      ],
+
                     )
-                    ),
                   ]
                 ),
 
-                Row(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -267,9 +325,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                       GestureDetector(
                         onTapDown: (details) => _onTapDown(details),
                         onPanUpdate: (details) => _onPanUpdate(details),
-                        onPanEnd: (details) {
-
-                        },
+                        onPanEnd: null,
                         //Update position on tap
                         child: Container(
                           height: size!.height,

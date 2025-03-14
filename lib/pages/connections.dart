@@ -11,7 +11,9 @@ class Connections extends StatefulWidget {
   final void Function(Map<String, dynamic> activeConnection, int index)
       setActiveConnection;
   final int currentConnectionIndex;
+  final bool showShortcuts;
   const Connections(this.setActiveConnection,
+      this.showShortcuts,
       {super.key, required this.currentConnectionIndex});
 
   @override
@@ -121,7 +123,11 @@ class _ConnectionsState extends State<Connections> {
                           }
                           widget.setActiveConnection(
                               config['connections'][index], currentConnection);
-                          Navigator.of(context).pushNamed('/home');
+                          if(widget.showShortcuts) {
+                            Navigator.of(context).pushNamed('/shortcuts');
+                          } else {
+                            Navigator.of(context).pushNamed('/home');
+                          }
                         },
                         tileColor: index == currentConnection
                             ? Colors.blueGrey

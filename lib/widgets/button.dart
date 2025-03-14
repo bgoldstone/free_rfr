@@ -4,8 +4,9 @@ class Button extends StatelessWidget {
   final Function() onPressed;
   final String text;
   final double? fontSize;
+  final Color? color;
 
-  const Button(this.text, this.onPressed, {super.key, this.fontSize = 20});
+  const Button(this.text, this.onPressed, {super.key, this.fontSize = 20, this.color = Colors.blueGrey});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class Button extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(0),
       ),
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: color,
     );
     double aspectRatio = MediaQuery.of(context).size.aspectRatio;
     return Padding(

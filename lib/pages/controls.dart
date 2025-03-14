@@ -37,7 +37,7 @@ class _ControlsState extends State<Controls> {
        const FocusControl(),
       ColorControl(widget.osc,
           currentChannel: widget.currentChannel,
-          hueSaturation: widget.hueSaturation),
+      ),
        const ShutterControl(),
        const ImageControl(),
        const FormControl()

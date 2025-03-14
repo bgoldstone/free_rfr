@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:osc/osc.dart';
 
 extension NumDurationExtensions on num {
@@ -11,6 +12,23 @@ extension NumDurationExtensions on num {
   Duration get minutes => (this * 1000 * 1000 * 60).microseconds;
   Duration get hours => (this * 1000 * 1000 * 60 * 60).microseconds;
   Duration get days => (this * 1000 * 1000 * 60 * 60 * 24).microseconds;
+}
+
+extension GetMaterialColor on Color {
+  MaterialColor get materialColor {
+    return MaterialColor(value, {
+      50: withAlpha(0x1A),
+      100: withAlpha(0x33),
+      200: withAlpha(0x4D),
+      300: withAlpha(0x66),
+      400: withAlpha(0x80),
+      500: withAlpha(0x99),
+      600: withAlpha(0xB3),
+      700: withAlpha(0xCC),
+      800: withAlpha(0xE6),
+      900: withAlpha(0xFF),
+    });
+  }
 }
 
 extension ColorTemperature on Color {
@@ -52,11 +70,10 @@ extension ColorTemperature on Color {
 
   //blend with other color function
  Color blend(Color other) {
-    int a = (this.alpha + other.alpha).clamp(0, 255);
    int r = (this.red + other.red).clamp(0, 255);
    int g = (this.green + other.green).clamp(0, 255);
    int b = (this.blue + other.blue).clamp(0, 255);
-   return Color.fromARGB(a, r, g, b);
+   return Color.fromARGB(255, r, g, b);
   }
 
   //this kelvin to temperature should foxus on the following parameters:

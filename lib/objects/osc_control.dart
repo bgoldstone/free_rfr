@@ -9,6 +9,7 @@ import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
 import '../main.dart';
+import '../pages/controls/color.dart';
 import '../pages/controls/pan_tilt_control.dart';
 import '../pages/facepanels/fader.dart';
 
@@ -51,7 +52,7 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
-    loginAsUser();
+    loginAsUser(id:"1");
   }
 
   OSC.simple(this.hostIP, {this.setCommandLine = null, this.setCurrentChannel = null, this.setCurrentCueList = null, this.setCurrentCue = null, this.setCurrentCueText = null, this.setPreviousCue = null, this.setPreviousCueText = null, this.setNextCue = null, this.setNextCueText = null, this.setHueSaturation = null}) {
@@ -62,7 +63,7 @@ class OSC {
     client.send(message);
     _updateEosOutput();
     _setUDPTXIP();
-    loginAsUser();
+    loginAsUser(id:"1");
     }
 
     void registerControlState(ControlWidget controlWidget) {
@@ -197,6 +198,13 @@ class OSC {
         }
 
         if(event.arguments.isEmpty || event.arguments.toString()=="[]") {
+          //empty map -> no parameters
+          debugPrint("empty map");
+          setCurrentChannel!({});
+          currentChannel = [];
+          for (var e in controlStates) {
+            e.updateCurrentChannel({});
+          }
           return;
         }
         if(compl.isCompleted && !isCheckingColors) {
@@ -242,18 +250,24 @@ class OSC {
           return;
         }
         if(key.isColorWheel()) {
-          parameters[key] = double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""));
+          parameters[key] = [double.parse(event.arguments[0].toString().split(" ").last.replaceAll("[", "").replaceAll("]", ""))];
 
           return;
         }
-        parameters[ParameterType.getTypeByName(parameterName)]
-            .addAll(event.arguments.skip(1));
+        if(!parameters.containsKey(key)) {
+          parameters[key] = [];
+        }
+        parameters[key]!
+            .addAll(event.arguments.skip(1).toList());
       }
        else if (event.address.startsWith('/eos/out/color/hs') &&
           event.arguments.length == 2){
         double hue = double.parse(event.arguments[0].toString());
-        double saturation = double.parse(event.arguments[1].toString()) / 255;
+        double saturation = double.parse(event.arguments[1].toString())/100;
         setHueSaturation!(hue, saturation);
+        debugPrint("hue: $hue, saturation: $saturation");
+        ColorControlState state = getControlWidgetForType(ParameterType.hue) as ColorControlState;
+        state.updateCurrentColor(hue, saturation);
         addResponseToCache(event);
       } else if (event.address.startsWith('/eos/out/active/cue/text')) {
         String text = event.arguments[0].toString();
@@ -313,6 +327,7 @@ class OSC {
         PanTiltControlState state = getControlWidgetForType(ParameterType.pan)! as PanTiltControlState;
         var args = event.arguments;
         if(args.length == 6) {
+          state.updateCurrentChannel(parameters);
           state.updateValues(double.parse(args[0].toString()),
               double.parse(args[1].toString()), double.parse(args[2].toString()), double.parse(args[3].toString()));
         }

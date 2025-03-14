@@ -79,7 +79,7 @@ class ParameterType {
   }
 }
 
-typedef ParameterMap = Map<ParameterType, dynamic>;
+typedef ParameterMap = Map<ParameterType, List<dynamic>>;
 
 class ParameterRole {
   int index;
@@ -97,8 +97,9 @@ static ParameterRole shutter = ParameterRole(5);
 abstract class ControlWidget<T extends StatefulWidget> extends State<T> {
   List<ParameterType> controllingParameters;
   ControlWidget({required this.controllingParameters});
-}
 
+  void updateCurrentChannel(ParameterMap map) ;
+}
 class Channel {
   int? number;
   double? hue;
