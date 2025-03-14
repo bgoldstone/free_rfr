@@ -8,7 +8,7 @@ import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/connections.dart';
 
 void main() {
-  runApp(RFR.INSTANCE = RFR(user: 10));
+  runApp(RFR.INSTANCE = RFR(user: 10,));
 }
 
 class RFR extends StatefulWidget {

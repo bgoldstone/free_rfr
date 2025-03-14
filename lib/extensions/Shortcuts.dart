@@ -38,8 +38,9 @@ class _ShortcutState extends State<Shortcut> {
   Widget buildShortcut(BuildContext ctx, OSC osc) {
     debugPrint("Building shortcut $isToggled");
 
-    return SizedBox(
-        width: MediaQuery.sizeOf(ctx).width /3,
+    return Container(
+      padding: const EdgeInsets.all(10),
+        width: MediaQuery.sizeOf(ctx).width *0.3,
         height: MediaQuery.sizeOf(ctx).height,
         child:
     Column(children: [
