@@ -6,7 +6,7 @@ import '../objects/osc_control.dart';
 
 class Shortcut extends StatefulWidget {
   final String name;
-  final String? osc_message;
+  String? osc_message;
 
   //Note:
   // Two different types of shortcuts: one with simple osc message command :
@@ -27,6 +27,8 @@ class Shortcut extends StatefulWidget {
       this.onTap,
       this.shortcutAfterTap,
       this.shortcutDescription});
+
+  Shortcut.complex(this.name, this.onTap, {this.color, this.shortcutDescription, this.shortcutAfterTap, this.osc_message});
 
   @override
   State<StatefulWidget> createState() {
@@ -55,6 +57,8 @@ class _ShortcutState extends State<Shortcut> {
         onTap: () {
           if(widget.osc_message == null) {
             widget.onTap!(osc);
+            isToggled = !isToggled;
+            setState(() {});
             return;
           }
           osc.send(
