@@ -7,29 +7,37 @@ import '../objects/osc_control.dart';
 class Shortcut {
   final String name;
   final String osc_message;
+  Shortcut? shortcutAfterTap;
   List<Object> args = [];
   Color? color;
+  bool isToggled = true;
   Function()? onTap;
 
   Shortcut(this.name, this.osc_message, {this.args = const [], this.color, this.onTap});
 
-  Widget buildShortcut(BuildContext ctx, OSC osc) {
-
-    return ElevatedButton(onPressed: () {
-      osc.send(osc_message, args);
-      if(onTap != null) {
-        onTap!();
-      }
+  Widget buildShortcut(BuildContext ctx, OSC osc, ) {
+    if(!isToggled) {
+      return shortcutAfterTap?.buildShortcut(ctx, osc) ?? Container();
     }
-    ,
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white, backgroundColor: color ?? Theme.of(ctx).primaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+    return SizedBox(
+      width: MediaQuery.sizeOf(ctx).width * 0.2,
+      height: MediaQuery.sizeOf(ctx).width * 0.2,
+      child:
+      ElevatedButton(onPressed: () {
+        osc.send(osc_message, args);
+        if(onTap != null) {
+          onTap!();
+          isToggled = !isToggled;
+        }
+      }
+          ,
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: color ?? Theme.of(ctx).primaryColor,
+            //big rectangle
+            shape: const RoundedRectangleBorder(
+            ),
           ),
-        ),
-        child: Text(name));
-
+          child: Text(name)));
   }
 }
 
