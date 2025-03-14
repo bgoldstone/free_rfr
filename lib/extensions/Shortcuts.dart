@@ -13,31 +13,25 @@ class Shortcut {
   bool isToggled = true;
   Function()? onTap;
 
-  Shortcut(this.name, this.osc_message, {this.args = const [], this.color, this.onTap});
+  Shortcut(this.name, this.osc_message, {this.args = const [], this.color, this.onTap, this.shortcutAfterTap});
 
   Widget buildShortcut(BuildContext ctx, OSC osc, ) {
     if(!isToggled) {
       return shortcutAfterTap?.buildShortcut(ctx, osc) ?? Container();
     }
-    return SizedBox(
+    return Container(
       width: MediaQuery.sizeOf(ctx).width * 0.2,
       height: MediaQuery.sizeOf(ctx).width * 0.2,
+      color: color ?? Theme.of(ctx).primaryColor,
       child:
-      ElevatedButton(onPressed: () {
+      GestureDetector(onTap: () {
         osc.send(osc_message, args);
         if(onTap != null) {
           onTap!();
           isToggled = !isToggled;
         }
-      }
-          ,
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: color ?? Theme.of(ctx).primaryColor,
-            //big rectangle
-            shape: const RoundedRectangleBorder(
-            ),
-          ),
-          child: Text(name)));
+      },
+          child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white,))));
   }
 }
 
@@ -58,12 +52,12 @@ class _ShortcutsPageState extends State<ShortcutsPage>{
       appBar: AppBar(
         title: Text('Shortcuts'),
       ),
-      body: ListView.builder(
+      body: Center(child:ListView.builder(
         itemCount: widget.shortcuts.length,
         itemBuilder: (context, index) {
           return widget.shortcuts[index].buildShortcut(context, widget.osc);
         },
-      ),
+      ),)
     );
   }
 }
