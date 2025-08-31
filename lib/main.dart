@@ -114,17 +114,21 @@ class _MyAppState extends State<MyApp> {
     currentChannel = channel;
   }
 
-  void setActiveConnection(Map<String, dynamic> connection, int index) {
+  void setActiveConnection(Map<String, dynamic> connection, int index) async {
     if (isOSCInitialized) {
       isOSCInitialized = false;
     }
+    debugPrint(connection.toString());
+    InternetAddress address = await InternetAddress.lookup(connection['ip'],
+            type: InternetAddressType.IPv4)
+        .then((value) => value.first);
 
     setState(() {
       debugPrint('Initilizing OSC...');
       activeConnection = connection;
       currentConnectionIndex = index;
       osc = OSC(
-          InternetAddress(activeConnection['ip']),
+          address,
           setCurrentChannel,
           setCommandLine,
           setCurrentCueList,
@@ -135,7 +139,8 @@ class _MyAppState extends State<MyApp> {
           setPreviousCueText,
           setNextCue,
           setNextCueText,
-          setHueSaturation);
+          setHueSaturation,
+          int.tryParse(activeConnection['userId'].toString()) ?? 0);
       isOSCInitialized = true;
     });
   }

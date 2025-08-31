@@ -24,10 +24,12 @@ class _ConnectionsState extends State<Connections> {
   final String configFile = 'free_rfr.json';
   Directory path = Directory('');
   int listLength = 0;
+  TextEditingController userIdController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    userIdController.text = '0';
   }
 
   Future<bool> getConfig() async {
@@ -113,7 +115,9 @@ class _ConnectionsState extends State<Connections> {
                     child: Card(
                       child: ListTile(
                         title: Text(config['connections'][index]['name']),
-                        subtitle: Text(config['connections'][index]['ip']),
+                        subtitle: Text("""
+                            Host: ${config['connections'][index]['ip']}
+                            User ID: ${config['connections'][index]['userId']}"""),
                         onTap: () {
                           if (currentConnection != index) {
                             currentConnection = index;
@@ -146,28 +150,53 @@ class _ConnectionsState extends State<Connections> {
   AlertDialog createConnection(BuildContext context) {
     String consoleName = '';
     String consoleIP = '';
+    int userId = 0;
+
     return AlertDialog(
       title: const Text('Add Connection'),
       content: Column(
         children: [
-          TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Console Name',
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Console Name',
+              ),
+              onChanged: (value) {
+                consoleName = value;
+              },
             ),
-            onChanged: (value) {
-              consoleName = value;
-            },
           ),
-          TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Console IP',
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Console IP',
+              ),
+              onChanged: (value) {
+                consoleIP = value;
+              },
+              keyboardType: TextInputType.text,
             ),
-            onChanged: (value) {
-              consoleIP = value;
-            },
-            keyboardType: TextInputType.number,
+          ),
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'User ID',
+              ),
+              controller: userIdController,
+              onChanged: (value) {
+                try {
+                  userId = int.parse(value).abs();
+                  userIdController.text = userId.toString();
+                } catch (e) {
+                  userId = 0;
+                }
+                userIdController.text = userId.toString();
+              },
+              keyboardType: TextInputType.number,
+            ),
           ),
         ],
       ),
@@ -181,7 +210,8 @@ class _ConnectionsState extends State<Connections> {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            config['connections'].add({'name': consoleName, 'ip': consoleIP});
+            config['connections']
+                .add({'name': consoleName, 'ip': consoleIP, 'userId': userId});
             saveConnections();
             setState(() {});
           },
