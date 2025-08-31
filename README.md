@@ -21,8 +21,8 @@ This uses UDP protocol, so the port must be configured properly. See [Getting St
 
 ## Getting Started
 1. Please set up these settings on your console and ensure everything in the red box is configured as in the screenshot.
-2. These settings can be found in the Browser -> System Settings -> System -> Show Control -> OSC Tab
-![free_rfr-configuration](https://github.com/bgoldstone/free_rfr/assets/23127820/7e0dd7a9-811d-47ce-b6a3-2b4eb49da2bd)
+2. These settings can be found in the Browser -> System Settings -> System -> Show Control -> OSC Tab (Should default to 3032 by default though)
+<img width="1472" height="556" alt="image" src="https://github.com/user-attachments/assets/955dad94-2bf4-4b46-bf06-e50866445910" />
 3. Put in a Friendly name to remember your Eos Console by
 4. To find the IP address of your console, you can select the 'About' key on your eos console. the IP Addresses are located here:
 ![free_rfr-ip-address](https://github.com/bgoldstone/free_rfr/assets/23127820/36fd53ee-67c9-4740-a2d0-4c08384eb330)
