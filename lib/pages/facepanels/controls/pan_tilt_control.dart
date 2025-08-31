@@ -5,23 +5,21 @@ import 'package:free_rfr/objects/parameters.dart';
 
 // ignore: must_be_immutable
 class PanTiltControl extends StatefulWidget {
-  late double maxPan;
-  late double minPan;
-  late double maxTilt;
-  late double minTilt;
-  late double currentPan;
-  late double currentTilt;
+  double maxPan;
+  double minPan;
+  double maxTilt;
+  double minTilt;
+  double currentPan;
+  double currentTilt;
   final ParameterMap currentChannel;
   final OSC osc;
-  PanTiltControl({required this.currentChannel, required this.osc, super.key}) {
-    maxPan = currentChannel[ParameterType.maxPan]![0];
-    minPan = currentChannel[ParameterType.minPan]![0];
-    maxTilt = currentChannel[ParameterType.maxTilt]![0];
-    minTilt = currentChannel[ParameterType.minTilt]![0];
-    currentPan = currentChannel[ParameterType.pan]![1];
-    currentTilt = currentChannel[ParameterType.tilt]![1];
-  }
-
+  PanTiltControl({required this.currentChannel, required this.osc, super.key})
+      : maxPan = currentChannel[ParameterType.maxPan]![0],
+        minPan = currentChannel[ParameterType.minPan]![0],
+        maxTilt = currentChannel[ParameterType.maxTilt]![0],
+        minTilt = currentChannel[ParameterType.minTilt]![0],
+        currentPan = currentChannel[ParameterType.pan]![1],
+        currentTilt = currentChannel[ParameterType.tilt]![1];
   @override
   PanTiltControlState createState() => PanTiltControlState();
 }
