@@ -8,7 +8,7 @@ import 'facepanels/controls/focus.dart';
 import 'facepanels/controls/form.dart';
 import 'facepanels/controls/image.dart';
 import 'facepanels/controls/intensity.dart';
-import 'facepanels/controls/shutter.dart';
+// import 'facepanels/controls/shutter.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;

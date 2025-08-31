@@ -85,43 +85,7 @@ class OSC {
       sendKey('confirm_command');
     } catch (_) {}
     _setUDPTXIPDefault();
-  }
-
-  void _setUDPTXIP() async {
-    List<NetworkInterface> list = await NetworkInterface.list();
-    List<String> addresses = [];
-
-    for (NetworkInterface interface in list) {
-      if (interface.addresses.first.type == InternetAddressType.IPv4 &&
-          isPrivateIPAddress(interface.addresses.first.address.toString())) {
-        addresses.add(interface.addresses.first.address.toString());
-      }
-    }
-    OSCMessage message;
-    //get system language of the phone
-    String locale = Platform.localeName;
-    var split = locale.split('_');
-    //Eos 3.0 and later
-    if (split[0].toLowerCase() == "en") {
-      message = OSCMessage('/eos/newcmd/OSC_UDP_TX_IP_ADDRESS',
-          arguments: ['${addresses.join(',')}#']);
-    } else {
-      message = OSCMessage('/eos/newcmd/OSC_UDP_TX_IP_ADDRESSE',
-          arguments: ['${addresses.join(',')}#']);
-    }
-    await sendOSCMessage(message);
-    sleep100();
-    /*
-    OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-    listenSocket.listen((event) {
-      if (message.address == '/eos/out/cmd') {
-        setCommandLine!('${message.arguments[0]}');
-        debugPrint(message.arguments[0].toString());
-      }
-    });
-
-     */
-    sendLive();
+    close();
   }
 
   void sleep100() {
