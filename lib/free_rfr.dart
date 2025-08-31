@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:free_rfr/objects/osc_control.dart';
@@ -80,11 +78,8 @@ class _FreeRFRState extends State<FreeRFR> {
           previousCueText: widget.previousCueText),
       DirectSelects(osc: widget.osc, currentChannel: widget.currentChannel),
     ];
-    if (!(Platform.isAndroid || Platform.isIOS)) {
-      registerHotKeys(widget.osc);
-      setFreeRFRHotKeys();
-    }
-
+    registerHotKeys(widget.osc);
+    setFreeRFRHotKeys();
     super.initState();
   }
 
