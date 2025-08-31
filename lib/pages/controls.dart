@@ -49,15 +49,13 @@ class _ControlsState extends State<Controls> {
         osc: widget.osc,
         currentChannel: widget.currentChannel,
       ),
-      widget.hueSaturation.isNotEmpty
-          ? ColorControl(widget.osc,
-              currentChannel: widget.currentChannel,
-              hueSaturation: widget.hueSaturation)
-          : noParametersForThisChannel("Color"),
-      ShutterControl(
-        osc: widget.osc,
-        currentChannel: widget.currentChannel,
-      ),
+      ColorControl(widget.osc,
+          currentChannel: widget.currentChannel,
+          hueSaturation: widget.hueSaturation),
+      // ShutterControl(
+      //   osc: widget.osc,
+      //   currentChannel: widget.currentChannel,
+      // ),
       ImageControl(
         osc: widget.osc,
         currentChannel: widget.currentChannel,
@@ -90,11 +88,11 @@ class _ControlsState extends State<Controls> {
             label: 'Color',
             tooltip: 'Color',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.crop),
-            label: 'Shutter',
-            tooltip: 'Shutter',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.crop),
+          //   label: 'Shutter',
+          //   tooltip: 'Shutter',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.image),
             label: 'Image',

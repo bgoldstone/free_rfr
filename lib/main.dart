@@ -15,6 +15,7 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
+  final int tcpPort = 3032;
   const MyApp({super.key});
 
   @override
@@ -22,7 +23,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late OSC osc;
+  OSC? _oscCache;
+  Socket? _socketCache;
+  Future<OSC>? _oscFuture;
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
@@ -116,30 +119,41 @@ class _MyAppState extends State<MyApp> {
       isOSCInitialized = false;
     }
     debugPrint(connection.toString());
-    InternetAddress address = await InternetAddress.lookup(connection['ip'],
-            type: InternetAddressType.IPv4)
-        .then((value) => value.first);
 
     setState(() {
       debugPrint('Initilizing OSC...');
       activeConnection = connection;
       currentConnectionIndex = index;
-      osc = OSC(
-          address,
-          setCurrentChannel,
-          setCommandLine,
-          setCurrentCueList,
-          setCurrentCue,
-          setCurrentCueText,
-          setPreviousCue,
-          addToCommandLine,
-          setPreviousCueText,
-          setNextCue,
-          setNextCueText,
-          setHueSaturation,
-          int.tryParse(activeConnection['userId'].toString()) ?? 0);
       isOSCInitialized = true;
+      _oscFuture = getOSC();
     });
+  }
+
+  Future<OSC> getOSC() async {
+    if (_oscCache != null) return _oscCache!;
+    if (_socketCache == null) {
+      InternetAddress address = await InternetAddress.lookup(
+              activeConnection['ip'],
+              type: InternetAddressType.IPv4)
+          .then((value) => value.first);
+      _socketCache = await Socket.connect(address, widget.tcpPort);
+    }
+
+    _oscCache = OSC(
+        setCurrentChannel,
+        setCommandLine,
+        setCurrentCueList,
+        setCurrentCue,
+        setCurrentCueText,
+        setPreviousCue,
+        addToCommandLine,
+        setPreviousCueText,
+        setNextCue,
+        setNextCueText,
+        setHueSaturation,
+        int.tryParse(activeConnection['userId'].toString()) ?? 0,
+        _socketCache!);
+    return _oscCache!;
   }
 
   void setCurrentConnection(int index) {
@@ -168,24 +182,51 @@ class _MyAppState extends State<MyApp> {
       ),
       themeMode: ThemeMode.system,
       routes: {
-        '/': (context) => Connections(
-              setActiveConnection,
-              currentConnectionIndex: currentConnectionIndex,
-            ),
-        '/home': (context) => FreeRFR(
-            osc: osc,
-            currentChannel: currentChannel,
-            hueSaturation: hueSaturation,
-            setCommandLine: setCommandLine,
-            commandLine: getCommandLine(),
-            currentCue: currentCue,
-            currentCueList: currentCueList,
-            currentCueText: currentCueText,
-            nextCue: nextCue,
-            nextCueText: nextCueText,
-            previousCue: previousCue,
-            previousCueText: previousCueText,
-            setCurrentConnection: setCurrentConnection),
+        '/': (context) {
+          _socketCache = null;
+          _oscCache = null;
+          return Connections(
+            setActiveConnection,
+            currentConnectionIndex: currentConnectionIndex,
+          );
+        },
+        '/home': (context) {
+          return FutureBuilder<OSC>(
+              future: _oscFuture,
+              builder: (ctx, snapshot) {
+                debugPrint("Has Data? ${snapshot.hasData}");
+                if (snapshot.hasData) {
+                  return FreeRFR(
+                      osc: snapshot.data!,
+                      currentChannel: currentChannel,
+                      hueSaturation: hueSaturation,
+                      setCommandLine: setCommandLine,
+                      commandLine: getCommandLine(),
+                      currentCue: currentCue,
+                      currentCueList: currentCueList,
+                      currentCueText: currentCueText,
+                      nextCue: nextCue,
+                      nextCueText: nextCueText,
+                      previousCue: previousCue,
+                      previousCueText: previousCueText,
+                      setCurrentConnection: setCurrentConnection);
+                } else if (snapshot.hasError) {
+                  activeConnection = {};
+                  currentConnectionIndex = -1;
+                  return AlertDialog(
+                    title: const Text('An error occured connecting to eos!'),
+                    content: Text("Error has occured: ${snapshot.error}"),
+                    actions: <Widget>[
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK')),
+                    ],
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              });
+        }
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,

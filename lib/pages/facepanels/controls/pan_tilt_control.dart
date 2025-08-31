@@ -121,12 +121,14 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
               children: [
                 Slider(
                   value: x!,
-                  min: widget.minPan,
-                  max: widget.maxPan,
+                  min: widget.minPan.roundToDouble(),
+                  max: widget.maxPan.roundToDouble(),
                   onChanged: (value) {
                     setState(() {
-                      x = value;
-                      widget.osc.updatePanTilt(x!, y!);
+                      if (x! >= widget.minPan && x! <= widget.maxPan) {
+                        x = value;
+                        widget.osc.updatePanTilt(x!, y!);
+                      }
                     });
                   },
                   onChangeEnd: (value) {},
@@ -169,12 +171,14 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     quarterTurns: 3,
                     child: Slider(
                       value: -y!,
-                      min: widget.minTilt,
-                      max: widget.maxTilt,
+                      min: widget.minTilt.roundToDouble(),
+                      max: widget.maxTilt.roundToDouble(),
                       onChanged: (value) {
                         setState(() {
-                          y = -value;
-                          widget.osc.updatePanTilt(x!, -y!);
+                          if (y! >= widget.minTilt && y! <= widget.maxTilt) {
+                            y = value;
+                            widget.osc.updatePanTilt(x!, -y!);
+                          }
                         });
                       },
                       onChangeEnd: (value) {},

@@ -49,6 +49,11 @@ class ParameterType {
       ParameterType("Color MSpeed", ParameterRole.color);
   static ParameterType colorMSpeedMode =
       ParameterType("Color MSpeed Mode", ParameterRole.color);
+
+  static ParameterType colorWheelSelectMSpeed =
+      ParameterType("Color Wheel Select MSpeed", ParameterRole.color);
+  static ParameterType colorWheelSelectMSpeedMode =
+      ParameterType("Color Wheel Select MSpeed Mode", ParameterRole.color);
   static ParameterType goboIndSpd =
       ParameterType("Gobo Ind/Spd", ParameterRole.image);
   static ParameterType goboSelect =
@@ -110,6 +115,8 @@ class ParameterType {
     cto,
     colorMSpeed,
     colorMSpeedMode,
+    colorWheelSelectMSpeed,
+    colorWheelSelectMSpeedMode,
     goboIndSpd,
     goboSelect,
     goboIndSpd2,

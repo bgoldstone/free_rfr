@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:flutter_color_models/flutter_color_models.dart';
 
@@ -23,8 +24,16 @@ class ColorControl extends StatefulWidget {
 class _ColorControlState extends State<ColorControl> {
   int index = 0;
   Color? currentColor;
+
   @override
   Widget build(BuildContext context) {
+    if (widget.hueSaturation.isEmpty) {
+      return ParameterWidgets(
+        type: 'Color',
+        currentChannel: widget.currentChannel,
+        osc: widget.osc,
+      );
+    }
     debugPrint(widget.hueSaturation.toString());
     Color colorFromEos = widget.hueSaturation.isNotEmpty
         ? HsiColor(widget.hueSaturation[0], widget.hueSaturation[1], 100)

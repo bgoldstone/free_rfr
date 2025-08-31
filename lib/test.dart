@@ -16,7 +16,6 @@ void main() async {
   ByteData.view(lengthBytes.buffer).setInt32(0, data.length, Endian.big);
   socket.add(lengthBytes);
   socket.add(message.toBytes());
-  //Decode not working yet
   List<int> buffer = [];
   socket.listen((data) {
     buffer.addAll(data);
