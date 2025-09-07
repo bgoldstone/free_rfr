@@ -12,7 +12,7 @@ class FocusControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ParameterWidgets(
-      type: 'Focus',
+      role: ParameterRole.focus,
       currentChannel: currentChannel,
       osc: osc,
     );

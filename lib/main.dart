@@ -113,7 +113,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setCurrentChannel(ParameterMap channel) {
-    currentChannel = channel;
+    setState(() {
+      currentChannel = channel;
+    });
+  }
+
+  ParameterMap getCurrentChannel() {
+    return currentChannel;
   }
 
   void setActiveConnection(Map<String, dynamic> connection, int index) async {
@@ -200,7 +206,7 @@ class _MyAppState extends State<MyApp> {
                 if (snapshot.hasData) {
                   return FreeRFR(
                       osc: snapshot.data!,
-                      currentChannel: currentChannel,
+                      getCurrentChannel: getCurrentChannel,
                       hueSaturation: hueSaturation,
                       setCommandLine: setCommandLine,
                       commandLine: getCommandLine(),

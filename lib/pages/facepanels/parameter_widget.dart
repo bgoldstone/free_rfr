@@ -74,11 +74,11 @@ class ParameterWidget extends StatelessWidget {
 class ParameterWidgets extends StatefulWidget {
   final ParameterMap currentChannel;
   final OSC osc;
-  final String type;
+  final ParameterRole role;
 
   const ParameterWidgets(
       {super.key,
-      required this.type,
+      required this.role,
       required this.currentChannel,
       required this.osc});
 
@@ -91,7 +91,7 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
   @override
   Widget build(BuildContext context) {
     if (controls.isEmpty) {
-      return noParametersForThisChannel(widget.type);
+      return noParametersForThisChannel(widget.role.name);
     }
     List<Widget> targets = [];
     for (var parameter in controls) {
@@ -109,10 +109,6 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
   @override
   initState() {
     super.initState();
-    widget.currentChannel.forEach((parameter, _) {
-      if (parameter.role.name == widget.type.toLowerCase()) {
-        controls.add(parameter);
-      }
-    });
+    controls = getParameterForType(widget.currentChannel, widget.role);
   }
 }
