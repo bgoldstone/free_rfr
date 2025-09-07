@@ -17,7 +17,7 @@ class _FocusControlState extends State<FormControl> {
   @override
   Widget build(BuildContext context) {
     return ParameterWidgets(
-      type: 'Form',
+      role: ParameterRole.form,
       currentChannel: widget.currentChannel,
       osc: widget.osc,
     );

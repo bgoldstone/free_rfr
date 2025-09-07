@@ -18,7 +18,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class FreeRFR extends StatefulWidget {
   final OSC osc;
   final List<double> hueSaturation;
-  final ParameterMap currentChannel;
+  final ParameterMap Function() getCurrentChannel;
   final void Function(String) setCommandLine;
   final void Function(int) setCurrentConnection;
   final String commandLine;
@@ -32,7 +32,7 @@ class FreeRFR extends StatefulWidget {
   const FreeRFR(
       {super.key,
       required this.osc,
-      required this.currentChannel,
+      required this.getCurrentChannel,
       required this.hueSaturation,
       required this.setCommandLine,
       required this.commandLine,
@@ -65,7 +65,7 @@ class _FreeRFRState extends State<FreeRFR> {
       Controls(
         key: const Key('Controls'),
         osc: widget.osc,
-        currentChannel: widget.currentChannel,
+        getCurrentChannel: widget.getCurrentChannel,
         hueSaturation: widget.hueSaturation,
       ),
       Cues(
@@ -78,7 +78,8 @@ class _FreeRFRState extends State<FreeRFR> {
           nextCueText: widget.nextCueText,
           previousCue: widget.previousCue,
           previousCueText: widget.previousCueText),
-      DirectSelects(osc: widget.osc, currentChannel: widget.currentChannel),
+      DirectSelects(
+          osc: widget.osc, currentChannel: widget.getCurrentChannel()),
     ];
     if (!(Platform.isAndroid || Platform.isIOS)) {
       registerHotKeys(widget.osc);

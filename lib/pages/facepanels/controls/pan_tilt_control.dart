@@ -18,8 +18,8 @@ class PanTiltControl extends StatefulWidget {
         minPan = currentChannel[ParameterType.minPan]![0],
         maxTilt = currentChannel[ParameterType.maxTilt]![0],
         minTilt = currentChannel[ParameterType.minTilt]![0],
-        currentPan = currentChannel[ParameterType.pan]![1],
-        currentTilt = currentChannel[ParameterType.tilt]![1];
+        currentPan = currentChannel[ParameterType.pan]![0],
+        currentTilt = currentChannel[ParameterType.tilt]![0];
   @override
   PanTiltControlState createState() => PanTiltControlState();
 }
@@ -99,8 +99,8 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
 
   @override
   Widget build(BuildContext context) {
-    widget.currentPan = widget.currentChannel[ParameterType.pan]![1];
-    widget.currentTilt = widget.currentChannel[ParameterType.tilt]![1];
+    widget.currentPan = widget.currentChannel[ParameterType.pan]![0];
+    widget.currentTilt = widget.currentChannel[ParameterType.tilt]![0];
     x = widget.currentPan;
     y = widget.currentTilt;
     size = MediaQuery.of(context).size;
@@ -161,14 +161,14 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     //           });
                     //         },
                     //         child: const Text("Home")),
-                    Center(child: Text("Pan: $x")),
+                    Center(child: Text("Pan: ${x!.toStringAsFixed(2)}")),
                   ],
                 ),
                 //same for tilt
                 RotatedBox(
-                    quarterTurns: 3,
+                    quarterTurns: 1,
                     child: Slider(
-                      value: -y!,
+                      value: y!,
                       min: widget.minTilt.roundToDouble(),
                       max: widget.maxTilt.roundToDouble(),
                       onChanged: (value) {
@@ -206,7 +206,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   //         widget.osc.updatePanTilt(x!, y!);
                   //       },
                   //       child: const Text("Home")),
-                  Center(child: Text("Tilt: ${y! * -1}"))
+                  Center(child: Text("Tilt: ${(y! * -1).toStringAsFixed(2)}"))
                 ])
               ],
             )),

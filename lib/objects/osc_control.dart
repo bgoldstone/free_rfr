@@ -137,8 +137,9 @@ class OSC {
 
   void _updateEosOutput() async {
     debugPrint('Updating Eos Output');
-    ParameterMap parameters = {};
     List<int> buffer = [];
+    ParameterMap parameters = {};
+    List<Object> currentChannel = [];
     client.listen((packet) {
       buffer.addAll(packet);
       while (buffer.isNotEmpty) {
@@ -158,7 +159,14 @@ class OSC {
           debugPrint(
               "Is hs:${message.address.startsWith('/eos/out/color/hs')}, actual :${message.address}");
           debugPrint(message.toString());
-          if (message.address == '/eos/out/cmd') {
+          debugPrint(
+              "Raw: ${utf8.decode(messageData.sublist(4), allowMalformed: true).trim()}");
+          if (message.address == '/eos/out/active/chan') {
+            if (message.arguments != currentChannel) {
+              currentChannel = message.arguments;
+              parameters = {};
+            }
+          } else if (message.address == '/eos/out/cmd') {
             setCommandLine!('${message.arguments[0]}');
           } else if (message.address.startsWith("/eos/out/pantilt") &&
               message.arguments.length >= 4) {
@@ -171,52 +179,39 @@ class OSC {
               message.arguments[3] as double
             ];
           } else if (message.address.startsWith('/eos/out/active/wheel/')) {
-            var args = message.arguments[0].toString().split(" ");
-            debugPrint("args: $args");
-            String parameterName = "";
-            for (int i = 0; i < args.length; i++) {
-              if (i + 1 < args.length) {
-                parameterName += "${args[i]} ";
+            var parameterName = message.arguments[0]
+                .toString()
+                .split(" ")
+                .sublist(0, message.arguments.length - 1)
+                .join(" ");
+            var value = message.arguments.last as double;
+            var role = ParameterRole.getTypeById(message.arguments[1] as int);
+            parameterName = parameterName.trimRight();
+            debugPrint("args: $parameterName");
+            debugPrint("Parameter Name: $parameterName|");
+            var currentParams = [
+              ...parameters.keys,
+              ...ParameterType.staticParamTypes
+            ];
+            ParameterType? type;
+            for (ParameterType t in currentParams) {
+              if (t.oscName == parameterName) {
+                type = t;
+                break;
               }
             }
-            debugPrint("Parameter Name: $parameterName");
-            parameterName = parameterName.replaceAll(" ", "");
+            //if type null create parameterType.
+            type ??= ParameterType(parameterName, role);
             debugPrint(parameters.toString());
 
-            var key = ParameterType.getTypeByName(parameterName);
-            if (key != null) {
-              if (!parameters.containsKey(key)) {
-                parameters[key] = [];
-              }
-              if (key == ParameterType.intens) {
-                parameters[ParameterType.intens] = [
-                  0,
-                  double.parse(message.arguments[0]
-                      .toString()
-                      .split(" ")
-                      .last
-                      .replaceAll("[", "")
-                      .replaceAll("]", ""))
-                ];
-              } else if (key == ParameterType.pan ||
-                  key == ParameterType.tilt) {
-                parameters[key] = [
-                  1,
-                  (key == ParameterType.tilt ? -1 : 1) *
-                      double.parse(message.arguments[0]
-                          .toString()
-                          .split(" ")
-                          .last
-                          .replaceAll("[", "")
-                          .replaceAll("]", ""))
-                ];
-              }
+            if (type == ParameterType.intens) {
+              parameters[ParameterType.intens] = [value];
+            } else if (type == ParameterType.pan) {
+              parameters[ParameterType.pan] = [value];
+            } else if (type == ParameterType.tilt) {
+              parameters[ParameterType.tilt] = [-1 * value];
             } else {
-              ParameterType? paramType =
-                  ParameterType.getTypeByName(parameterName);
-              if (paramType != null) {
-                parameters[paramType] = [message.arguments.last as double];
-              }
+              parameters[type] = [message.arguments.last as double];
             }
           } else if (message.address.startsWith('/eos/out/color/hs') &&
               message.arguments.isNotEmpty) {
@@ -309,6 +304,8 @@ class OSC {
               }
             }
           }
+          debugPrint('setting current channel: $parameters');
+          setCurrentChannel!(parameters); //End While
         } catch (e) {
           debugPrint(
               'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
@@ -317,10 +314,8 @@ class OSC {
           // socket.close();
         }
         buffer.removeRange(0, 4 + messageLength);
-      } //End While
+      }
     });
-
-    setCurrentChannel!(parameters);
   }
 
   void setupFaderBank(int count, FaderControlsState state) {
@@ -392,7 +387,7 @@ class OSC {
   void close() async {
     // _setUDPTXIPDefault();
     client.flush();
-    client.close();
+    client.destroy();
   }
 
   // Future<List<String>> getCues() async {
