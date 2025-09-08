@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:flutter_color_models/flutter_color_models.dart';
+import 'package:provider/provider.dart';
 
 class ColorPickerControl extends StatefulWidget {
   final OSC osc;
-  final ParameterMap currentChannel;
-  final List<double> hueSaturation;
   const ColorPickerControl(
     this.osc, {
-    required this.currentChannel,
-    required this.hueSaturation,
     super.key,
   });
 
@@ -26,9 +23,9 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
 
   @override
   Widget build(BuildContext context) {
-    Color colorFromEos = widget.hueSaturation.isNotEmpty
-        ? HsiColor(widget.hueSaturation[0], widget.hueSaturation[1], 100)
-            .toColor()
+    final ctx = context.watch<FreeRFRContext>();
+    Color colorFromEos = ctx.hueSaturation.isNotEmpty
+        ? HsiColor(ctx.hueSaturation[0], ctx.hueSaturation[1], 100).toColor()
         : Colors.white;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
@@ -52,16 +49,6 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
             });
           }),
         ),
-        // TODO: implement this page.
-        // ElevatedButton(
-        //     onPressed: () {
-        //       Navigator.of(context).push(
-        //         MaterialPageRoute(
-        //           builder: (context) => colorSliderControl(widget.osc),
-        //         ),
-        //       );
-        //     },
-        //     child: const Text("Color Sliders")),
       ]),
     );
   }

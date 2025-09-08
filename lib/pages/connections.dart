@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:osc/osc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/button.dart';
 
 class Connections extends StatefulWidget {
-  final void Function(Map<String, dynamic> activeConnection, int index)
+  final void Function(
+          Map<String, dynamic> activeConnection, int index, FreeRFRContext ctx)
       setActiveConnection;
   final int currentConnectionIndex;
   const Connections(this.setActiveConnection,
@@ -89,14 +92,14 @@ class _ConnectionsState extends State<Connections> {
             });
           }),
           Expanded(
-            child: connectionsList(),
+            child: connectionsList(context.read<FreeRFRContext>()),
           )
         ],
       ),
     );
   }
 
-  FutureBuilder connectionsList() {
+  FutureBuilder connectionsList(FreeRFRContext ctx) {
     final Future<bool> configRetrival = getConfig();
     int currentConnection = widget.currentConnectionIndex;
     return FutureBuilder(
@@ -125,7 +128,9 @@ class _ConnectionsState extends State<Connections> {
                             currentConnection = -1;
                           }
                           widget.setActiveConnection(
-                              config['connections'][index], currentConnection);
+                              config['connections'][index],
+                              currentConnection,
+                              ctx);
                           Navigator.of(context).pushNamed('/home');
                         },
                         tileColor: index == currentConnection

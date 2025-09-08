@@ -1,29 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
+import 'package:provider/provider.dart';
 
 class Cues extends StatelessWidget {
   final OSC osc;
-  final double previousCue;
-  final double currentCue;
-  final double nextCue;
-  final int currentCueList;
-  final String previousCueText;
-  final String currentCueText;
-  final String nextCueText;
-  final List<Cue> cueList = [];
-  Cues(
-      {required this.osc,
-      super.key,
-      required this.previousCue,
-      required this.currentCue,
-      required this.nextCue,
-      required this.previousCueText,
-      required this.currentCueText,
-      required this.nextCueText,
-      required this.currentCueList});
+  const Cues({required this.osc, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
     const currentCueStyle = TextStyle(fontWeight: FontWeight.bold);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -33,7 +19,7 @@ class Cues extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Center(
               child: Text(
-            'Cue List: $currentCueList',
+            'Cue List: ${ctx.currentCueList}',
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           )),
         ),
@@ -42,9 +28,9 @@ class Cues extends StatelessWidget {
           child: Card(
             child: ListTile(
                 title: const Text('Previous Cue'),
-                subtitle: Text(previousCueText),
+                subtitle: Text(ctx.previousCueText),
                 onLongPress: () {
-                  editLabel(context, previousCue);
+                  editLabel(context, ctx.previousCue);
                 }),
           ),
         ),
@@ -58,11 +44,11 @@ class Cues extends StatelessWidget {
                 style: currentCueStyle,
               ),
               subtitle: Text(
-                currentCueText,
+                ctx.currentCueText,
                 style: currentCueStyle,
               ),
               onLongPress: () {
-                editLabel(context, currentCue);
+                editLabel(context, ctx.currentCue);
               },
             ),
           ),
@@ -72,9 +58,9 @@ class Cues extends StatelessWidget {
           child: Card(
             child: ListTile(
               title: const Text('Next Cue'),
-              subtitle: Text(nextCueText),
+              subtitle: Text(ctx.nextCueText),
               onLongPress: () {
-                editLabel(context, nextCue);
+                editLabel(context, ctx.nextCue);
               },
             ),
           ),
@@ -87,7 +73,7 @@ class Cues extends StatelessWidget {
               child: ElevatedButton(
                   onPressed: () => osc.sendKey('stop'),
                   onLongPress: () {
-                    editLabel(context, previousCue);
+                    editLabel(context, ctx.previousCue);
                   },
                   style: const ButtonStyle(
                       foregroundColor:

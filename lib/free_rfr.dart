@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
@@ -14,36 +14,13 @@ import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/shortcuts.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:provider/provider.dart';
 
 class FreeRFR extends StatefulWidget {
   final OSC osc;
-  final List<double> hueSaturation;
-  final ParameterMap Function() getCurrentChannel;
-  final void Function(String) setCommandLine;
   final void Function(int) setCurrentConnection;
-  final String commandLine;
-  final double previousCue;
-  final double currentCue;
-  final double nextCue;
-  final int currentCueList;
-  final String previousCueText;
-  final String currentCueText;
-  final String nextCueText;
   const FreeRFR(
-      {super.key,
-      required this.osc,
-      required this.getCurrentChannel,
-      required this.hueSaturation,
-      required this.setCommandLine,
-      required this.commandLine,
-      required this.previousCue,
-      required this.currentCue,
-      required this.nextCue,
-      required this.currentCueList,
-      required this.previousCueText,
-      required this.currentCueText,
-      required this.nextCueText,
-      required this.setCurrentConnection});
+      {super.key, required this.osc, required this.setCurrentConnection});
 
   @override
   State<FreeRFR> createState() => _FreeRFRState();
@@ -65,21 +42,12 @@ class _FreeRFRState extends State<FreeRFR> {
       Controls(
         key: const Key('Controls'),
         osc: widget.osc,
-        getCurrentChannel: widget.getCurrentChannel,
-        hueSaturation: widget.hueSaturation,
       ),
       Cues(
-          key: const Key('CueList'),
-          osc: widget.osc,
-          currentCue: widget.currentCue,
-          currentCueList: widget.currentCueList,
-          currentCueText: widget.currentCueText,
-          nextCue: widget.nextCue,
-          nextCueText: widget.nextCueText,
-          previousCue: widget.previousCue,
-          previousCueText: widget.previousCueText),
-      DirectSelects(
-          osc: widget.osc, currentChannel: widget.getCurrentChannel()),
+        key: const Key('CueList'),
+        osc: widget.osc,
+      ),
+      DirectSelects(osc: widget.osc),
     ];
     if (!(Platform.isAndroid || Platform.isIOS)) {
       registerHotKeys(widget.osc);
@@ -121,6 +89,7 @@ class _FreeRFRState extends State<FreeRFR> {
 
   @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
@@ -132,7 +101,7 @@ class _FreeRFRState extends State<FreeRFR> {
             onPressed: () {
               AlertDialog alert = AlertDialog(
                   title: const Text('Command Line'),
-                  content: Text(widget.commandLine),
+                  content: Text(ctx.commandLine),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -150,10 +119,10 @@ class _FreeRFRState extends State<FreeRFR> {
               showDialog(context: context, builder: (context) => alert);
             },
             child: Text(
-              widget.commandLine,
+              ctx.commandLine,
               textAlign: TextAlign.left,
               style: TextStyle(
-                color: widget.commandLine.startsWith('BLIND')
+                color: ctx.commandLine.startsWith('BLIND')
                     ? Colors.blue
                     : Theme.of(context).primaryColor,
                 fontSize: 15,
@@ -211,6 +180,7 @@ class _FreeRFRState extends State<FreeRFR> {
   }
 
   IconButton clearCommandLine(BuildContext context) {
+    final ctx = context.read<FreeRFRContext>();
     return IconButton(
       icon: const Icon(Icons.backspace),
       color: MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -218,7 +188,7 @@ class _FreeRFRState extends State<FreeRFR> {
           : Colors.black,
       onPressed: () {
         widget.osc.sendKey('clear_cmdline');
-        widget.osc.setCommandLine!('LIVE: ');
+        ctx.commandLine = 'LIVE: ';
       },
       tooltip: "Clear Command Line",
     );
@@ -257,6 +227,7 @@ class _FreeRFRState extends State<FreeRFR> {
   }
 
   void keypadWindow(BuildContext context, IconButton clearCommandLine) {
+    final ctx = context.watch<FreeRFRContext>();
     showGeneralDialog(
         context: context,
         pageBuilder: (context, anim1, anim2) {
@@ -267,7 +238,7 @@ class _FreeRFRState extends State<FreeRFR> {
                   onPressed: () {
                     AlertDialog alert = AlertDialog(
                       title: const Text('Command Line'),
-                      content: Text(widget.commandLine),
+                      content: Text(ctx.commandLine),
                       actions: [
                         TextButton(
                             onPressed: () {
@@ -279,10 +250,10 @@ class _FreeRFRState extends State<FreeRFR> {
                     showDialog(context: context, builder: (context) => alert);
                   },
                   child: Text(
-                    widget.commandLine,
+                    ctx.commandLine,
                     textAlign: TextAlign.left,
                     style: TextStyle(
-                      color: widget.commandLine.startsWith('BLIND')
+                      color: ctx.commandLine.startsWith('BLIND')
                           ? Colors.blue
                           : Theme.of(context).primaryColor,
                       fontSize: 15,

@@ -4,24 +4,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
-import '../pages/facepanels/controls/pan_tilt_control.dart';
 import '../pages/facepanels/faders.dart';
 
 class OSC {
   List<double> hueSaturation = [0, 0];
-  final Function(ParameterMap)? setCurrentChannel;
-  final Function(String)? setCommandLine;
-  final void Function(int)? setCurrentCueList;
-  final void Function(double)? setCurrentCue;
-  final void Function(String)? setCurrentCueText;
-  final void Function(String)? addToCommandLine;
-  final void Function(double)? setPreviousCue;
-  final void Function(String)? setPreviousCueText;
-  final void Function(double)? setNextCue;
-  final void Function(String)? setNextCueText;
-  final void Function(double, double)? setHueSaturation;
+  final FreeRFRContext ctx;
   final int userId;
 
   FaderControlsState? faderControlsState;
@@ -29,20 +19,7 @@ class OSC {
 
   final Socket client;
 
-  OSC(
-      this.setCurrentChannel,
-      this.setCommandLine,
-      this.setCurrentCueList,
-      this.setCurrentCue,
-      this.setCurrentCueText,
-      this.setPreviousCue,
-      this.addToCommandLine,
-      this.setPreviousCueText,
-      this.setNextCue,
-      this.setNextCueText,
-      this.setHueSaturation,
-      this.userId,
-      this.client) {
+  OSC(this.ctx, this.userId, this.client) {
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     sendOSCMessage(message);
     message = OSCMessage('/eos/ping', arguments: ['free rfr']);
@@ -103,13 +80,13 @@ class OSC {
   void sendBlind() {
     OSCMessage message = OSCMessage('/eos/key/blind', arguments: [1]);
     sendOSCMessage(message);
-    setCommandLine!('BLIND : ');
+    ctx.commandLine = 'BLIND : ';
   }
 
   void sendLive() {
     OSCMessage message = OSCMessage('/eos/key/live', arguments: [1]);
     sendOSCMessage(message);
-    setCommandLine!('LIVE : ');
+    ctx.commandLine = 'LIVE : ';
   }
 
   void sendKey(String key,
@@ -167,7 +144,7 @@ class OSC {
               parameters = {};
             }
           } else if (message.address == '/eos/out/cmd') {
-            setCommandLine!('${message.arguments[0]}');
+            ctx.commandLine = '${message.arguments[0]}';
           } else if (message.address.startsWith("/eos/out/pantilt") &&
               message.arguments.length >= 4) {
             parameters[ParameterType.minPan] = [message.arguments[0] as double];
@@ -219,45 +196,45 @@ class OSC {
             double saturation =
                 double.parse(message.arguments[1].toString()) / 255;
             debugPrint("HUESAT: $hue $saturation");
-            setHueSaturation!(hue, saturation);
+            ctx.hueSaturation = [hue, saturation];
           } else if (message.address.startsWith('/eos/out/active/cue/text')) {
             String text = message.arguments[0].toString();
             if (text.length > 1) {
-              setCurrentCueText!(text);
+              ctx.currentCueText = text;
             } else {
-              setCurrentCueText!('');
+              ctx.currentCueText = '';
             }
           } else if (message.address.startsWith('/eos/out/active/cue/')) {
             List<String> address = message.address.split('/');
-            setCurrentCue!(double.parse(address.last));
-            setCurrentCueList!(int.parse(address[address.length - 2]));
+            ctx.currentCue = double.parse(address.last);
+            ctx.currentCueList = int.parse(address[address.length - 2]);
           } else if (message.address.startsWith('/eos/out/pending/cue/text')) {
             String text = message.arguments[0].toString();
             if (text.length > 1) {
-              setNextCueText!(text);
+              ctx.nextCueText = text;
             } else {
-              setNextCueText!('');
+              ctx.nextCueText = '';
             }
           } else if (message.address.startsWith('/eos/out/pending/cue/')) {
             List<String> address = message.address.split('/');
             try {
-              setNextCue!(double.parse(address.last));
+              ctx.nextCue = double.parse(address.last);
             } catch (e) {
-              setNextCue!(0);
+              ctx.nextCue = 0;
             }
           } else if (message.address.startsWith('/eos/out/previous/cue/text')) {
             String text = message.arguments[0].toString();
             if (text.length > 1) {
-              setPreviousCueText!(text);
+              ctx.previousCueText = text;
             } else {
-              setPreviousCueText!('');
+              ctx.previousCueText = '';
             }
           } else if (message.address.startsWith('/eos/out/previous/cue/')) {
             List<String> address = message.address.split('/');
             try {
-              setPreviousCue!(double.parse(address.last));
+              ctx.previousCue = double.parse(address.last);
             } catch (e) {
-              setPreviousCue!(0);
+              ctx.previousCue = 0;
             }
           } else if (message.address.startsWith("/eos/out/fader")) {
             var components = message.address.split("/");
@@ -291,21 +268,21 @@ class OSC {
                 double.parse(message.arguments[0].toString()), "", 0);
           } else if (message.address.startsWith("/eos/out/pantilt")) {
             if (getControlWidgetForType(ParameterType.pan) != null) {
-              PanTiltControlState state =
-                  getControlWidgetForType(ParameterType.pan)!
-                      as PanTiltControlState;
               var args = message.arguments;
               if (args.isNotEmpty && args.length <= 4) {
-                state.updateValues(
-                    double.parse(args[0].toString()),
-                    double.parse(args[1].toString()),
-                    double.parse(args[2].toString()),
-                    double.parse(args[3].toString()));
+                ctx.currentChannel[ParameterType.minPan]![0] =
+                    double.parse(args[0].toString());
+                ctx.currentChannel[ParameterType.maxPan]![0] =
+                    double.parse(args[1].toString());
+                ctx.currentChannel[ParameterType.minTilt]![0] =
+                    double.parse(args[2].toString());
+                ctx.currentChannel[ParameterType.maxTilt]![0] =
+                    double.parse(args[3].toString());
               }
             }
           }
           debugPrint('setting current channel: $parameters');
-          setCurrentChannel!(parameters); //End While
+          ctx.currentChannel = parameters; //End While
         } catch (e) {
           debugPrint(
               'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
