@@ -5,13 +5,10 @@ import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 
 class ShutterControl extends StatelessWidget {
   final OSC osc;
-  final ParameterMap currentChannel;
-  const ShutterControl(
-      {super.key, required this.osc, required this.currentChannel});
+  const ShutterControl({super.key, required this.osc});
 
   @override
   Widget build(BuildContext context) {
-    return ParameterWidgets(
-        role: ParameterRole.shutter, currentChannel: currentChannel, osc: osc);
+    return ParameterWidgets(role: ParameterRole.shutter, osc: osc);
   }
 }

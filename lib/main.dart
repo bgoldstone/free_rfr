@@ -4,16 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/osc_control.dart';
-import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/connections.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:provider/provider.dart';
+
+import 'configurations/context.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!(Platform.isAndroid || Platform.isIOS)) {
     await hotKeyManager.unregisterAll();
   }
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (context) => FreeRFRContext(), child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -31,98 +34,9 @@ class _MyAppState extends State<MyApp> {
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
-  ParameterMap currentChannel = {};
-  List<double> hueSaturation = [];
-  String commandLine = '';
-  double currentCue = -1;
-  int currentCueList = 1;
-  String currentCueText = '';
-  double previousCue = -1;
-  String previousCueText = '';
-  double nextCue = -1;
-  String nextCueText = '';
 
-  void setPreviousCue(double cue) {
-    setState(() {
-      previousCue = cue;
-    });
-  }
-
-  void setPreviousCueText(String text) {
-    setState(() {
-      previousCueText = text;
-    });
-  }
-
-  void setNextCue(double cue) {
-    setState(() {
-      nextCue = cue;
-    });
-  }
-
-  void setNextCueText(String text) {
-    setState(() {
-      nextCueText = text;
-    });
-  }
-
-  void setCurrentCueText(String text) {
-    setState(() {
-      currentCueText = text;
-    });
-  }
-
-  void setCurrentCue(double cue) {
-    setState(() {
-      currentCue = cue;
-    });
-  }
-
-  void setCurrentCueList(int cueList) {
-    setState(() {
-      currentCueList = cueList;
-    });
-  }
-
-  void setCommandLine(String command) {
-    try {
-      setState(() {
-        commandLine = command;
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  void addToCommandLine(String command) {
-    try {
-      setState(() {
-        commandLine += command;
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  String getCommandLine() {
-    return commandLine;
-  }
-
-  void setHueSaturation(double hue, double saturation) {
-    hueSaturation = [hue, saturation];
-  }
-
-  void setCurrentChannel(ParameterMap channel) {
-    setState(() {
-      currentChannel = channel;
-    });
-  }
-
-  ParameterMap getCurrentChannel() {
-    return currentChannel;
-  }
-
-  void setActiveConnection(Map<String, dynamic> connection, int index) async {
+  void setActiveConnection(
+      Map<String, dynamic> connection, int index, FreeRFRContext ctx) async {
     if (isOSCInitialized) {
       isOSCInitialized = false;
     }
@@ -133,11 +47,11 @@ class _MyAppState extends State<MyApp> {
       activeConnection = connection;
       currentConnectionIndex = index;
       isOSCInitialized = true;
-      _oscFuture = getOSC();
+      _oscFuture = getOSC(ctx);
     });
   }
 
-  Future<OSC> getOSC() async {
+  Future<OSC> getOSC(FreeRFRContext ctx) async {
     if (_oscCache != null) return _oscCache!;
     if (_socketCache == null) {
       InternetAddress address = await InternetAddress.lookup(
@@ -148,17 +62,7 @@ class _MyAppState extends State<MyApp> {
     }
 
     _oscCache = OSC(
-        setCurrentChannel,
-        setCommandLine,
-        setCurrentCueList,
-        setCurrentCue,
-        setCurrentCueText,
-        setPreviousCue,
-        addToCommandLine,
-        setPreviousCueText,
-        setNextCue,
-        setNextCueText,
-        setHueSaturation,
+        ctx,
         int.tryParse(activeConnection['userId'].toString()) ?? 0,
         _socketCache!);
     return _oscCache!;
@@ -206,17 +110,6 @@ class _MyAppState extends State<MyApp> {
                 if (snapshot.hasData) {
                   return FreeRFR(
                       osc: snapshot.data!,
-                      getCurrentChannel: getCurrentChannel,
-                      hueSaturation: hueSaturation,
-                      setCommandLine: setCommandLine,
-                      commandLine: getCommandLine(),
-                      currentCue: currentCue,
-                      currentCueList: currentCueList,
-                      currentCueText: currentCueText,
-                      nextCue: nextCue,
-                      nextCueText: nextCueText,
-                      previousCue: previousCue,
-                      previousCueText: previousCueText,
                       setCurrentConnection: setCurrentConnection);
                 } else if (snapshot.hasError) {
                   activeConnection = {};

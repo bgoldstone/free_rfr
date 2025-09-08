@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
+import 'package:provider/provider.dart';
 
 class Keypad extends StatelessWidget {
   final OSC osc;
@@ -15,6 +17,7 @@ class Keypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
     List<Button> keypad = [
       Button('Go To Cue', () {
         osc.sendKey('go_to_cue');
@@ -110,7 +113,7 @@ class Keypad extends StatelessWidget {
       }),
       Button('Clear', () {
         osc.sendKey('clear_cmd');
-        osc.setCommandLine!('LIVE: ');
+        ctx.commandLine = 'LIVE: ';
       }, fontSize: 18.5),
       Button('0', () {
         osc.sendKey('0');

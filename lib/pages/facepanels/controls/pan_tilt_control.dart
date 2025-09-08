@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class PanTiltControl extends StatefulWidget {
-  double maxPan;
-  double minPan;
-  double maxTilt;
-  double minTilt;
-  double currentPan;
-  double currentTilt;
-  final ParameterMap currentChannel;
   final OSC osc;
-  PanTiltControl({required this.currentChannel, required this.osc, super.key})
-      : maxPan = currentChannel[ParameterType.maxPan]![0],
-        minPan = currentChannel[ParameterType.minPan]![0],
-        maxTilt = currentChannel[ParameterType.maxTilt]![0],
-        minTilt = currentChannel[ParameterType.minTilt]![0],
-        currentPan = currentChannel[ParameterType.pan]![0],
-        currentTilt = currentChannel[ParameterType.tilt]![0];
+  const PanTiltControl({required this.osc, super.key});
   @override
   PanTiltControlState createState() => PanTiltControlState();
 }
@@ -29,6 +18,12 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
   double? y; // Current Y position of the point
   double? panSize;
   double? tiltSize;
+  double currentPan = 0;
+  double currentTilt = 0;
+  double maxPan = 0;
+  double minPan = 0;
+  double maxTilt = 0;
+  double minTilt = 0;
   Size? size;
 
   PanTiltControlState()
@@ -39,21 +34,19 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
 
   @override
   void initState() {
-    super.initState();
-    x = widget.currentPan;
-    y = widget.currentTilt;
-    panSize = widget.maxPan.abs() + widget.minPan.abs();
-    tiltSize = widget.maxTilt.abs() + widget.minTilt.abs();
+    final ctx = context.read<FreeRFRContext>();
+    currentPan = ctx.currentChannel[ParameterType.pan]![0];
+    currentTilt = ctx.currentChannel[ParameterType.tilt]![0];
+    maxPan = ctx.currentChannel[ParameterType.maxPan]![0];
+    minPan = ctx.currentChannel[ParameterType.minPan]![0];
+    maxTilt = ctx.currentChannel[ParameterType.maxTilt]![0];
+    minTilt = ctx.currentChannel[ParameterType.minTilt]![0];
+    x = currentPan;
+    y = currentTilt;
+    panSize = maxPan.abs() + minPan.abs();
+    tiltSize = maxTilt.abs() + minTilt.abs();
     widget.osc.registerControlState(this);
-  }
-
-  void updateValues(
-      double minPan, double maxPan, double minTilt, double maxTilt) {
-    widget.minPan = minPan;
-    widget.maxPan = maxPan;
-    widget.minTilt = minTilt;
-    widget.maxTilt = maxTilt;
-    debugPrint("Updated min and max values");
+    super.initState();
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
@@ -61,16 +54,16 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
       x = details.localPosition.dx - panSize! / 2;
       y = details.localPosition.dy - tiltSize! / 2;
       //Update Y based on drag delta
-      if (x! < widget.minPan) {
-        x = widget.minPan;
-      } else if (x! > widget.maxPan) {
-        x = widget.maxPan;
+      if (x! < minPan) {
+        x = minPan;
+      } else if (x! > maxPan) {
+        x = maxPan;
       }
 
-      if (y! < widget.minTilt) {
-        y = widget.minTilt;
-      } else if (y! > widget.maxTilt) {
-        y = widget.maxTilt;
+      if (y! < minTilt) {
+        y = minTilt;
+      } else if (y! > maxTilt) {
+        y = maxTilt;
       }
       debugPrint('Pan: $x, Tilt: ${y! * -1}');
 
@@ -83,15 +76,15 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
       x = details.localPosition.dx - panSize! / 2;
       y = details.localPosition.dy - tiltSize! / 2;
       debugPrint('Pan: $x, Tilt: ${y! * -1}');
-      if (x! < widget.minPan) {
-        x = widget.minPan;
-      } else if (x! > widget.maxPan) {
-        x = widget.maxPan;
+      if (x! < minPan) {
+        x = minPan;
+      } else if (x! > maxPan) {
+        x = maxPan;
       }
-      if (y! < widget.minTilt) {
-        y = widget.minTilt;
-      } else if (y! > widget.maxTilt) {
-        y = widget.maxTilt;
+      if (y! < minTilt) {
+        y = minTilt;
+      } else if (y! > maxTilt) {
+        y = maxTilt;
       }
       widget.osc.updatePanTilt(x!, y! * -1);
     });
@@ -99,10 +92,11 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
 
   @override
   Widget build(BuildContext context) {
-    widget.currentPan = widget.currentChannel[ParameterType.pan]![0];
-    widget.currentTilt = widget.currentChannel[ParameterType.tilt]![0];
-    x = widget.currentPan;
-    y = widget.currentTilt;
+    final currentChannel = context.watch<FreeRFRContext>().currentChannel;
+    currentPan = currentChannel[ParameterType.pan]![0];
+    currentTilt = currentChannel[ParameterType.tilt]![0];
+    x = currentPan;
+    y = currentTilt;
     size = MediaQuery.of(context).size;
     if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
       return const Center(
@@ -119,11 +113,11 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
               children: [
                 Slider(
                   value: x!,
-                  min: widget.minPan.roundToDouble(),
-                  max: widget.maxPan.roundToDouble(),
+                  min: minPan.roundToDouble(),
+                  max: maxPan.roundToDouble(),
                   onChanged: (value) {
                     setState(() {
-                      if (x! >= widget.minPan && x! <= widget.maxPan) {
+                      if (x! >= minPan && x! <= maxPan) {
                         x = value;
                         widget.osc.updatePanTilt(x!, y!);
                       }
@@ -138,7 +132,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     //     ElevatedButton(
                     //       onPressed: () {
                     //         setState(() {
-                    //           x = widget.minPan;
+                    //           x = minPan;
                     //           widget.osc.updatePanTilt(x!, y!);
                     //         });
                     //       },
@@ -147,7 +141,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     //     ElevatedButton(
                     //       onPressed: () {
                     //         setState(() {
-                    //           x = widget.maxPan;
+                    //           x = maxPan;
                     //           widget.osc.updatePanTilt(x!, y!);
                     //         });
                     //       },
@@ -169,11 +163,11 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     quarterTurns: 1,
                     child: Slider(
                       value: y!,
-                      min: widget.minTilt.roundToDouble(),
-                      max: widget.maxTilt.roundToDouble(),
+                      min: minTilt.roundToDouble(),
+                      max: maxTilt.roundToDouble(),
                       onChanged: (value) {
                         setState(() {
-                          if (y! >= widget.minTilt && y! <= widget.maxTilt) {
+                          if (y! >= minTilt && y! <= maxTilt) {
                             y = value;
                             widget.osc.updatePanTilt(x!, -y!);
                           }
@@ -185,7 +179,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   //   ElevatedButton(
                   //     onPressed: () {
                   //       setState(() {
-                  //         y = widget.minTilt;
+                  //         y = minTilt;
                   //         widget.osc.updatePanTilt(x!, y!);
                   //       });
                   //     },
@@ -194,7 +188,7 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                   //   ElevatedButton(
                   //     onPressed: () {
                   //       setState(() {
-                  //         y = widget.maxTilt;
+                  //         y = maxTilt;
                   //         widget.osc.updatePanTilt(x!, y!);
                   //       });
                   //     },

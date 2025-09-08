@@ -5,15 +5,13 @@ import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 
 class FocusControl extends StatelessWidget {
   final OSC osc;
-  final ParameterMap currentChannel;
   const FocusControl(
-      {super.key, required this.osc, required this.currentChannel});
+      {super.key, required this.osc});
 
   @override
   Widget build(BuildContext context) {
     return ParameterWidgets(
       role: ParameterRole.focus,
-      currentChannel: currentChannel,
       osc: osc,
     );
   }

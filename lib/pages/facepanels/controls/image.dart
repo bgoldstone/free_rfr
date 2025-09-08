@@ -5,17 +5,7 @@ import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
 
 class ImageControl extends StatefulWidget {
   final OSC osc;
-  final ParameterMap currentChannel;
-  final List<ParameterType> controls = [];
-  ImageControl({super.key, required this.osc, required this.currentChannel}) {
-    currentChannel.forEach((parameterType, _) {
-      debugPrint(parameterType.oscName);
-      if (parameterType.role == ParameterRole.image) {
-        debugPrint(parameterType.oscName);
-        controls.add(parameterType);
-      }
-    });
-  }
+  const ImageControl({super.key, required this.osc});
 
   @override
   State<ImageControl> createState() => _FocusControlState();
@@ -26,7 +16,6 @@ class _FocusControlState extends State<ImageControl> {
   Widget build(BuildContext context) {
     return ParameterWidgets(
       role: ParameterRole.image,
-      currentChannel: widget.currentChannel,
       osc: widget.osc,
     );
   }

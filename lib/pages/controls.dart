@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/controls/color.dart';
 import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
 import 'package:free_rfr/pages/facepanels/controls/pan_tilt_control.dart';
+import 'package:provider/provider.dart';
 
 import '../objects/parameters.dart';
 import 'facepanels/controls/focus.dart';
@@ -13,13 +15,7 @@ import 'facepanels/controls/intensity.dart';
 
 class Controls extends StatefulWidget {
   final OSC osc;
-  final ParameterMap Function() getCurrentChannel;
-  final List<double> hueSaturation;
-  const Controls(
-      {required this.osc,
-      required this.getCurrentChannel,
-      required this.hueSaturation,
-      super.key});
+  const Controls({required this.osc, super.key});
 
   @override
   State<Controls> createState() => _ControlsState();
@@ -30,46 +26,39 @@ class _ControlsState extends State<Controls> {
 
   @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
     List<Widget> pages = [
       IntensityControl(
-        currentChannel: widget.getCurrentChannel(),
         osc: widget.osc,
       ),
-      (widget.getCurrentChannel()[ParameterType.pan] != null &&
-              widget.getCurrentChannel()[ParameterType.tilt] != null &&
-              widget.getCurrentChannel()[ParameterType.maxPan] != null &&
-              widget.getCurrentChannel()[ParameterType.maxTilt] != null &&
-              widget.getCurrentChannel()[ParameterType.minPan] != null &&
-              widget.getCurrentChannel()[ParameterType.minTilt] != null)
+      (ctx.currentChannel[ParameterType.pan] != null &&
+              ctx.currentChannel[ParameterType.tilt] != null &&
+              ctx.currentChannel[ParameterType.maxPan] != null &&
+              ctx.currentChannel[ParameterType.maxTilt] != null &&
+              ctx.currentChannel[ParameterType.minPan] != null &&
+              ctx.currentChannel[ParameterType.minTilt] != null)
           ? PanTiltControl(
-              currentChannel: widget.getCurrentChannel(),
               osc: widget.osc,
             )
           : noParametersForThisChannel("Pan Tilt"),
       FocusControl(
         osc: widget.osc,
-        currentChannel: widget.getCurrentChannel(),
       ),
-      widget.hueSaturation.isNotEmpty &&
-              getParameterForType(
-                      widget.getCurrentChannel(), ParameterRole.color)
+      ctx.hueSaturation.isNotEmpty &&
+              getParameterForType(ctx.currentChannel, ParameterRole.color)
                   .isNotEmpty
-          ? ColorPickerControl(widget.osc,
-              currentChannel: widget.getCurrentChannel(),
-              hueSaturation: widget.hueSaturation)
+          ? ColorPickerControl(widget.osc)
           : noParametersForThisChannel("Color Picker"),
-      ColorControl(osc: widget.osc, currentChannel: widget.getCurrentChannel()),
+      ColorControl(osc: widget.osc),
       // ShutterControl(
       //   osc: widget.osc,
       //   currentChannel: widget.getCurrentChannel(),
       // ),
       ImageControl(
         osc: widget.osc,
-        currentChannel: widget.getCurrentChannel(),
       ),
       FormControl(
         osc: widget.osc,
-        currentChannel: widget.getCurrentChannel(),
       )
     ];
     return Scaffold(

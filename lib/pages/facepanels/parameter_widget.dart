@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/widgets/button.dart';
+import 'package:provider/provider.dart';
 
 class ParameterWidget extends StatelessWidget {
   final ParameterType parameterType;
@@ -72,15 +74,10 @@ class ParameterWidget extends StatelessWidget {
 }
 
 class ParameterWidgets extends StatefulWidget {
-  final ParameterMap currentChannel;
   final OSC osc;
   final ParameterRole role;
 
-  const ParameterWidgets(
-      {super.key,
-      required this.role,
-      required this.currentChannel,
-      required this.osc});
+  const ParameterWidgets({super.key, required this.role, required this.osc});
 
   @override
   State<ParameterWidgets> createState() => _ParameterWidgetsState();
@@ -90,6 +87,8 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
   List<ParameterType> controls = [];
   @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
+    controls = getParameterForType(ctx.currentChannel, widget.role);
     if (controls.isEmpty) {
       return noParametersForThisChannel(widget.role.name);
     }
@@ -104,11 +103,5 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
         children: targets,
       ),
     );
-  }
-
-  @override
-  initState() {
-    super.initState();
-    controls = getParameterForType(widget.currentChannel, widget.role);
   }
 }

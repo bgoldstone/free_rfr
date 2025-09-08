@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/widgets/button.dart';
+import 'package:provider/provider.dart';
 
 class IntensityControl extends StatefulWidget {
-  final ParameterMap currentChannel;
   final OSC osc;
   const IntensityControl({
     super.key,
-    required this.currentChannel,
     required this.osc,
   });
 
@@ -22,11 +22,12 @@ class _IntensityControlState extends State<IntensityControl> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(widget.currentChannel.toString());
-    if (!widget.currentChannel.containsKey(ParameterType.intens)) {
+    final ctx = context.watch<FreeRFRContext>();
+    debugPrint(ctx.currentChannel.toString());
+    if (!ctx.currentChannel.containsKey(ParameterType.intens)) {
       return Empty(widget.osc);
     }
-    var intens = widget.currentChannel[ParameterType.intens]?[0] ?? 0;
+    var intens = ctx.currentChannel[ParameterType.intens]?[0] ?? 0;
     var boxHeight = MediaQuery.of(context).size.height * 0.7;
     return SingleChildScrollView(
       child: Row(
