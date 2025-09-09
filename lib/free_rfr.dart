@@ -139,17 +139,29 @@ class _FreeRFRState extends State<FreeRFR> {
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(
-                icon: Icon(Icons.keyboard), label: 'Facepanel'),
+                icon: Icon(Icons.keyboard),
+                label: 'Facepanel',
+                tooltip: 'Facepanel'),
             BottomNavigationBarItem(
-                icon: Icon(Symbols.instant_mix), label: 'Faders'),
+                icon: Icon(Symbols.instant_mix),
+                label: 'Faders',
+                tooltip: 'Faders'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.lightbulb), label: 'Channel Check'),
+                icon: Icon(Icons.lightbulb),
+                label: 'Channel Check',
+                tooltip: 'Channel Check'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: 'Controls'),
+                icon: Icon(Icons.settings),
+                label: 'Controls',
+                tooltip: 'Controls'),
             BottomNavigationBarItem(
-                icon: Icon(Symbols.play_pause), label: 'Playback'),
+                icon: Icon(Symbols.play_pause),
+                label: 'Playback',
+                tooltip: 'Playback'),
             BottomNavigationBarItem(
-                icon: Icon(Symbols.grid_on), label: 'Direct Selects'),
+                icon: Icon(Symbols.grid_on),
+                label: 'Direct Selects',
+                tooltip: 'Direct Selects'),
           ],
           selectedItemColor: Colors.yellow,
           currentIndex: index,
@@ -161,6 +173,7 @@ class _FreeRFRState extends State<FreeRFR> {
             index = i;
           }),
           showSelectedLabels: true,
+          showUnselectedLabels: true,
         ),
       ),
     );
