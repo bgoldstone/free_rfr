@@ -225,10 +225,8 @@ class _FreeRFRState extends State<FreeRFR> {
                 TextButton(
                     onPressed: () {
                       widget.osc.shutdownMultiConsole();
-                      Navigator.pop(context);
                       Navigator.of(context).pop();
                       widget.setCurrentConnection(-1);
-                      widget.osc.close();
                     },
                     child: const Text('OK')),
               ],
@@ -240,10 +238,10 @@ class _FreeRFRState extends State<FreeRFR> {
   }
 
   void keypadWindow(BuildContext context, IconButton clearCommandLine) {
-    final ctx = context.watch<FreeRFRContext>();
     showGeneralDialog(
         context: context,
         pageBuilder: (context, anim1, anim2) {
+          final ctx = context.watch<FreeRFRContext>();
           return Scaffold(
             appBar: AppBar(
                 automaticallyImplyLeading: false,

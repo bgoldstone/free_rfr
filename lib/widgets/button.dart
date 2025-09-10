@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:free_rfr/widgets/error_dialog.dart';
 
 class Button extends StatelessWidget {
   final Function() onPressed;
   final String text;
   final double? fontSize;
   final double padding;
+  final bool isSelected;
 
   const Button(this.text, this.onPressed,
-      {super.key, this.fontSize = 20, this.padding = 8.0});
+      {super.key,
+      this.fontSize = 20,
+      this.padding = 8.0,
+      this.isSelected = false});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class Button extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.white,
+              color: isSelected ? Colors.yellow : Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: (fontSize! * aspectRatio),
             ),
