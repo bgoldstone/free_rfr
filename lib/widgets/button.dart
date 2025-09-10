@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:free_rfr/widgets/error_dialog.dart';
 
 class Button extends StatelessWidget {
   final Function() onPressed;

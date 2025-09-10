@@ -7,8 +7,6 @@ import 'package:osc/osc.dart';
 
 void main() async {
   Socket socket = await Socket.connect('127.0.0.1', 3032);
-  var type = 'group';
-  var page = 2;
   OSCMessage message = OSCMessage('/eos/key/confirm_command', arguments: []);
   // OSCMessage message = OSCMessage('/eos/ds/2/group/page/1', arguments: []);
   debugPrint(utf8.decode(message.toBytes()));
