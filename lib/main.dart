@@ -114,7 +114,9 @@ class _MyAppState extends State<MyApp> {
                       setCurrentConnection: setCurrentConnection);
                 } else if (snapshot.hasError) {
                   activeConnection = {};
-                  currentConnectionIndex = -1;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setCurrentConnection(-1);
+                  });
                   return errorDialog(snapshot.error.toString(), context);
                 } else {
                   return const Center(child: CircularProgressIndicator());

@@ -223,10 +223,13 @@ class _FreeRFRState extends State<FreeRFR> {
                     }),
                     child: const Text('Cancel')),
                 TextButton(
-                    onPressed: () {
-                      widget.osc.shutdownMultiConsole();
-                      Navigator.of(context).pop();
-                      widget.setCurrentConnection(-1);
+                    onPressed: () async {
+                      await widget.osc.shutdownMultiConsole();
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        Navigator.pop(context);
+                        widget.setCurrentConnection(-1);
+                      }
                     },
                     child: const Text('OK')),
               ],
