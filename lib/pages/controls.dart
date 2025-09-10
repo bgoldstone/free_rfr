@@ -63,6 +63,8 @@ class _ControlsState extends State<Controls> {
     ];
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.brightness_medium_rounded),
@@ -114,7 +116,6 @@ class _ControlsState extends State<Controls> {
             MediaQuery.of(context).platformBrightness == Brightness.dark
                 ? Colors.white
                 : Colors.black,
-        showSelectedLabels: true,
       ),
       body: pages[index],
     );

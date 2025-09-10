@@ -12,6 +12,8 @@ class FreeRFRContext extends ChangeNotifier {
   double _nextCue = -1;
   String _nextCueText = '';
   List<double> _hueSaturation = [];
+  Map<int, DS> _directSelects = {};
+  int _currentConnectionIndex = -1;
 
   ParameterMap get currentChannel => _currentChannel;
 
@@ -82,4 +84,24 @@ class FreeRFRContext extends ChangeNotifier {
     _hueSaturation = hueSaturation;
     notifyListeners();
   }
+
+  Map<int, DS> get directSelects => _directSelects;
+
+  set directSelects(Map<int, DS> ds) {
+    _directSelects = ds;
+    notifyListeners();
+  }
+
+  int get currentConnectionIndex => _currentConnectionIndex;
+  set currentConnectionIndex(int index) {
+    _currentConnectionIndex = index;
+    notifyListeners();
+  }
+}
+
+class DS {
+  final int objectNumber;
+  final String name;
+
+  DS(this.objectNumber, this.name);
 }

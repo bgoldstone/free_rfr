@@ -5,6 +5,7 @@ import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/connections.dart';
+import 'package:free_rfr/widgets/error_dialog.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -113,16 +114,10 @@ class _MyAppState extends State<MyApp> {
                       setCurrentConnection: setCurrentConnection);
                 } else if (snapshot.hasError) {
                   activeConnection = {};
-                  currentConnectionIndex = -1;
-                  return AlertDialog(
-                    title: const Text('An error occured connecting to eos!'),
-                    content: Text("Error has occured: ${snapshot.error}"),
-                    actions: <Widget>[
-                      TextButton(
-                          onPressed: () => Navigator.pop(context, 'OK'),
-                          child: const Text('OK')),
-                    ],
-                  );
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setCurrentConnection(-1);
+                  });
+                  return errorDialog(snapshot.error.toString(), context);
                 } else {
                   return const Center(child: CircularProgressIndicator());
                 }

@@ -30,11 +30,15 @@ class OSC {
   }
 
   Future<void> sendOSCMessage(OSCMessage message) async {
-    final data = message.toBytes();
-    final lengthBytes = Uint8List(4); // 4 bytes for the length (big-endian)
-    ByteData.view(lengthBytes.buffer).setInt32(0, data.length, Endian.big);
-    client.add(lengthBytes);
-    client.add(message.toBytes());
+    try {
+      final data = message.toBytes();
+      final lengthBytes = Uint8List(4); // 4 bytes for the length (big-endian)
+      ByteData.view(lengthBytes.buffer).setInt32(0, data.length, Endian.big);
+      client.add(lengthBytes);
+      client.add(message.toBytes());
+    } catch (e) {
+      debugPrint("Error sending OSC message: $e");
+    }
   }
 
   void registerControlState(ControlWidget controlWidget) {
@@ -53,28 +57,14 @@ class OSC {
     return null;
   }
 
-  void shutdownMultiConsole() {
-    sendKey('multiconsole_power_off');
-    sendKey('confirm_command');
-    sleep(const Duration(milliseconds: 500));
-    try {
-      sendKey('quit');
-      sendKey('confirm_command');
-    } catch (_) {}
-    _setUDPTXIPDefault();
-    close();
+  Future<void> shutdownMultiConsole() async {
+    await sendKey('power_off');
+    await sendKey('enter');
+    await close();
   }
 
   void sleep100() {
     sleep(const Duration(milliseconds: 100));
-  }
-
-  void _setUDPTXIPDefault() async {
-    OSCMessage message =
-        OSCMessage('/eos/newcmd', arguments: ['OSC_UDP_TX_IP_ADDRESS#']);
-    sendOSCMessage(message);
-    sleep100();
-    sendLive();
   }
 
   void sendBlind() {
@@ -89,12 +79,11 @@ class OSC {
     ctx.commandLine = 'LIVE : ';
   }
 
-  void sendKey(String key,
-      {bool withUpdate = true, double sleepMillis = 100}) async {
+  Future<void> sendKey(String key, {int sleepMillis = 100}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
-    sendOSCMessage(message);
-    sleep(Duration(milliseconds: sleepMillis.toInt()));
+    await sendOSCMessage(message);
+    await Future.delayed(Duration(milliseconds: sleepMillis));
   }
 
   // Future<int> requestCountOfType(String type) async {
@@ -280,6 +269,14 @@ class OSC {
                     double.parse(args[3].toString());
               }
             }
+          } else if (message.address.startsWith('/eos/out/ds/1/')) {
+            //Direct Selects
+            var dsIndex = int.parse(message.address.split('/').last);
+            var splitArg = message.arguments[0].toString().split(' ');
+            var name = splitArg.sublist(0, splitArg.length - 1).join(' ');
+            var objectNumber =
+                int.parse(splitArg.last.replaceAll(RegExp(r'[^0-9]'), ''));
+            ctx.directSelects[dsIndex] = DS(objectNumber, name);
           }
           debugPrint('setting current channel: $parameters');
           ctx.currentChannel = parameters; //End While
@@ -361,10 +358,10 @@ class OSC {
   //   return reply;
   // }
 
-  void close() async {
-    // _setUDPTXIPDefault();
-    client.flush();
-    client.destroy();
+  Future<void> close() async {
+    await client.flush();
+    await client.close();
+    debugPrint('OSC connection closed');
   }
 
   // Future<List<String>> getCues() async {
