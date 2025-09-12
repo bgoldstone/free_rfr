@@ -57,9 +57,10 @@ class OSC {
     return null;
   }
 
-  void shutdownMultiConsole() {
-    sendKey('power_off');
-    sendKey('enter');
+  Future<void> shutdownMultiConsole() async {
+    await sendKey('power_off');
+    await sendKey('enter');
+    await close();
   }
 
   void sleep100() {
@@ -78,11 +79,11 @@ class OSC {
     ctx.commandLine = 'LIVE : ';
   }
 
-  void sendKey(String key, {double sleepMillis = 100}) {
+  Future<void> sendKey(String key, {int sleepMillis = 100}) async {
     debugPrint('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
-    sendOSCMessage(message);
-    sleep(Duration(milliseconds: sleepMillis.toInt()));
+    await sendOSCMessage(message);
+    await Future.delayed(Duration(milliseconds: sleepMillis));
   }
 
   // Future<int> requestCountOfType(String type) async {
@@ -357,9 +358,10 @@ class OSC {
   //   return reply;
   // }
 
-  void close() async {
-    // _setUDPTXIPDefault();
-    client.destroy();
+  Future<void> close() async {
+    await client.flush();
+    await client.close();
+    debugPrint('OSC connection closed');
   }
 
   // Future<List<String>> getCues() async {
