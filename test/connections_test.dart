@@ -39,6 +39,7 @@ void main() {
     await tester.tap(fabFinder);
     await tester.pump();
     await tester.tap(cancelFinder);
+    await tester.pump();
     await tester.tap(fabFinder);
     await tester.pump();
     await tester.tapAt(const Offset(0, 0));

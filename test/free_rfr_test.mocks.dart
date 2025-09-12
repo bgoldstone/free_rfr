@@ -164,13 +164,14 @@ class MockOSC extends _i1.Mock implements _i4.OSC {
       ) as _i6.ControlWidget<_i7.StatefulWidget>?);
 
   @override
-  void shutdownMultiConsole() => super.noSuchMethod(
+  _i8.Future<void> shutdownMultiConsole() => (super.noSuchMethod(
         Invocation.method(
           #shutdownMultiConsole,
           [],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void sleep100() => super.noSuchMethod(
@@ -200,18 +201,19 @@ class MockOSC extends _i1.Mock implements _i4.OSC {
       );
 
   @override
-  void sendKey(
+  _i8.Future<void> sendKey(
     String? key, {
-    double? sleepMillis = 100.0,
+    int? sleepMillis = 100,
   }) =>
-      super.noSuchMethod(
+      (super.noSuchMethod(
         Invocation.method(
           #sendKey,
           [key],
           {#sleepMillis: sleepMillis},
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void setupFaderBank(
@@ -287,13 +289,14 @@ class MockOSC extends _i1.Mock implements _i4.OSC {
       );
 
   @override
-  void close() => super.noSuchMethod(
+  _i8.Future<void> close() => (super.noSuchMethod(
         Invocation.method(
           #close,
           [],
         ),
-        returnValueForMissingStub: null,
-      );
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
   void sleep250() => super.noSuchMethod(
