@@ -59,6 +59,10 @@ void main() {
     expect(context.directSelects, equals({}));
     context.directSelects = {1: DS(1, "test")};
     expect(context.directSelects, hasLength(1));
+
+    expect(context.currentCueList, equals(1));
+    context.currentCueList = 2;
+    expect(context.currentCueList, equals(2));
   });
 
   testWidgets('Test DS', (WidgetTester tester) async {

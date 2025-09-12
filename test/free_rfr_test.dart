@@ -12,14 +12,15 @@ import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'free_rfr_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<OSC>()])
 const blackWhite = [Colors.black, Colors.white];
 void main() {
-  testWidgets('Test FreeRFR', (WidgetTester tester) async {
-    OSC osc = MockOSC();
+  final OSC osc = MockOSC();
+  Future<void> setUp(WidgetTester tester) async {
     var freeRFRContext = FreeRFRContext();
     freeRFRContext.commandLine = '';
     void setCurrentConnection(int index) {}
@@ -30,6 +31,10 @@ void main() {
               body: FreeRFR(
                   osc: osc, setCurrentConnection: setCurrentConnection)),
         )));
+  }
+
+  testWidgets('Test FreeRFR Bottom Nav Bar', (WidgetTester tester) async {
+    await setUp(tester);
 
     final keyboardWidgetFinder = find.byIcon(Icons.keyboard);
     expect(keyboardWidgetFinder, findsExactly(2));
@@ -55,6 +60,26 @@ void main() {
     expect(find.byIcon(Icons.power_settings_new), findsOneWidget);
     expect(find.byIcon(Icons.dialpad_rounded), findsOneWidget);
     expect(find.byIcon(Icons.backspace), findsOneWidget);
+
+    await tester.tap(find.text("Faders"));
+    await tester.pump();
+    expect(find.byType(FaderControls), findsOneWidget);
+    await tester.tap(find.text("Channel Check"));
+    await tester.pump();
+    expect(find.byType(ChannelCheck), findsOneWidget);
+    await tester.tap(find.text("Controls"));
+    await tester.pump();
+    expect(find.byType(Controls), findsOneWidget);
+    await tester.tap(find.text("Playback"));
+    await tester.pump();
+    expect(find.byType(Cues), findsOneWidget);
+    await tester.tap(find.text("Direct Selects"));
+    await tester.pump();
+    expect(find.byType(DirectSelects), findsOneWidget);
+  });
+
+  testWidgets("Test App Bar", (WidgetTester tester) async {
+    await setUp(tester);
     await tester.tap(find.byIcon(Icons.power_settings_new));
     await tester.pump();
     expect(find.text("Shut Down Eos Console"), findsOneWidget);
@@ -78,25 +103,50 @@ void main() {
         widget.child is Text &&
         (widget.child as Text).textAlign == TextAlign.left);
     expect(commandLineFinder, findsOneWidget);
-    await tester.tap(keypadPopupFinder);
-    await tester.pump();
+    await tester.tap(commandLineFinder);
+    await tester.pumpAndSettle();
     await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
     await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    await tester.tap(keypadPopupFinder);
+    await tester.pump();
+    expect(find.byIcon(Icons.close), findsOneWidget);
+    await tester.tap(commandLineFinder.last);
+    await tester.pump();
+    expect(commandLineFinder, findsNWidgets(2));
+  });
+
+  testWidgets('Test Backspace Functionality', (WidgetTester tester) async {
+    await setUp(tester);
     await tester.tap(find.byIcon(Icons.backspace));
-    await tester.tap(find.text("Faders"));
     await tester.pump();
-    expect(find.byType(FaderControls), findsOneWidget);
-    await tester.tap(find.text("Channel Check"));
+    verify(osc.sendKey('clear_cmdline')).called(1);
+  });
+
+  testWidgets('Test Shutdown MultiConsole', (WidgetTester tester) async {
+    await setUp(tester);
+    expect(
+        tester
+            .widget<IconButton>(find.byWidgetPredicate((widget) =>
+                widget is IconButton &&
+                widget.icon is Icon &&
+                (widget.icon as Icon).icon == Icons.power_settings_new))
+            .tooltip,
+        equals('Shut Down MultiConsole'));
+    await tester.tap(find.byIcon(Icons.power_settings_new));
     await tester.pump();
-    expect(find.byType(ChannelCheck), findsOneWidget);
-    await tester.tap(find.text("Controls"));
+    await tester.tap(find.text("OK"));
+    verify(osc.shutdownMultiConsole()).called(1);
+  });
+
+  testWidgets('Test Keyboard Navigation', (WidgetTester tester) async {
+    await setUp(tester);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.home);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.home);
     await tester.pump();
-    expect(find.byType(Controls), findsOneWidget);
-    await tester.tap(find.text("Playback"));
+    expect(find.byType(FacePanel), findsOneWidget);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.end);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.end);
     await tester.pump();
-    expect(find.byType(Cues), findsOneWidget);
-    await tester.tap(find.text("Direct Selects"));
-    await tester.pump();
-    expect(find.byType(DirectSelects), findsOneWidget);
   });
 }
