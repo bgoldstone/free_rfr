@@ -27,8 +27,8 @@ jobs:
       - run: flutter clean
       - run: flutter pub get
       - run: flutter analyze
-      - run: flutter build appbundle --release
       - run: flutter test
+      - run: flutter build appbundle --release
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
