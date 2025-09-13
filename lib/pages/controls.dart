@@ -127,7 +127,7 @@ class _ControlsState extends State<Controls> {
   }
 }
 
-Center noParametersForThisChannel(String parameterTypes) {
+Widget noParametersForThisChannel(String parameterTypes) {
   return Center(
     child: Text(
       "No $parameterTypes Controls for this channel",

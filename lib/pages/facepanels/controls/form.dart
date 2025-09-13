@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
-import 'package:free_rfr/pages/facepanels/parameter_widget.dart';
+import 'package:free_rfr/widgets/parameter_widget.dart';
 
 class FormControl extends StatefulWidget {
   final OSC osc;

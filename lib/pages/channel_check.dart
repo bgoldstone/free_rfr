@@ -29,7 +29,7 @@ class ChannelCheck extends StatelessWidget {
         osc.sendKey('next');
       }, fontSize: 20),
       Button('+', () {
-        osc.sendKey('+');
+        osc.sendKey('plus');
       }, fontSize: 30),
       Button('Check', () {
         osc.sendKey('check');
