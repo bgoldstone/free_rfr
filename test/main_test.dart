@@ -21,7 +21,7 @@ void main() {
 
   test('Test Main', () async {
     try {
-      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       entry.main();
     } finally {
       debugDefaultTargetPlatformOverride = null;
