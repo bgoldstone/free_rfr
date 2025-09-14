@@ -20,7 +20,12 @@ void main() {
   });
 
   test('Test Main', () async {
-    entry.main();
+    try {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      entry.main();
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
   });
   testWidgets('Test Main w/ mobile', (WidgetTester tester) async {
     try {
