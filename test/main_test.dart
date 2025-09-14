@@ -1,11 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/main.dart' as entry;
-import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -25,6 +23,7 @@ void main() {
     try {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       entry.main();
+      await tester.pumpAndSettle();
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
