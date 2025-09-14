@@ -23,7 +23,6 @@ Future<void> main() async {
     when(client.address).thenReturn(InternetAddress('127.0.0.1'));
     when(client.port).thenReturn(12345);
     OSC osc = await setUp(client, freeRFRContext);
-    MockOSC mockOSC = MockOSC();
     when(client.listen(any)).thenAnswer((_) {
       // Empty stream of Uint8List
       return const Stream<Uint8List>.empty().listen(null);

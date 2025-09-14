@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -140,13 +141,26 @@ void main() {
   });
 
   testWidgets('Test Keyboard Navigation', (WidgetTester tester) async {
-    await setUp(tester);
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.home);
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.home);
-    await tester.pump();
-    expect(find.byType(FacePanel), findsOneWidget);
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.end);
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.end);
-    await tester.pump();
+    try {
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      await setUp(tester);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.home);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.home);
+      await tester.pump();
+      expect(find.byType(FacePanel), findsOneWidget);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.end);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.end);
+      await tester.pump();
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+  testWidgets('Test Mobile Platform', (WidgetTester tester) async {
+    try {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await setUp(tester);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
   });
 }

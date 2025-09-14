@@ -14,6 +14,7 @@ import 'configurations/context.dart';
 const Color primaryColor = Color.fromARGB(255, 255, 196, 0);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //if desktop os
   if (!(Platform.isAndroid || Platform.isIOS)) {
     await hotKeyManager.unregisterAll();
   }
