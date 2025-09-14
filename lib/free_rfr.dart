@@ -49,6 +49,7 @@ class _FreeRFRState extends State<FreeRFR> {
       ),
       DirectSelects(osc: widget.osc),
     ];
+    //if desktop os
     if (!(Platform.isAndroid || Platform.isIOS)) {
       registerHotKeys(widget.osc);
       setFreeRFRHotKeys();
@@ -81,6 +82,7 @@ class _FreeRFRState extends State<FreeRFR> {
 
   @override
   void dispose() {
+    //if desktop os
     if (!(Platform.isAndroid || Platform.isIOS)) {
       hotKeyManager.unregisterAll();
     }

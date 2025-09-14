@@ -11,8 +11,10 @@ import 'package:provider/provider.dart';
 
 import 'configurations/context.dart';
 
+const Color primaryColor = Color.fromARGB(255, 255, 196, 0);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //if desktop os
   if (!(Platform.isAndroid || Platform.isIOS)) {
     await hotKeyManager.unregisterAll();
   }
@@ -78,7 +80,6 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const Color primaryColor = Color.fromARGB(255, 255, 196, 0);
     return MaterialApp(
       scrollBehavior: FreeRFRScrollBehavior(),
       title: 'Free RFR',

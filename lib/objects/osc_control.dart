@@ -327,72 +327,11 @@ class OSC {
     sendLive();
   }
 
-  // Future<String> getCmdLine() async {
-  //   OSCMessage message = OSCMessage('/eos/get/cmd', arguments: []);
-  //   var i = await sendOSCMessage(message);
-  //   debugPrint(i.toString());
-  //   _updateEosOutput();
-  //   return "";
-  // }
-
-  // void setCommandLine(void Function(String) setCommandLine) {
-  //   String reply = '';
-  //   OSCMessage message = OSCMessage('/eos/out/cmd', arguments: []);
-  //   client.send(message);
-  //   OSCSocket socket = OSCSocket(serverPort: 8001);
-  //   socket.listen((msg) {
-  //     reply = msg.toString();
-  //   });
-  //   debugPrint('Received: $reply');
-  //   setCommandLine(reply);
-  // }
-
-  // Future<String> getShowName() async {
-  //   OSCMessage message = OSCMessage('/eos/out/show/name', arguments: []);
-  //   sendOSCMessage(message);
-  //   String reply = '';
-  //   client.listen((msg) {
-  //     reply = msg.toString();
-  //     return;
-  //   });
-  //   return reply;
-  // }
-
   Future<void> close() async {
     await client.flush();
     await client.close();
     debugPrint('OSC connection closed');
   }
-
-  // Future<List<String>> getCues() async {
-  //   // Get number of cues.
-  //   OSCMessage message;
-  //   List<String> cues = [];
-  //   message = OSCMessage('/eos/get/cue/1/count', arguments: []);
-  //   sendOSCMessage(message);
-  //   sleep100();
-  //   client.listen((event) async {
-  //     OSCMessage msg = OSCMessage.fromBytes(event);
-  //     if (msg.address == '/eos/out/get/cue/1/count') {
-  //       for (int i = 0; i < int.parse(msg.arguments[0].toString()); i++) {
-  //         message = OSCMessage('/eos/get/cue/0/index/$i', arguments: []);
-  //         await sendOSCMessage(message);
-  //         OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-  //         sleep(const Duration(milliseconds: 25));
-  //         await listenSocket.listen((msg) {
-  //           debugPrint(msg.address);
-  //           if (msg.address == '/eos/out/get/cue/0/0') {
-  //             debugPrint(msg.arguments.toString());
-  //             cues.add(msg.arguments.toString());
-  //           }
-  //         });
-  //         listenSocket.close();
-  //       }
-  //     }
-  //   });
-  //   debugPrint(cues.toString());
-  //   return cues;
-  // }
 
   void sleep250() {
     sleep(const Duration(milliseconds: 250));
@@ -404,41 +343,11 @@ class OSC {
     sendOSCMessage(message);
   }
 
-  // int getCurrentCueIndex() {
-  //   OSCMessage message = OSCMessage('/eos/out/active/cue/', arguments: []);
-  //   sendOSCMessage(message);
-  //   int reply = -1;
-  //   OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-  //   listenSocket.listen((msg) {
-  //     debugPrint('Index: ${msg.arguments[0].toString()}');
-  //     if (msg.address == '/eos/out/active/cue/text') {
-  //       reply = int.parse(msg.arguments[0].toString());
-  //       return;
-  //     }
-  //   });
-  //   listenSocket.close();
-  //   return reply;
-  // }
-
   void sendColor(double red, double green, double blue) {
     OSCMessage message =
         OSCMessage('/eos/color/rgb', arguments: [red, green, blue]);
     sendOSCMessage(message);
   }
-
-//   Future<List<Fader>> getFader(int faderPage) {
-//     OSCSocket listenSocket = OSCSocket(serverPort: clientPort);
-//     List<Fader> faders = [];
-//     listenSocket.listen((msg) {
-//       if (msg.address.contains('/eos/out/fader/$faderPage')) {
-//         var message = msg.address.split('/');
-//         var index = int.parse(message[4]);
-//         faders.add(Fader(msg.arguments.join(" "), index, faderPage, 0));
-//       }
-//     });
-//     listenSocket.close();
-//     return Future.value(faders);
-//   }
 }
 
 bool isPrivateIPAddress(String string) {

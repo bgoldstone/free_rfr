@@ -123,7 +123,14 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                       }
                     });
                   },
-                  onChangeEnd: (value) {},
+                  onChangeEnd: (value) {
+                    setState(() {
+                      if (x! >= minPan && x! <= maxPan) {
+                        x = value;
+                        widget.osc.updatePanTilt(x!, y!);
+                      }
+                    });
+                  },
                 ),
                 Row(
                   children: [
@@ -173,7 +180,14 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                           }
                         });
                       },
-                      onChangeEnd: (value) {},
+                      onChangeEnd: (value) {
+                        setState(() {
+                          if (y! >= minTilt && y! <= minPan) {
+                            y = value;
+                            widget.osc.updatePanTilt(x!, y!);
+                          }
+                        });
+                      },
                     )),
                 Row(children: [
                   //   ElevatedButton(
