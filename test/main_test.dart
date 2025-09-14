@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
@@ -20,14 +21,12 @@ void main() {
     expect(materialAppWidget.scrollBehavior, isA<FreeRFRScrollBehavior>());
   });
 
-  test('Test Main', () async {
+  testWidgets('Test Main', (WidgetTester tester) async {
     try {
-      await HotKeyManager.instance.unregisterAll();
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       entry.main();
     } finally {
       debugDefaultTargetPlatformOverride = null;
-      await HotKeyManager.instance.unregisterAll();
     }
   });
   testWidgets('Test Main w/ mobile', (WidgetTester tester) async {
