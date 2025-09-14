@@ -8,7 +8,7 @@ import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import '../../free_rfr_test.mocks.dart';
+import '../../../free_rfr_test.mocks.dart';
 
 void main() {
   MockOSC osc = MockOSC();

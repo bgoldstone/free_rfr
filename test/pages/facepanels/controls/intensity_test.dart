@@ -7,7 +7,8 @@ import 'package:free_rfr/widgets/button.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import '../../free_rfr_test.mocks.dart';
+import '../../../common_test.dart';
+import '../../../free_rfr_test.mocks.dart';
 
 MockOSC osc = MockOSC();
 
@@ -22,30 +23,7 @@ void main() {
 
   testWidgets('Test IntensityControl Widget', (WidgetTester tester) async {
     final freeRFRContext = FreeRFRContext();
-    FlutterError.onError = (
-      FlutterErrorDetails? details, {
-      bool forceReport = false,
-    }) {
-      assert(details != null);
-      assert(details?.exception != null);
-      // ---
-
-      bool ifIsOverflowError = false;
-
-      // Detect overflow error.
-      var exception = details?.exception;
-      if (exception is FlutterError) {
-        ifIsOverflowError = !exception.diagnostics.any(
-            (e) => e.value.toString().startsWith("A RenderFlex overflowed by"));
-      }
-
-      // Ignore if is overflow error.
-      if (ifIsOverflowError) {
-        debugPrint('Overflow error.');
-      } else {
-        FlutterError.dumpErrorToConsole(details!, forceReport: forceReport);
-      }
-    };
+    await ignoreErrors();
     freeRFRContext.currentChannel = {
       ParameterType.intens: [0]
     };

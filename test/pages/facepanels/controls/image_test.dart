@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
-import 'package:free_rfr/pages/facepanels/controls/form.dart';
+import 'package:free_rfr/pages/facepanels/controls/image.dart';
 import 'package:provider/provider.dart';
 
-import '../../free_rfr_test.mocks.dart';
+import '../../../free_rfr_test.mocks.dart';
 
 MockOSC osc = MockOSC();
 FreeRFRContext freeRFRContext = FreeRFRContext();
 void main() {
-  testWidgets('Test FormControl Widget', (WidgetTester tester) async {
+  testWidgets('Test ImageControl Widget', (WidgetTester tester) async {
     await setUp(tester, osc, freeRFRContext);
-    expect(find.byType(FormControl), findsOneWidget);
+    expect(find.byType(ImageControl), findsOneWidget);
     // Implement your test
   });
 }
@@ -23,7 +23,7 @@ Future<void> setUp(
       create: (context) => freeRFRContext,
       child: MaterialApp(
         home: Scaffold(
-          body: FormControl(osc: mockOSC),
+          body: ImageControl(osc: mockOSC),
         ),
       ),
     ),
