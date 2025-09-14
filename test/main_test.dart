@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/main.dart' as entry;
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -21,10 +22,12 @@ void main() {
 
   test('Test Main', () async {
     try {
+      await HotKeyManager.instance.unregisterAll();
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       entry.main();
     } finally {
       debugDefaultTargetPlatformOverride = null;
+      await HotKeyManager.instance.unregisterAll();
     }
   });
   testWidgets('Test Main w/ mobile', (WidgetTester tester) async {
