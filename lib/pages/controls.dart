@@ -3,7 +3,7 @@ import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/controls/color.dart';
 import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
-import 'package:free_rfr/pages/facepanels/controls/pan_tilt_control.dart';
+import 'package:free_rfr/pages/facepanels/controls/pan_tilt.dart';
 import 'package:provider/provider.dart';
 
 import '../objects/parameters.dart';
