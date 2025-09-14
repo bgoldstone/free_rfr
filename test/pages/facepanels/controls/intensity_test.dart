@@ -7,7 +7,7 @@ import 'package:free_rfr/widgets/button.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import '../../../common_test.dart';
+import '../../../common.dart';
 import '../../../free_rfr_test.mocks.dart';
 
 MockOSC osc = MockOSC();
