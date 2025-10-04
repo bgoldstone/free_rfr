@@ -3,7 +3,6 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/widgets/button.dart';
-import 'package:flutter_color_models/flutter_color_models.dart';
 import 'package:provider/provider.dart';
 
 class ColorPickerControl extends StatefulWidget {
@@ -25,7 +24,8 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
     Color colorFromEos = ctx.hueSaturation.isNotEmpty
-        ? HsiColor(ctx.hueSaturation[0], ctx.hueSaturation[1], 100).toColor()
+        ? HSLColor.fromAHSL(1, ctx.hueSaturation[0], ctx.hueSaturation[1], 1)
+            .toColor()
         : Colors.white;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
