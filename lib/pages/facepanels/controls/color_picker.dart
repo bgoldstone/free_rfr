@@ -33,8 +33,8 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
         ColorPicker(
           pickerColor: currentColor ?? colorFromEos,
           onColorChanged: (newColor) {
-            widget.osc.sendColor(
-                newColor.red / 255, newColor.green / 255, newColor.blue / 255);
+            widget.osc.sendColor(newColor.r.round() / 255,
+                newColor.g.round() / 255, newColor.b.round() / 255);
             currentColor = newColor;
           },
           enableAlpha: false,
