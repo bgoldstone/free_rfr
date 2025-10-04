@@ -279,9 +279,9 @@ class OSC {
             var dsIndex = int.parse(message.address.split('/').last);
             var splitArg = message.arguments[0].toString().split(' ');
             var name = splitArg.sublist(0, splitArg.length - 1).join(' ');
-            var objectNumber =
-                int.parse(splitArg.last.replaceAll(RegExp(r'[^0-9]'), ''));
-            ctx.directSelects[dsIndex] = DS(objectNumber, name);
+            var objectNumber = double.parse(
+                splitArg.last.replaceAll(RegExp(r'\d\/|[^0-9\.]'), ''));
+            ctx.updateDirectSelects(dsIndex, objectNumber, name);
           }
         } catch (e) {
           debugPrint(

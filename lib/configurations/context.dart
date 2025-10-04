@@ -92,6 +92,16 @@ class FreeRFRContext extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateDirectSelects(int dsIndex, double objectNumber, String name) {
+    _directSelects[dsIndex] = DS(objectNumber, name);
+    notifyListeners();
+  }
+
+  void clearDirectSelects() {
+    _directSelects = {};
+    notifyListeners();
+  }
+
   int get currentConnectionIndex => _currentConnectionIndex;
   set currentConnectionIndex(int index) {
     _currentConnectionIndex = index;
@@ -100,7 +110,7 @@ class FreeRFRContext extends ChangeNotifier {
 }
 
 class DS {
-  final int objectNumber;
+  final double objectNumber;
   final String name;
 
   DS(this.objectNumber, this.name);

@@ -32,25 +32,28 @@ class DirectSelects extends StatefulWidget {
 }
 
 class _DirectSelectsState extends State<DirectSelects> {
+  //Initial State
   String type = 'group';
   int page = 1;
 
   @override
   void initState() {
-    super.initState();
     callDS(context.read<FreeRFRContext>());
+    super.initState();
   }
 
-  void callDS(FreeRFRContext ctx) {
-    ctx.directSelects.clear();
-    widget.osc.sendOSCMessage(OSCMessage(
+  void callDS(FreeRFRContext ctx) async {
+    await widget.osc.sendOSCMessage(OSCMessage(
         '/eos/ds/1/$type/flexi/$page/${DirectSelects.pageSize}',
         arguments: []));
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
+
+    debugPrint("Direct Selects: ${ctx.directSelects}");
 
     return Column(
       children: [
@@ -65,6 +68,7 @@ class _DirectSelectsState extends State<DirectSelects> {
                     setState(() {
                       type = entry.key;
                       page = 1;
+                      ctx.clearDirectSelects();
                       callDS(ctx);
                     });
                   },
@@ -84,22 +88,28 @@ class _DirectSelectsState extends State<DirectSelects> {
                 flex: 3, // makes it wider
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  child: Grid(
-                      4,
-                      ctx.directSelects.entries.map((ds) {
-                        return Button(
-                          "${ds.value.name} (${ds.value.objectNumber})",
-                          () {
-                            widget.osc.sendOSCMessage(OSCMessage(
-                                '/eos/ds/1/${ds.key}',
-                                arguments: [1]));
-                            // callDS(ctx);
-                          },
-                          fontSize:
-                              5 * MediaQuery.of(context).size.aspectRatio / 2,
-                        );
-                      }).toList(),
-                      4),
+                  child: Selector<FreeRFRContext, Map<int, DS>>(
+                    selector: (_, ctx) => ctx.directSelects,
+                    builder: (context, directSelects, _) {
+                      return Grid(
+                          4,
+                          directSelects.entries.map((ds) {
+                            return Button(
+                              "${ds.value.name} (${ds.value.objectNumber})",
+                              () {
+                                widget.osc.sendOSCMessage(OSCMessage(
+                                    '/eos/ds/1/${ds.key}',
+                                    arguments: [1]));
+                                callDS(ctx);
+                              },
+                              fontSize: 5 *
+                                  MediaQuery.of(context).size.aspectRatio /
+                                  2,
+                            );
+                          }).toList(),
+                          4);
+                    },
+                  ),
                 ),
               ),
 
@@ -114,6 +124,7 @@ class _DirectSelectsState extends State<DirectSelects> {
                         if (page > 1) {
                           setState(() {
                             page--;
+                            ctx.clearDirectSelects();
                             callDS(ctx);
                           });
                         }
@@ -130,6 +141,7 @@ class _DirectSelectsState extends State<DirectSelects> {
                       onPressed: () {
                         setState(() {
                           page++;
+                          ctx.clearDirectSelects();
                           callDS(ctx);
                         });
                       },
