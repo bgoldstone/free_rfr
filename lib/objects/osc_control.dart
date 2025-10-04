@@ -104,7 +104,6 @@ class OSC {
   void _updateEosOutput() async {
     debugPrint('Updating Eos Output');
     List<int> buffer = [];
-    ParameterMap parameters = {};
     List<Object> currentChannel = [];
     client.listen((packet) {
       buffer.addAll(packet);
@@ -130,18 +129,22 @@ class OSC {
           if (message.address == '/eos/out/active/chan') {
             if (message.arguments != currentChannel) {
               currentChannel = message.arguments;
-              parameters = {};
+              ctx.currentChannel = {};
             }
           } else if (message.address == '/eos/out/cmd') {
             ctx.commandLine = '${message.arguments[0]}';
           } else if (message.address.startsWith("/eos/out/pantilt") &&
               message.arguments.length >= 4) {
-            parameters[ParameterType.minPan] = [message.arguments[0] as double];
-            parameters[ParameterType.maxPan] = [message.arguments[1] as double];
-            parameters[ParameterType.minTilt] = [
+            ctx.currentChannel[ParameterType.minPan] = [
+              message.arguments[0] as double
+            ];
+            ctx.currentChannel[ParameterType.maxPan] = [
+              message.arguments[1] as double
+            ];
+            ctx.currentChannel[ParameterType.minTilt] = [
               message.arguments[2] as double
             ];
-            parameters[ParameterType.maxTilt] = [
+            ctx.currentChannel[ParameterType.maxTilt] = [
               message.arguments[3] as double
             ];
           } else if (message.address.startsWith('/eos/out/active/wheel/')) {
@@ -156,7 +159,7 @@ class OSC {
             debugPrint("args: $parameterName");
             debugPrint("Parameter Name: $parameterName|");
             var currentParams = [
-              ...parameters.keys,
+              ...ctx.currentChannel.keys,
               ...ParameterType.staticParamTypes
             ];
             ParameterType? type;
@@ -168,16 +171,18 @@ class OSC {
             }
             //if type null create parameterType.
             type ??= ParameterType(parameterName, role);
-            debugPrint(parameters.toString());
+            debugPrint(
+                "Creating new ParameterType : $parameterName | ${role.name}");
+            debugPrint(ctx.currentChannel.toString());
 
             if (type == ParameterType.intens) {
-              parameters[ParameterType.intens] = [value];
+              ctx.currentChannel[ParameterType.intens] = [value];
             } else if (type == ParameterType.pan) {
-              parameters[ParameterType.pan] = [value];
+              ctx.currentChannel[ParameterType.pan] = [value];
             } else if (type == ParameterType.tilt) {
-              parameters[ParameterType.tilt] = [-1 * value];
+              ctx.currentChannel[ParameterType.tilt] = [-1 * value];
             } else {
-              parameters[type] = [message.arguments.last as double];
+              ctx.currentChannel[type] = [message.arguments.last as double];
             }
           } else if (message.address.startsWith('/eos/out/color/hs') &&
               message.arguments.isNotEmpty) {
@@ -278,8 +283,6 @@ class OSC {
                 int.parse(splitArg.last.replaceAll(RegExp(r'[^0-9]'), ''));
             ctx.directSelects[dsIndex] = DS(objectNumber, name);
           }
-          debugPrint('setting current channel: $parameters');
-          ctx.currentChannel = parameters; //End While
         } catch (e) {
           debugPrint(
               'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
