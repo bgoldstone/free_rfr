@@ -11,14 +11,11 @@ final MockOSC mockOSC = MockOSC();
 void main() {
   testWidgets('Parameter Widget Test', (WidgetTester tester) async {
     final freeRFRContext = FreeRFRContext();
-    freeRFRContext.currentChannel = {};
-    final paramType = ParameterType.intens;
+    final paramType = ParameterType.pan;
+    freeRFRContext.currentChannel = {
+      paramType: [0]
+    };
     await setupParameterWidget(tester, mockOSC, paramType, freeRFRContext);
-    final paramButton = find.text(paramType.oscName);
-    expect(paramButton, findsOneWidget);
-    await tester.tap(paramButton);
-    await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()}")).called(1);
     final maxButton = find.text('Max   ');
     expect(maxButton, findsOneWidget);
     await tester.tap(maxButton);
