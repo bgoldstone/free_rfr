@@ -22,6 +22,11 @@ class FreeRFRContext extends ChangeNotifier {
     notifyListeners();
   }
 
+  void putCurrentChannel(ParameterType type, List<double> channel) {
+    _currentChannel[type] = channel;
+    notifyListeners();
+  }
+
   String get commandLine => _commandLine;
 
   set commandLine(String command) {
