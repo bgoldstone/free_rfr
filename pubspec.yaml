@@ -40,6 +40,8 @@ dependencies:
   material_symbols_icons: ^4.2874.0
   hotkey_manager: ^0.2.3
   provider: ^6.1.5+1
+  font_awesome_flutter: ^10.9.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -74,8 +76,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+     - assets/osc_config.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

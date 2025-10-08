@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:osc/osc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/button.dart';
 
@@ -67,6 +69,14 @@ class _ConnectionsState extends State<Connections> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Free RFR'),
+        actions: [
+          donateButton(context),
+          IconButton(
+            icon: const Icon(Icons.help),
+            onPressed: showHelpDialog,
+            tooltip: 'Help',
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -97,6 +107,30 @@ class _ConnectionsState extends State<Connections> {
         ],
       ),
     );
+  }
+
+  void showHelpDialog() async {
+    Image helpImage = Image.asset('assets/osc_config.png');
+    AlertDialog helpDialog = AlertDialog(
+      title: const Text('Help'),
+      content: Column(children: [
+        const Text(
+            "Please Configure your Eos Console OSC Settings Like the image below:"),
+        FittedBox(
+          fit: BoxFit.contain,
+          child: helpImage,
+        )
+      ]),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    );
+    showDialog(context: context, builder: (context) => helpDialog);
   }
 
   FutureBuilder connectionsList(FreeRFRContext ctx) {
@@ -225,4 +259,49 @@ class _ConnectionsState extends State<Connections> {
       ],
     );
   }
+}
+
+IconButton donateButton(BuildContext context) {
+  return IconButton(
+    onPressed: () {
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text('Donate'),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const Text(
+                      "Like What I do? Please consider making a donation!",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                        icon: const FaIcon(FontAwesomeIcons.paypal),
+                        onPressed: () => launchUrl(
+                            Uri.parse("https://paypal.me/BenjaminGoldstone")),
+                        tooltip: 'Paypal',
+                        iconSize: 100,
+                        color: Colors.blue[900]),
+                    IconButton(
+                      icon: const FaIcon(FontAwesomeIcons.vimeo),
+                      onPressed: () => launchUrl(
+                          Uri.parse("https://www.venmo.com/bgoldstone")),
+                      tooltip: 'Venmo',
+                      iconSize: 100,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                      child: const Text('OK'),
+                      onPressed: () => Navigator.of(context).pop())
+                ],
+              ));
+    },
+    icon: const Icon(Icons.monetization_on),
+    tooltip: 'Donate',
+  );
 }
