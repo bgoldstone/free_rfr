@@ -6,7 +6,7 @@ import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:provider/provider.dart';
 
-class ParameterWidget extends StatelessWidget {
+class ParameterWidget extends StatefulWidget {
   final ParameterType parameterType;
   final OSC osc;
 
@@ -14,54 +14,71 @@ class ParameterWidget extends StatelessWidget {
       {super.key, required this.parameterType, required this.osc});
 
   @override
+  State<ParameterWidget> createState() => _ParameterWidgetState();
+}
+
+class _ParameterWidgetState extends State<ParameterWidget> {
+  @override
   Widget build(BuildContext context) {
+    final ctx = context.watch<FreeRFRContext>();
     double aspectRatio = MediaQuery.of(context).size.aspectRatio / 1;
+    final channelValue = ctx.currentChannel[widget.parameterType] != null
+        ? ctx.currentChannel[widget.parameterType]![0].toStringAsFixed(2)
+        : '';
     List<Widget> children = [
       Button(
-        parameterType.oscName,
-        () => osc.sendCmd("select_last ${parameterType.getEosName()}"),
+        "${widget.parameterType.oscName} [${channelValue}]",
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()}"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Max   ",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} Full#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} Full#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "+10",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} +10#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} +10#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "+1",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} +01#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} +01#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Home",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} Home#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} Home#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "-1",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} -01#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} -01#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "-10",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} -10#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} -10#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Min    ",
-        () => osc.sendCmd("select_last ${parameterType.getEosName()} Min#"),
+        () => widget.osc
+            .sendCmd("select_last ${widget.parameterType.getEosName()} Min#"),
         fontSize: 10 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
@@ -94,7 +111,12 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
     }
     List<Widget> targets = [];
     for (var parameter in controls) {
-      targets.add(ParameterWidget(parameterType: parameter, osc: widget.osc));
+      targets.add(
+        ParameterWidget(
+          parameterType: parameter,
+          osc: widget.osc,
+        ),
+      );
       targets.add(const VerticalDivider(width: 15));
     }
     return SingleChildScrollView(

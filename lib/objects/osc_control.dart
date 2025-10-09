@@ -104,7 +104,6 @@ class OSC {
   void _updateEosOutput() async {
     debugPrint('Updating Eos Output');
     List<int> buffer = [];
-    ParameterMap parameters = {};
     List<Object> currentChannel = [];
     client.listen((packet) {
       buffer.addAll(packet);
@@ -121,7 +120,7 @@ class OSC {
         final messageBytes = buffer.sublist(0, 4 + messageLength);
         final messageData = Uint8List.fromList(messageBytes);
         try {
-          final message = OSCMessage.fromBytes(messageData.sublist(4));
+          final message = parseEosMessage(messageData.sublist(4));
           debugPrint(
               "Is hs:${message.address.startsWith('/eos/out/color/hs')}, actual :${message.address}");
           debugPrint(message.toString());
@@ -130,33 +129,31 @@ class OSC {
           if (message.address == '/eos/out/active/chan') {
             if (message.arguments != currentChannel) {
               currentChannel = message.arguments;
-              parameters = {};
+              ctx.currentChannel = {};
             }
           } else if (message.address == '/eos/out/cmd') {
             ctx.commandLine = '${message.arguments[0]}';
           } else if (message.address.startsWith("/eos/out/pantilt") &&
               message.arguments.length >= 4) {
-            parameters[ParameterType.minPan] = [message.arguments[0] as double];
-            parameters[ParameterType.maxPan] = [message.arguments[1] as double];
-            parameters[ParameterType.minTilt] = [
-              message.arguments[2] as double
-            ];
-            parameters[ParameterType.maxTilt] = [
-              message.arguments[3] as double
-            ];
+            ctx.putCurrentChannel(
+                ParameterType.minPan, [message.arguments[0] as double]);
+            ctx.putCurrentChannel(
+                ParameterType.maxPan, [message.arguments[1] as double]);
+            ctx.putCurrentChannel(
+                ParameterType.minTilt, [message.arguments[2] as double]);
+            ctx.putCurrentChannel(
+                ParameterType.maxTilt, [message.arguments[3] as double]);
           } else if (message.address.startsWith('/eos/out/active/wheel/')) {
-            var parameterName = message.arguments[0]
-                .toString()
-                .split(" ")
-                .sublist(0, message.arguments.length - 1)
-                .join(" ");
+            debugPrint('Original name: ${message.arguments[0]}');
+            var origParamName = message.arguments[0].toString().split(" ");
+            var parameterName =
+                origParamName.sublist(0, origParamName.length - 1).join(" ");
             var value = message.arguments.last as double;
             var role = ParameterRole.getTypeById(message.arguments[1] as int);
             parameterName = parameterName.trimRight();
-            debugPrint("args: $parameterName");
             debugPrint("Parameter Name: $parameterName|");
             var currentParams = [
-              ...parameters.keys,
+              ...ctx.currentChannel.keys,
               ...ParameterType.staticParamTypes
             ];
             ParameterType? type;
@@ -168,16 +165,18 @@ class OSC {
             }
             //if type null create parameterType.
             type ??= ParameterType(parameterName, role);
-            debugPrint(parameters.toString());
+            debugPrint(
+                "Creating new ParameterType : $parameterName | ${role.name}");
+            debugPrint(ctx.currentChannel.toString());
 
             if (type == ParameterType.intens) {
-              parameters[ParameterType.intens] = [value];
+              ctx.putCurrentChannel(ParameterType.intens, [value]);
             } else if (type == ParameterType.pan) {
-              parameters[ParameterType.pan] = [value];
+              ctx.putCurrentChannel(ParameterType.pan, [value]);
             } else if (type == ParameterType.tilt) {
-              parameters[ParameterType.tilt] = [-1 * value];
+              ctx.putCurrentChannel(ParameterType.tilt, [-1 * value]);
             } else {
-              parameters[type] = [message.arguments.last as double];
+              ctx.putCurrentChannel(type, [message.arguments.last as double]);
             }
           } else if (message.address.startsWith('/eos/out/color/hs') &&
               message.arguments.isNotEmpty) {
@@ -259,14 +258,14 @@ class OSC {
             if (getControlWidgetForType(ParameterType.pan) != null) {
               var args = message.arguments;
               if (args.isNotEmpty && args.length <= 4) {
-                ctx.currentChannel[ParameterType.minPan]![0] =
-                    double.parse(args[0].toString());
-                ctx.currentChannel[ParameterType.maxPan]![0] =
-                    double.parse(args[1].toString());
-                ctx.currentChannel[ParameterType.minTilt]![0] =
-                    double.parse(args[2].toString());
-                ctx.currentChannel[ParameterType.maxTilt]![0] =
-                    double.parse(args[3].toString());
+                ctx.putCurrentChannel(
+                    ParameterType.minPan, [double.parse(args[0].toString())]);
+                ctx.putCurrentChannel(
+                    ParameterType.maxPan, [double.parse(args[1].toString())]);
+                ctx.putCurrentChannel(
+                    ParameterType.minTilt, [double.parse(args[2].toString())]);
+                ctx.putCurrentChannel(
+                    ParameterType.maxTilt, [double.parse(args[3].toString())]);
               }
             }
           } else if (message.address.startsWith('/eos/out/ds/1/')) {
@@ -274,12 +273,10 @@ class OSC {
             var dsIndex = int.parse(message.address.split('/').last);
             var splitArg = message.arguments[0].toString().split(' ');
             var name = splitArg.sublist(0, splitArg.length - 1).join(' ');
-            var objectNumber =
-                int.parse(splitArg.last.replaceAll(RegExp(r'[^0-9]'), ''));
-            ctx.directSelects[dsIndex] = DS(objectNumber, name);
+            var objectNumber = double.parse(
+                splitArg.last.replaceAll(RegExp(r'\d\/|[^0-9\.]'), ''));
+            ctx.updateDirectSelects(dsIndex, objectNumber, name);
           }
-          debugPrint('setting current channel: $parameters');
-          ctx.currentChannel = parameters; //End While
         } catch (e) {
           debugPrint(
               'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
@@ -355,4 +352,59 @@ bool isPrivateIPAddress(String string) {
       string.startsWith('172.') ||
       string.startsWith('192.168.') ||
       string.startsWith('127.');
+}
+
+OSCMessage parseEosMessage(Uint8List bytes) {
+  final data = ByteData.sublistView(bytes);
+  int offset = 0;
+
+  // Read OSC address
+  final address = _readPaddedString(data, offset);
+  offset += _paddedLength(address);
+
+  // Read type tags (starts with ',')
+  final typeTagStr = _readPaddedString(data, offset);
+  offset += _paddedLength(typeTagStr);
+
+  final List<Object> args = [];
+  final tags = typeTagStr.substring(1).split('');
+
+  for (final tag in tags) {
+    switch (tag) {
+      case 's':
+        final str = _readPaddedString(data, offset);
+        args.add(str);
+        offset += _paddedLength(str);
+        break;
+      case 'i':
+        args.add(data.getInt32(offset, Endian.big));
+        offset += 4;
+        break;
+      case 'f':
+        args.add(data.getFloat32(offset, Endian.big));
+        offset += 4;
+        break;
+      default:
+        // Skip unknown types safely
+        offset += 4;
+        break;
+    }
+  }
+
+  return OSCMessage(address, arguments: args);
+}
+
+String _readPaddedString(ByteData data, int offset) {
+  final bytes = <int>[];
+  while (offset < data.lengthInBytes && data.getUint8(offset) != 0) {
+    bytes.add(data.getUint8(offset++));
+  }
+  offset++; // skip null terminator
+  while (offset % 4 != 0) offset++; // realign to next 4-byte boundary
+  return utf8.decode(bytes);
+}
+
+int _paddedLength(String s) {
+  final raw = s.length + 1; // +1 for null terminator
+  return (raw + 3) & ~3; // round up to multiple of 4
 }
