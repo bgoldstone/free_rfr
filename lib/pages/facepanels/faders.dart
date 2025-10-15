@@ -47,10 +47,23 @@ class FaderControlsState extends State<FaderControls> {
   @override
   Widget build(BuildContext context) {
     //return grid of faders
-    debugPrint(faders.toString());
+    if (faders.length < 10) {
+      return Center(
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Loading Faders...'),
+            SizedBox(height: 10),
+            CircularProgressIndicator(),
+          ],
+        ),
+      );
+    }
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -77,15 +90,25 @@ class FaderControlsState extends State<FaderControls> {
               ),
             ],
           ),
-          SizedBox(
-            width: MediaQuery.sizeOf(context).width * 1,
-            height: MediaQuery.sizeOf(context).height * 2,
-            child: GridView.count(
-              crossAxisCount: 5,
-              children: faders
-                  .map((fader) => fader.buildFader(widget.osc, setState))
-                  .toList(),
-            ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: faders
+                        .sublist(0, 5)
+                        .map((fader) => fader.buildFader(widget.osc, setState))
+                        .toList(),
+                  ),
+                  Row(
+                    children: faders
+                        .sublist(5, 10)
+                        .map((fader) => fader.buildFader(widget.osc, setState))
+                        .toList(),
+                  ),
+                ]),
           )
         ],
       ),
@@ -102,13 +125,14 @@ class Fader {
   Fader(this.name, this.index, this.faderPage, this.intensity);
 
   Widget buildFader(OSC osc, Function(void Function()) setState) {
-    return SizedBox(
-        height: 400,
-        child: Card(
-            child: Column(
-          children: [
-            Text(name),
-            RotatedBox(
+    return FittedBox(
+      fit: BoxFit.cover,
+      child: Card(
+          child: Column(
+        children: [
+          Text(name),
+          SizedBox(
+            child: RotatedBox(
               quarterTurns: 3,
               child: Slider(
                 value: intensity * 100,
@@ -122,9 +146,11 @@ class Fader {
                 },
                 onChangeEnd: (value) {},
               ),
-            )
-          ],
-        )));
+            ),
+          )
+        ],
+      )),
+    );
   }
 
   void update(String name, int index, int faderPage, double intensity) {

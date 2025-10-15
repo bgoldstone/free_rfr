@@ -53,6 +53,6 @@ class AdditionalKeys extends StatelessWidget {
         osc.sendKey('enter');
       }, fontSize: fontSize),
     ];
-    return Grid(3, additionalKeys, 2.2);
+    return Grid(3, additionalKeys);
   }
 }

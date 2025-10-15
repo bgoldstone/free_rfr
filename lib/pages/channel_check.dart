@@ -125,6 +125,6 @@ class ChannelCheck extends StatelessWidget {
         isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return Grid(4, channelCheck, scale);
+    return Grid(4, channelCheck);
   }
 }

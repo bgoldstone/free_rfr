@@ -126,6 +126,6 @@ class Keypad extends StatelessWidget {
         isKeypadWindow ? Navigator.of(context).pop() : null;
       }, fontSize: 18.5),
     ];
-    return Grid(4, keypad, scale);
+    return Grid(4, keypad);
   }
 }

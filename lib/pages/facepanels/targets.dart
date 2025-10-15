@@ -81,6 +81,6 @@ class Target extends StatelessWidget {
         osc.sendKey('enter');
       }, fontSize: 30),
     ];
-    return Grid(3, targets, 2.22);
+    return Grid(3, targets, scale: 2.22);
   }
 }

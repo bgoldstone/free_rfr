@@ -21,19 +21,19 @@ class Button extends StatelessWidget {
       ),
       backgroundColor: Colors.blueGrey,
     );
-    double aspectRatio = MediaQuery.of(context).size.aspectRatio;
     return Padding(
       padding: EdgeInsets.all(padding),
       child: ElevatedButton(
         onPressed: onPressed,
         style: buttonStyle,
-        child: Center(
+        child: FittedBox(
+          fit: BoxFit.fitWidth,
           child: Text(
             text,
             style: TextStyle(
               color: isSelected ? Colors.yellow : Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: (fontSize! * aspectRatio),
+              // fontSize: (fontSize! * aspectRatio),
             ),
             textAlign: TextAlign.center,
           ),

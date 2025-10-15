@@ -3,6 +3,7 @@ import 'package:free_rfr/configurations/context.dart';
 
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:free_rfr/widgets/parameter_widget.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
@@ -99,8 +100,9 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
     y = currentTilt;
     size = MediaQuery.of(context).size;
     if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
-      return const Center(
-          child: Text('Screen too small to support Pan Tilt Grid Control.'));
+      return Center(
+          child:
+              ParameterWidgets(role: ParameterRole.panTilt, osc: widget.osc));
     }
     return Center(
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [

@@ -21,7 +21,7 @@ class _ParameterWidgetState extends State<ParameterWidget> {
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
-    double aspectRatio = MediaQuery.of(context).size.aspectRatio / 1;
+    double aspectRatio = MediaQuery.of(context).size.aspectRatio / 2;
     final channelValue = ctx.currentChannel[widget.parameterType] != null
         ? ctx.currentChannel[widget.parameterType]![0].toStringAsFixed(2)
         : '';
@@ -30,56 +30,56 @@ class _ParameterWidgetState extends State<ParameterWidget> {
         "${widget.parameterType.oscName} [${channelValue}]",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()}"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Max   ",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} Full#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "+10",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} +10#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "+1",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} +01#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Home",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} Home#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "-1",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} -01#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "-10",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} -10#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
       Button(
         "Min    ",
         () => widget.osc
             .sendCmd("select_last ${widget.parameterType.getEosName()} Min#"),
-        fontSize: 10 * aspectRatio,
+        // fontSize: 25 * aspectRatio,
         padding: 2 * aspectRatio,
       ),
     ];
@@ -110,6 +110,9 @@ class _ParameterWidgetsState extends State<ParameterWidgets> {
       return noParametersForThisChannel(widget.role.name);
     }
     List<Widget> targets = [];
+    if (widget.role == ParameterRole.panTilt) {
+      controls = [ParameterType.pan, ParameterType.tilt];
+    }
     for (var parameter in controls) {
       targets.add(
         ParameterWidget(
