@@ -21,71 +21,70 @@ class _ParameterWidgetState extends State<ParameterWidget> {
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
-    double aspectRatio = MediaQuery.of(context).size.aspectRatio / 2;
     final channelValue = ctx.currentChannel[widget.parameterType] != null
         ? ctx.currentChannel[widget.parameterType]![0].toStringAsFixed(2)
         : '';
     List<Widget> children = [
-      Button(
-        "${widget.parameterType.oscName} [${channelValue}]",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()}"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "${widget.parameterType.oscName} [${channelValue}]",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()}"),
+        ),
       ),
-      Button(
-        "Max   ",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} Full#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "Max   ",
+          () => widget.osc.sendCmd(
+              "select_last ${widget.parameterType.getEosName()} Full#"),
+        ),
       ),
-      Button(
-        "+10",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} +10#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "+10",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()} +10#"),
+        ),
       ),
-      Button(
-        "+1",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} +01#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "+1",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()} +01#"),
+        ),
       ),
-      Button(
-        "Home",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} Home#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "Home",
+          () => widget.osc.sendCmd(
+              "select_last ${widget.parameterType.getEosName()} Home#"),
+        ),
       ),
-      Button(
-        "-1",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} -01#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "-1",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()} -01#"),
+        ),
       ),
-      Button(
-        "-10",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} -10#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "-10",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()} -10#"),
+        ),
       ),
-      Button(
-        "Min    ",
-        () => widget.osc
-            .sendCmd("select_last ${widget.parameterType.getEosName()} Min#"),
-        // fontSize: 25 * aspectRatio,
-        padding: 2 * aspectRatio,
+      Expanded(
+        child: Button(
+          "Min    ",
+          () => widget.osc
+              .sendCmd("select_last ${widget.parameterType.getEosName()} Min#"),
+        ),
       ),
     ];
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(children: children),
+    return Column(
+      children: children,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     );
   }
 }

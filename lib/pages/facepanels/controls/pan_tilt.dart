@@ -98,172 +98,174 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
     currentTilt = currentChannel[ParameterType.tilt]![0];
     x = currentPan;
     y = currentTilt;
-    size = MediaQuery.of(context).size;
-    if (panSize! + 30 > size!.width || tiltSize! + 30 > size!.height) {
+    size = MediaQuery.sizeOf(context);
+    if (panSize! + 30 > size!.width / 2 || tiltSize! + 30 > size!.height) {
       return Center(
           child:
               ParameterWidgets(role: ParameterRole.panTilt, osc: widget.osc));
     }
     return Center(
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        //slider for pan and tilt
-        SizedBox(
-            width: size!.width / 2 - 50,
-            height: size!.height - 50,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Slider(
-                  value: x!,
-                  min: minPan.roundToDouble(),
-                  max: maxPan.roundToDouble(),
-                  onChanged: (value) {
-                    setState(() {
-                      if (x! >= minPan && x! <= maxPan) {
-                        x = value;
-                        widget.osc.updatePanTilt(x!, y!);
-                      }
-                    });
-                  },
-                  onChangeEnd: (value) {
-                    setState(() {
-                      if (x! >= minPan && x! <= maxPan) {
-                        x = value;
-                        widget.osc.updatePanTilt(x!, y!);
-                      }
-                    });
-                  },
-                ),
-                Row(
-                  children: [
-                    //     //max and min buttons for pan
-
-                    //     ElevatedButton(
-                    //       onPressed: () {
-                    //         setState(() {
-                    //           x = minPan;
-                    //           widget.osc.updatePanTilt(x!, y!);
-                    //         });
-                    //       },
-                    //       child: const Text('Min Pan'),
-                    //     ),
-                    //     ElevatedButton(
-                    //       onPressed: () {
-                    //         setState(() {
-                    //           x = maxPan;
-                    //           widget.osc.updatePanTilt(x!, y!);
-                    //         });
-                    //       },
-                    //       child: const Text('Max Pan'),
-                    //     ),
-                    //     ElevatedButton(
-                    //         onPressed: () {
-                    //           setState(() {
-                    //             x = 0;
-                    //             widget.osc.updatePanTilt(x!, y!);
-                    //           });
-                    //         },
-                    //         child: const Text("Home")),
-                    Center(child: Text("Pan: ${x!.toStringAsFixed(2)}")),
-                  ],
-                ),
-                //same for tilt
-                RotatedBox(
-                    quarterTurns: 1,
-                    child: Slider(
-                      value: y!,
-                      min: minTilt.roundToDouble(),
-                      max: maxTilt.roundToDouble(),
-                      onChanged: (value) {
-                        setState(() {
-                          if (y! >= minTilt && y! <= maxTilt) {
-                            y = value;
-                            widget.osc.updatePanTilt(x!, -y!);
-                          }
-                        });
-                      },
-                      onChangeEnd: (value) {
-                        setState(() {
-                          if (y! >= minTilt && y! <= minPan) {
-                            y = value;
-                            widget.osc.updatePanTilt(x!, y!);
-                          }
-                        });
-                      },
-                    )),
-                Row(children: [
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         y = minTilt;
-                  //         widget.osc.updatePanTilt(x!, y!);
-                  //       });
-                  //     },
-                  //     child: const Text('Min Tilt'),
-                  //   ),
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         y = maxTilt;
-                  //         widget.osc.updatePanTilt(x!, y!);
-                  //       });
-                  //     },
-                  //     child: const Text('Max Tilt'),
-                  //   ),
-                  //   ElevatedButton(
-                  //       onPressed: () {
-                  //         y = 0;
-                  //         widget.osc.updatePanTilt(x!, y!);
-                  //       },
-                  //       child: const Text("Home")),
-                  Center(child: Text("Tilt: ${(y! * -1).toStringAsFixed(2)}"))
-                ])
-              ],
-            )),
-
-        Container(
-          height: tiltSize!,
-          width: panSize!,
-          decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).primaryColor)),
-          child: Stack(children: [
-            GestureDetector(
-              onTapDown: (details) => _onTapDown(details),
-              onPanUpdate: (details) => _onPanUpdate(details),
-              onPanEnd: (details) {},
-              //Update position on tap
-              child: Container(
-                height: size!.height,
-                width: size!.width,
-                color: Colors.transparent,
-              ),
-            ),
-            Positioned(
-              top: panSize! / 2 + y! - 10,
-              left: tiltSize! / 2 + x! - 10,
-              child: GestureDetector(
-                  onPanUpdate: (call) => _onPanUpdate(call),
-                  //Update position on drag
-                  child: Container()
-                  // Container(
-                  //     width: 20.0, // Adjust size of the point
-                  //     height: 20.0,
-                  //     decoration: BoxDecoration(
-                  //       color: Theme.of(context)
-                  //           .primaryColor, // Color of the point
-                  //       shape: BoxShape.circle,
-                  //     ),
-                  //   ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          //slider for pan and tilt
+          SizedBox(
+              width: size!.width / 2 - 30,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Slider(
+                    value: x!,
+                    min: minPan.roundToDouble(),
+                    max: maxPan.roundToDouble(),
+                    onChanged: (value) {
+                      setState(() {
+                        if (x! >= minPan && x! <= maxPan) {
+                          x = value;
+                          widget.osc.updatePanTilt(x!, y!);
+                        }
+                      });
+                    },
+                    onChangeEnd: (value) {
+                      setState(() {
+                        if (x! >= minPan && x! <= maxPan) {
+                          x = value;
+                          widget.osc.updatePanTilt(x!, y!);
+                        }
+                      });
+                    },
                   ),
-            ),
-            // Positioned(
-            //   bottom: 15,
-            //   left: size!.width / 2 - 50,
-            //   child: Text("Pan: $x, Tilt: ${y! * -1}"),
-            // )
-          ]),
-        ),
-      ]),
+                  Row(
+                    children: [
+                      //     //max and min buttons for pan
+
+                      //     ElevatedButton(
+                      //       onPressed: () {
+                      //         setState(() {
+                      //           x = minPan;
+                      //           widget.osc.updatePanTilt(x!, y!);
+                      //         });
+                      //       },
+                      //       child: const Text('Min Pan'),
+                      //     ),
+                      //     ElevatedButton(
+                      //       onPressed: () {
+                      //         setState(() {
+                      //           x = maxPan;
+                      //           widget.osc.updatePanTilt(x!, y!);
+                      //         });
+                      //       },
+                      //       child: const Text('Max Pan'),
+                      //     ),
+                      //     ElevatedButton(
+                      //         onPressed: () {
+                      //           setState(() {
+                      //             x = 0;
+                      //             widget.osc.updatePanTilt(x!, y!);
+                      //           });
+                      //         },
+                      //         child: const Text("Home")),
+                      Center(child: Text("Pan: ${x!.toStringAsFixed(2)}")),
+                    ],
+                  ),
+                  //same for tilt
+                  RotatedBox(
+                      quarterTurns: 1,
+                      child: Slider(
+                        value: y!,
+                        min: minTilt.roundToDouble(),
+                        max: maxTilt.roundToDouble(),
+                        onChanged: (value) {
+                          setState(() {
+                            if (y! >= minTilt && y! <= maxTilt) {
+                              y = value;
+                              widget.osc.updatePanTilt(x!, -y!);
+                            }
+                          });
+                        },
+                        onChangeEnd: (value) {
+                          setState(() {
+                            if (y! >= minTilt && y! <= minPan) {
+                              y = value;
+                              widget.osc.updatePanTilt(x!, y!);
+                            }
+                          });
+                        },
+                      )),
+                  Row(children: [
+                    //   ElevatedButton(
+                    //     onPressed: () {
+                    //       setState(() {
+                    //         y = minTilt;
+                    //         widget.osc.updatePanTilt(x!, y!);
+                    //       });
+                    //     },
+                    //     child: const Text('Min Tilt'),
+                    //   ),
+                    //   ElevatedButton(
+                    //     onPressed: () {
+                    //       setState(() {
+                    //         y = maxTilt;
+                    //         widget.osc.updatePanTilt(x!, y!);
+                    //       });
+                    //     },
+                    //     child: const Text('Max Tilt'),
+                    //   ),
+                    //   ElevatedButton(
+                    //       onPressed: () {
+                    //         y = 0;
+                    //         widget.osc.updatePanTilt(x!, y!);
+                    //       },
+                    //       child: const Text("Home")),
+                    Center(child: Text("Tilt: ${(y! * -1).toStringAsFixed(2)}"))
+                  ])
+                ],
+              )),
+
+          Container(
+            height: tiltSize!,
+            width: panSize!,
+            decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor)),
+            child: Stack(children: [
+              GestureDetector(
+                onTapDown: (details) => _onTapDown(details),
+                onPanUpdate: (details) => _onPanUpdate(details),
+                onPanEnd: (details) {},
+                //Update position on tap
+                child: Container(
+                  height: size!.height,
+                  width: size!.width,
+                  color: Colors.transparent,
+                ),
+              ),
+              Positioned(
+                top: panSize! / 2 + y! - 10,
+                left: tiltSize! / 2 + x! - 10,
+                child: GestureDetector(
+                    onPanUpdate: (call) => _onPanUpdate(call),
+                    //Update position on drag
+                    child: Container()
+                    // Container(
+                    //     width: 20.0, // Adjust size of the point
+                    //     height: 20.0,
+                    //     decoration: BoxDecoration(
+                    //       color: Theme.of(context)
+                    //           .primaryColor, // Color of the point
+                    //       shape: BoxShape.circle,
+                    //     ),
+                    //   ),
+                    ),
+              ),
+              // Positioned(
+              //   bottom: 15,
+              //   left: size!.width / 2 - 50,
+              //   child: Text("Pan: $x, Tilt: ${y! * -1}"),
+              // )
+            ]),
+          ),
+        ],
+      ),
     );
   }
 }

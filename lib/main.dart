@@ -111,7 +111,6 @@ class _MyAppState extends State<MyApp> {
           return FutureBuilder<OSC>(
               future: _oscFuture,
               builder: (ctx, snapshot) {
-                debugPrint("Has Data? ${snapshot.hasData}");
                 if (snapshot.hasData) {
                   return FreeRFR(
                       osc: snapshot.data!,

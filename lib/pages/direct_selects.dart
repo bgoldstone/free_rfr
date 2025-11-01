@@ -72,7 +72,6 @@ class _DirectSelectsState extends State<DirectSelects> {
                       callDS(ctx);
                     });
                   },
-                  fontSize: MediaQuery.of(context).size.aspectRatio * 20,
                   padding: 1,
                   isSelected: type == entry.key,
                 );
@@ -104,10 +103,6 @@ class _DirectSelectsState extends State<DirectSelects> {
                                     arguments: [1]));
                                 callDS(ctx);
                               },
-                              fontSize: MediaQuery.of(context)
-                                      .size
-                                      .aspectRatio *
-                                  17, // make font size responsive to screen size
                               padding: 2,
                             );
                           }).toList(),
