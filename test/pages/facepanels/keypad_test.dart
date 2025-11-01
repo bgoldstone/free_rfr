@@ -3,10 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/widgets/button.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-import '../../free_rfr_test.mocks.dart';
+import '../../mocks/MockOSC.dart';
 
 void main() {
   MockOSC mockOSC = MockOSC();
@@ -53,7 +53,7 @@ void main() {
         expect(buttonFinder, findsOneWidget);
         await tester.tap(buttonFinder);
         await tester.pump();
-        verify(mockOSC.sendKey(entry.value)).called(1);
+        verify(() => mockOSC.sendKey(entry.value)).called(1);
       }
     },
   );

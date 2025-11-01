@@ -3,18 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/facepanels/controls/pan_tilt.dart';
-import 'package:mockito/mockito.dart';
+import 'package:free_rfr/widgets/parameter_widget.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common.dart';
-import '../../../free_rfr_test.mocks.dart';
+import '../../../mocks/MockOSC.dart';
 
 MockOSC osc = MockOSC();
 late FreeRFRContext freeRFRContext;
 void main() {
-  when(osc.updatePanTilt(any, any)).thenReturn(null);
+  when(() => osc.updatePanTilt(any(), any())).thenReturn(null);
   testWidgets('Test PanTiltControl Widget', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.physicalSize = const Size(4096, 2160);
     tester.view.devicePixelRatio = 1.0;
     freeRFRContext = FreeRFRContext();
     freeRFRContext.currentChannel = {
@@ -27,14 +28,8 @@ void main() {
     };
     await setUp(tester, osc, freeRFRContext);
     expect(find.byType(PanTiltControl), findsOneWidget);
-    final panTextFinder = find.byWidgetPredicate((widget) =>
-        widget is Text &&
-        widget.data != null &&
-        widget.data!.startsWith('Pan:'));
-    final tiltTextFinder = find.byWidgetPredicate((widget) =>
-        widget is Text &&
-        widget.data != null &&
-        widget.data!.startsWith('Tilt:'));
+    final panTextFinder = find.byKey(const Key('panText'));
+    final tiltTextFinder = find.byKey(const Key('tiltText'));
     expect(panTextFinder, findsOneWidget);
     expect(tiltTextFinder, findsOneWidget);
     final sliderFinder = find.byType(Slider);
@@ -46,21 +41,21 @@ void main() {
     await tester
         .tapAt(tester.getCenter(sliderFinder.last) + const Offset(0.0, -100.0));
     await tester.pumpAndSettle();
-    verify(osc.updatePanTilt(any, any)).called(2);
+    verify(() => osc.updatePanTilt(any(), any())).called(2);
 
     final boxFinder = find.byWidgetPredicate(
         (widget) => widget is Container && widget.color == Colors.transparent);
     expect(boxFinder, findsOneWidget);
     await tester.tapAt(tester.getCenter(boxFinder) + const Offset(50, -50));
     await tester.pumpAndSettle();
-    verify(osc.updatePanTilt(any, any)).called(1);
+    verify(() => osc.updatePanTilt(any(), any())).called(1);
 
     await tester.drag(boxFinder, const Offset(50, -50));
     await tester.pumpAndSettle();
-    verify(osc.updatePanTilt(any, any)).called(1);
+    verify(() => osc.updatePanTilt(any(), any())).called(1);
     await tester.drag(boxFinder, const Offset(50, 0));
     await tester.pumpAndSettle();
-    verify(osc.updatePanTilt(any, any)).called(1);
+    verify(() => osc.updatePanTilt(any(), any())).called(1);
 
     await tester.tapAt(tester.getCenter(panTextFinder));
     await tester.pumpAndSettle();
@@ -88,8 +83,8 @@ void main() {
     };
     await setUp(tester, osc, freeRFRContext);
     expect(find.byType(PanTiltControl), findsOneWidget);
-    expect(find.text('Screen too small to support Pan Tilt Grid Control.'),
-        findsOneWidget);
+    expect(find.byType(ParameterWidget), findsNWidgets(2));
+    expect(find.byType(ParameterWidgets), findsNWidgets(1));
   });
 }
 

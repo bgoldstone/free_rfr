@@ -4,7 +4,8 @@ import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/pages/facepanels/controls/form.dart';
 import 'package:provider/provider.dart';
 
-import '../../../free_rfr_test.mocks.dart';
+import '../../../mocks/MockOSC.dart';
+
 
 MockOSC osc = MockOSC();
 FreeRFRContext freeRFRContext = FreeRFRContext();

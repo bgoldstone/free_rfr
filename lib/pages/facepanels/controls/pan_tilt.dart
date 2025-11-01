@@ -165,7 +165,11 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                       //           });
                       //         },
                       //         child: const Text("Home")),
-                      Center(child: Text("Pan: ${x!.toStringAsFixed(2)}")),
+                      Center(
+                          child: Text(
+                        "Pan: ${x!.toStringAsFixed(2)}",
+                        key: Key('panText'),
+                      )),
                     ],
                   ),
                   //same for tilt
@@ -217,7 +221,11 @@ class PanTiltControlState extends ControlWidget<PanTiltControl> {
                     //         widget.osc.updatePanTilt(x!, y!);
                     //       },
                     //       child: const Text("Home")),
-                    Center(child: Text("Tilt: ${(y! * -1).toStringAsFixed(2)}"))
+                    Center(
+                        child: Text(
+                      "Tilt: ${(y! * -1).toStringAsFixed(2)}",
+                      key: Key('tiltText'),
+                    ))
                   ])
                 ],
               )),
