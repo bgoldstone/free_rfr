@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -5,29 +6,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:osc/osc.dart';
-import 'osc_control_test.mocks.dart';
 
-@GenerateNiceMocks([
-  MockSpec<Socket>(),
-  MockSpec<OSC>(onMissingStub: OnMissingStub.returnDefault)
-])
+class MockSocket extends Mock implements Socket {}
+
+class MockedStreamSubscription<T> extends Mock
+    implements StreamSubscription<T> {}
+
 Future<void> main() async {
   test('Test OSC Contruction', () async {
     late OSCMessage msg;
     MockSocket client = MockSocket();
     FreeRFRContext freeRFRContext = FreeRFRContext();
 
-    when(client.address).thenReturn(InternetAddress('127.0.0.1'));
-    when(client.port).thenReturn(12345);
-    OSC osc = await setUp(client, freeRFRContext);
-    when(client.listen(any)).thenAnswer((_) {
-      // Empty stream of Uint8List
-      return const Stream<Uint8List>.empty().listen(null);
+    when(() => client.address).thenReturn(InternetAddress('127.0.0.1'));
+    when(() => client.port).thenReturn(12345);
+    when(() => client.listen(any<void Function(Uint8List?)>()))
+        .thenAnswer((invocation) {
+      return MockedStreamSubscription<Uint8List>();
     });
-    verify(client.listen(any)).called(1);
+    OSC osc = await setUp(client, freeRFRContext);
+    verify(() => client.listen(any())).called(1);
     FaderControlsState state = FaderControlsState();
     //test setup fader bank.
     osc.setupFaderBank(5, state);
@@ -44,11 +44,11 @@ Future<void> main() async {
 
     osc.sendCmd('/eos/key/live');
     msg = OSCMessage('/eos/cmd', arguments: ['/eos/key/live']);
-    verify(client.add(msg.toBytes())).called(1);
+    verify(() => client.add(msg.toBytes())).called(1);
 
     osc.send('/eos/key/abc', []);
     msg = OSCMessage('/eos/key/abc', arguments: []);
-    verify(client.add(msg.toBytes())).called(1);
+    verify(() => client.add(msg.toBytes())).called(1);
 
     osc.setParameter('Intens', 0);
     msg = OSCMessage('/eos/cmd', arguments: ['Intens 0#']);
@@ -61,10 +61,11 @@ Future<void> main() async {
     msg = OSCMessage('/eos/key/live', arguments: []);
     osc.sendBlind();
     msg = OSCMessage('/eos/key/blind', arguments: []);
-
+    when(() => client.flush()).thenAnswer((invocation) async {});
+    when(() => client.close()).thenAnswer((invocation) async {});
     await osc.close();
-    verify(client.flush()).called(1);
-    verify(client.close()).called(1);
+    verify(() => client.flush()).called(1);
+    verify(() => client.close()).called(1);
   });
 }
 

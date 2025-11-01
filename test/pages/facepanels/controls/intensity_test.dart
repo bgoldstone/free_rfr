@@ -4,11 +4,11 @@ import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/facepanels/controls/intensity.dart';
 import 'package:free_rfr/widgets/button.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common.dart';
-import '../../../free_rfr_test.mocks.dart';
+import '../../../mocks/MockOSC.dart';
 
 MockOSC osc = MockOSC();
 
@@ -34,32 +34,32 @@ void main() {
     expect(fullFinder, findsOneWidget);
     await tester.tap(fullFinder);
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', 100)).called(1);
+    verify(() => osc.setParameter('Intens', 100)).called(1);
     final seventyFiveFinder = find.text('75%');
     expect(seventyFiveFinder, findsOneWidget);
     await tester.tap(seventyFiveFinder);
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', 75)).called(1);
+    verify(() => osc.setParameter('Intens', 75)).called(1);
     final fiftyFinder = find.text('50%');
     expect(fiftyFinder, findsOneWidget);
     await tester.tap(fiftyFinder);
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', 50)).called(1);
+    verify(() => osc.setParameter('Intens', 50)).called(1);
     final twentyFiveFinder = find.text('25%');
     expect(twentyFiveFinder, findsOneWidget);
     await tester.tap(twentyFiveFinder);
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', 25)).called(1);
+    verify(() => osc.setParameter('Intens', 25)).called(1);
     final outFinder = find.text('Out');
     expect(outFinder, findsOneWidget);
     await tester.tap(outFinder);
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', 0)).called(1);
+    verify(() => osc.setParameter('Intens', 0)).called(1);
     final sliderFinder = find.byType(Slider);
     expect(sliderFinder, findsOneWidget);
     await tester.drag(sliderFinder, const Offset(100.0, 0.0));
     await tester.pumpAndSettle();
-    verify(osc.setParameter('Intens', any)).called(1);
+    verify(() => osc.setParameter('Intens', any())).called(2);
   });
 }
 

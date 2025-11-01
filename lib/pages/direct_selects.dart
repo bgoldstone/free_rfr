@@ -72,16 +72,17 @@ class _DirectSelectsState extends State<DirectSelects> {
                       callDS(ctx);
                     });
                   },
-                  fontSize: 10,
+                  padding: 1,
                   isSelected: type == entry.key,
                 );
               }).toList(),
-              2.2),
+              scale: 2),
         ),
 
         // Bottom row
         Expanded(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Bottom left: grid of buttons
               Expanded(
@@ -95,19 +96,17 @@ class _DirectSelectsState extends State<DirectSelects> {
                           4,
                           directSelects.entries.map((ds) {
                             return Button(
-                              "${ds.value.name} (${ds.value.objectNumber})",
+                              "${ds.value.name}\n(${ds.value.objectNumber})",
                               () {
                                 widget.osc.sendOSCMessage(OSCMessage(
                                     '/eos/ds/1/${ds.key}',
                                     arguments: [1]));
                                 callDS(ctx);
                               },
-                              fontSize: 5 *
-                                  MediaQuery.of(context).size.aspectRatio /
-                                  2,
+                              padding: 2,
                             );
                           }).toList(),
-                          4);
+                          scale: 2);
                     },
                   ),
                 ),

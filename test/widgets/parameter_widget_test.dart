@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/parameters.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
-import '../free_rfr_test.mocks.dart';
-import 'package:mockito/mockito.dart';
 import 'package:free_rfr/widgets/parameter_widget.dart';
+
+import '../mocks/MockOSC.dart';
 
 final MockOSC mockOSC = MockOSC();
 void main() {
@@ -20,43 +21,43 @@ void main() {
     expect(maxButton, findsOneWidget);
     await tester.tap(maxButton);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} Full#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} Full#"))
         .called(1);
     final plus10Button = find.text('+10');
     expect(plus10Button, findsOneWidget);
     await tester.tap(plus10Button);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} +10#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} +10#"))
         .called(1);
     final minus10Button = find.text('-10');
     expect(minus10Button, findsOneWidget);
     await tester.tap(minus10Button);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} -10#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} -10#"))
         .called(1);
     final plus1Button = find.text('+1');
     expect(plus1Button, findsOneWidget);
     await tester.tap(plus1Button);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} +01#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} +01#"))
         .called(1);
     final minus1Button = find.text('-1');
     expect(minus1Button, findsOneWidget);
     await tester.tap(minus1Button);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} -01#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} -01#"))
         .called(1);
     final homeButton = find.text('Home');
     expect(homeButton, findsOneWidget);
     await tester.tap(homeButton);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} Home#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} Home#"))
         .called(1);
     final minButton = find.text('Min    ');
     expect(minButton, findsOneWidget);
     await tester.tap(minButton);
     await tester.pump();
-    verify(mockOSC.sendCmd("select_last ${paramType.getEosName()} Min#"))
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} Min#"))
         .called(1);
   });
 

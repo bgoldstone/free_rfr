@@ -5,10 +5,10 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-import '../../../free_rfr_test.mocks.dart';
+import '../../../mocks/MockOSC.dart';
 
 void main() {
   MockOSC osc = MockOSC();
@@ -21,7 +21,8 @@ void main() {
       var colorPickerFinder = find.byType(ColorPicker);
       expect(colorPickerFinder, findsOneWidget);
       final colorPickerCenter = tester.getCenter(colorPickerFinder);
-      when(osc.sendColor(any, any, any)).thenAnswer((_) async => {});
+      when(() => osc.sendColor(any(), any(), any()))
+          .thenAnswer((_) async => {});
       await tester.tapAt(
           Offset(colorPickerCenter.dx + 25, colorPickerCenter.dy + 25),
           kind: PointerDeviceKind.mouse);
@@ -29,7 +30,8 @@ void main() {
       // verify(osc.sendColor(any, any, any)).called(1);
       var colorFinder = find.text('Color Home');
       expect(colorFinder, findsOneWidget);
-      when(osc.sendCmd("select_last Color Home#")).thenAnswer((_) async => {});
+      when(() => osc.sendCmd("select_last Color Home#"))
+          .thenAnswer((_) async => {});
       await tester.tap(colorFinder);
       await tester.pump();
       // verify(osc.sendCmd("select_last Color Home#")).called(1);

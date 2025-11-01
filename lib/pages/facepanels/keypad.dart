@@ -19,113 +19,150 @@ class Keypad extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
     List<Button> keypad = [
-      Button('Go To Cue', () {
-        osc.sendKey('go_to_cue');
-      }, fontSize: 17.4),
-      Button('Addr', () {
-        osc.sendKey('address');
-      }, fontSize: 20),
-      Button('Last', () {
-        osc.sendKey('last');
-      }, fontSize: 20),
-      Button('Next', () {
-        osc.sendKey('next');
-      }, fontSize: 20),
-      Button('+', () {
-        osc.sendKey('plus');
-      }, fontSize: 30),
-      Button('Thru', () {
-        osc.sendKey('thru');
-      }, fontSize: 20),
-      Button('-', () {
-        osc.sendKey('-');
-      }, fontSize: 30),
-      Button('Group', () {
-        osc.sendKey('group');
-      }, fontSize: 20),
+      Button(
+        'Go To Cue',
+        () {
+          osc.sendKey('go_to_cue');
+        },
+      ),
+      Button(
+        'Addr',
+        () {
+          osc.sendKey('address');
+        },
+      ),
+      Button(
+        'Last',
+        () {
+          osc.sendKey('last');
+        },
+      ),
+      Button(
+        'Next',
+        () {
+          osc.sendKey('next');
+        },
+      ),
+      Button(
+        '+',
+        () {
+          osc.sendKey('plus');
+        },
+      ),
+      Button(
+        'Thru',
+        () {
+          osc.sendKey('thru');
+        },
+      ),
+      Button(
+        '-',
+        () {
+          osc.sendKey('-');
+        },
+      ),
+      Button(
+        'Group',
+        () {
+          osc.sendKey('group');
+        },
+      ),
       Button(
         '7',
         () {
           osc.sendKey('7');
         },
-        fontSize: 30,
       ),
       Button(
         '8',
         () {
           osc.sendKey('8');
         },
-        fontSize: 30,
       ),
       Button(
         '9',
         () {
           osc.sendKey('9');
         },
-        fontSize: 30,
       ),
-      Button('Out', () {
-        osc.sendKey('out');
-      }, fontSize: 20),
+      Button(
+        'Out',
+        () {
+          osc.sendKey('out');
+        },
+      ),
       Button(
         '4',
         () {
           osc.sendKey('4');
         },
-        fontSize: 30,
       ),
       Button(
         '5',
         () {
           osc.sendKey('5');
         },
-        fontSize: 30,
       ),
       Button(
         '6',
         () {
           osc.sendKey('6');
         },
-        fontSize: 30,
       ),
-      Button('Full', () {
-        osc.sendKey('full');
-      }, fontSize: 20),
+      Button(
+        'Full',
+        () {
+          osc.sendKey('full');
+        },
+      ),
       Button(
         '1',
         () {
           osc.sendKey('1');
         },
-        fontSize: 30,
       ),
       Button(
         '2',
         () {
           osc.sendKey('2');
         },
-        fontSize: 30,
       ),
-      Button('3', () {
-        osc.sendKey('3');
-      }, fontSize: 30),
+      Button(
+        '3',
+        () {
+          osc.sendKey('3');
+        },
+      ),
       Button('At', () {
         osc.sendKey('at');
       }),
-      Button('Clear', () {
-        osc.sendKey('clear_cmd');
-        ctx.commandLine = 'LIVE: ';
-      }, fontSize: 18.5),
-      Button('0', () {
-        osc.sendKey('0');
-      }, fontSize: 30),
-      Button('.', () {
-        osc.sendKey('.');
-      }, fontSize: 30),
-      Button('Enter', () {
-        osc.sendKey('enter');
-        isKeypadWindow ? Navigator.of(context).pop() : null;
-      }, fontSize: 18.5),
+      Button(
+        'Clear',
+        () {
+          osc.sendKey('clear_cmd');
+          ctx.commandLine = 'LIVE: ';
+        },
+      ),
+      Button(
+        '0',
+        () {
+          osc.sendKey('0');
+        },
+      ),
+      Button(
+        '.',
+        () {
+          osc.sendKey('.');
+        },
+      ),
+      Button(
+        'Enter',
+        () {
+          osc.sendKey('enter');
+          isKeypadWindow ? Navigator.of(context).pop() : null;
+        },
+      ),
     ];
-    return Grid(4, keypad, scale);
+    return Grid(4, keypad);
   }
 }

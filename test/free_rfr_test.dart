@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/free_rfr.dart';
-import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/channel_check.dart';
 import 'package:free_rfr/pages/controls.dart';
 import 'package:free_rfr/pages/cues.dart';
@@ -12,15 +11,14 @@ import 'package:free_rfr/pages/direct_selects.dart';
 import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
-import 'free_rfr_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<OSC>()])
+import 'mocks/MockOSC.dart';
+
 const blackWhite = [Colors.black, Colors.white];
 void main() {
-  final OSC osc = MockOSC();
+  final MockOSC osc = MockOSC();
   Future<void> setUp(WidgetTester tester) async {
     var freeRFRContext = FreeRFRContext();
     freeRFRContext.commandLine = '';
@@ -119,9 +117,10 @@ void main() {
 
   testWidgets('Test Backspace Functionality', (WidgetTester tester) async {
     await setUp(tester);
+    when(() => osc.sendKey('clear_cmdline')).thenAnswer((invocation) async {});
     await tester.tap(find.byIcon(Icons.backspace));
     await tester.pump();
-    verify(osc.sendKey('clear_cmdline')).called(1);
+    verify(() => osc.sendKey('clear_cmdline')).called(1);
   });
 
   testWidgets('Test Shutdown MultiConsole', (WidgetTester tester) async {
@@ -136,8 +135,10 @@ void main() {
         equals('Shut Down MultiConsole'));
     await tester.tap(find.byIcon(Icons.power_settings_new));
     await tester.pump();
+    when(() => osc.shutdownMultiConsole()).thenAnswer((invocation) async {});
+    when(() => osc.close()).thenAnswer((invocation) async {});
     await tester.tap(find.text("OK"));
-    verify(osc.shutdownMultiConsole()).called(1);
+    verify(() => osc.shutdownMultiConsole()).called(1);
   });
 
   testWidgets('Test Keyboard Navigation', (WidgetTester tester) async {

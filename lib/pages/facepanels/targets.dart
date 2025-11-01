@@ -11,76 +11,121 @@ class Target extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Button> targets = [
-      Button('Part', () {
-        osc.sendKey(
-          'part',
-        );
-      }, fontSize: 30),
-      Button('Cue', () {
-        osc.sendKey(
-          'cue',
-        );
-      }, fontSize: 30),
-      Button('Record', () {
-        osc.sendKey(
-          'record',
-        );
-      }, fontSize: 27),
-      Button('Preset', () {
-        osc.sendKey(
-          'preset',
-        );
-      }, fontSize: 30),
-      Button('Sub', () {
-        osc.sendKey(
-          'sub',
-        );
-      }, fontSize: 30),
-      Button('Delay', () {
-        osc.sendKey(
-          'delay',
-        );
-      }, fontSize: 30),
-      Button('Delete', () {
-        osc.sendKey(
-          'delete',
-        );
-      }, fontSize: 30),
-      Button('Copy To', () {
-        osc.sendKey(
-          'copy_to',
-        );
-      }, fontSize: 30),
-      Button('Recall From', () {
-        osc.sendKey(
-          'recall_from',
-        );
-      }, fontSize: 30),
-      Button('Update', () {
-        osc.sendKey(
-          'update',
-        );
-      }, fontSize: 27),
-      Button('Q-Only/Track', () {
-        osc.sendKey(
-          'cueonlytrack',
-        );
-      }, fontSize: 25),
-      Button('Save', () {
-        osc.sendKey(
-          'save_show',
-        );
-      }, fontSize: 30),
-      Button('Last', () {
-        osc.sendKey('last');
-      }, fontSize: 30),
-      Button('Next', () {
-        osc.sendKey('next');
-      }, fontSize: 30),
-      Button('Enter', () {
-        osc.sendKey('enter');
-      }, fontSize: 30),
+      Button(
+        'Part',
+        () {
+          osc.sendKey(
+            'part',
+          );
+        },
+      ),
+      Button(
+        'Cue',
+        () {
+          osc.sendKey(
+            'cue',
+          );
+        },
+      ),
+      Button(
+        'Record',
+        () {
+          osc.sendKey(
+            'record',
+          );
+        },
+      ),
+      Button(
+        'Preset',
+        () {
+          osc.sendKey(
+            'preset',
+          );
+        },
+      ),
+      Button(
+        'Sub',
+        () {
+          osc.sendKey(
+            'sub',
+          );
+        },
+      ),
+      Button(
+        'Delay',
+        () {
+          osc.sendKey(
+            'delay',
+          );
+        },
+      ),
+      Button(
+        'Delete',
+        () {
+          osc.sendKey(
+            'delete',
+          );
+        },
+      ),
+      Button(
+        'Copy To',
+        () {
+          osc.sendKey(
+            'copy_to',
+          );
+        },
+      ),
+      Button(
+        'Recall From',
+        () {
+          osc.sendKey(
+            'recall_from',
+          );
+        },
+      ),
+      Button(
+        'Update',
+        () {
+          osc.sendKey(
+            'update',
+          );
+        },
+      ),
+      Button(
+        'Q-Only/Track',
+        () {
+          osc.sendKey(
+            'cueonlytrack',
+          );
+        },
+      ),
+      Button(
+        'Save',
+        () {
+          osc.sendKey(
+            'save_show',
+          );
+        },
+      ),
+      Button(
+        'Last',
+        () {
+          osc.sendKey('last');
+        },
+      ),
+      Button(
+        'Next',
+        () {
+          osc.sendKey('next');
+        },
+      ),
+      Button(
+        'Enter',
+        () {
+          osc.sendKey('enter');
+        },
+      ),
     ];
-    return Grid(3, targets, 2.22);
+    return Grid(3, targets, scale: 2.22);
   }
 }

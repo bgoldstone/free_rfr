@@ -47,48 +47,67 @@ class FaderControlsState extends State<FaderControls> {
   @override
   Widget build(BuildContext context) {
     //return grid of faders
-    debugPrint(faders.toString());
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    if (faderPage == 1) return;
-                    widget.osc.send("/eos/fader/1/page/-1", []);
-                    faderPage--;
-                  });
-                },
-                icon: const Icon(Icons.arrow_back),
-              ),
-              Text('Faders (${pageLocale[locale]} $faderPage)'),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    widget.osc.send("/eos/fader/1/page/1", []);
-                    faderPage++;
-                  });
-                },
-                icon: const Icon(Icons.arrow_forward),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: MediaQuery.sizeOf(context).width * 1,
-            height: MediaQuery.sizeOf(context).height * 2,
-            child: GridView.count(
-              crossAxisCount: 5,
-              children: faders
-                  .map((fader) => fader.buildFader(widget.osc, setState))
-                  .toList(),
+    if (faders.length < 10) {
+      return Center(
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Loading Faders...'),
+            SizedBox(height: 10),
+            CircularProgressIndicator(),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  if (faderPage == 1) return;
+                  widget.osc.send("/eos/fader/1/page/-1", []);
+                  faderPage--;
+                });
+              },
+              icon: const Icon(Icons.arrow_back),
             ),
-          )
-        ],
-      ),
+            Text('Faders (${pageLocale[locale]} $faderPage)'),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  widget.osc.send("/eos/fader/1/page/1", []);
+                  faderPage++;
+                });
+              },
+              icon: const Icon(Icons.arrow_forward),
+            ),
+          ],
+        ),
+        Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: faders
+                    .sublist(0, 5)
+                    .map((fader) => fader.buildFader(widget.osc, setState))
+                    .toList(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: faders
+                    .sublist(5, 10)
+                    .map((fader) => fader.buildFader(widget.osc, setState))
+                    .toList(),
+              ),
+            ])
+      ],
     );
   }
 }
@@ -102,29 +121,29 @@ class Fader {
   Fader(this.name, this.index, this.faderPage, this.intensity);
 
   Widget buildFader(OSC osc, Function(void Function()) setState) {
-    return SizedBox(
-        height: 400,
-        child: Card(
-            child: Column(
-          children: [
-            Text(name),
-            RotatedBox(
-              quarterTurns: 3,
-              child: Slider(
-                value: intensity * 100,
-                min: 0,
-                max: 100,
-                onChanged: (value) {
-                  setState(() {
-                    intensity = value / 100;
-                    osc.send("/eos/fader/1/$index", [intensity]);
-                  });
-                },
-                onChangeEnd: (value) {},
-              ),
-            )
-          ],
-        )));
+    return Expanded(
+      child: Card(
+          child: Column(
+        children: [
+          Text(name),
+          RotatedBox(
+            quarterTurns: 3,
+            child: Slider(
+              value: intensity * 100,
+              min: 0,
+              max: 100,
+              onChanged: (value) {
+                setState(() {
+                  intensity = value / 100;
+                  osc.send("/eos/fader/1/$index", [intensity]);
+                });
+              },
+              onChangeEnd: (value) {},
+            ),
+          )
+        ],
+      )),
+    );
   }
 
   void update(String name, int index, int faderPage, double intensity) {

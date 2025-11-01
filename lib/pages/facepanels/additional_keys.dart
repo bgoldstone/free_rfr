@@ -9,50 +9,88 @@ class AdditionalKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double? fontSize = 30;
     List<Button> additionalKeys = [
-      Button('Mark', () {
-        osc.sendKey('mark');
-      }, fontSize: fontSize),
-      Button('Sneak', () {
-        osc.sendKey('sneak');
-      }, fontSize: fontSize),
-      Button('Rem Dim', () {
-        osc.sendKey('rem_dim');
-      }, fontSize: fontSize),
-      Button('Select Manual', () {
-        osc.sendKey('select_manual');
-      }, fontSize: fontSize),
-      Button('Select Last', () {
-        osc.sendKey('select_last');
-      }, fontSize: fontSize),
-      Button('Select Active', () {
-        osc.sendKey('select_active');
-      }, fontSize: fontSize),
-      Button('Home', () {
-        osc.sendKey('home');
-      }, fontSize: fontSize),
-      Button('Level', () {
-        osc.sendKey('level');
-      }, fontSize: fontSize),
-      Button('Time', () {
-        osc.sendKey('time');
-      }, fontSize: fontSize),
-      Button('Live', () {
-        osc.sendLive();
-      }, fontSize: fontSize),
-      Button('Blind', () {
-        osc.sendBlind();
-      }, fontSize: fontSize),
-      Button('Undo', () {
-        osc.sendKey('undo');
-      }, fontSize: fontSize),
+      Button(
+        'Mark',
+        () {
+          osc.sendKey('mark');
+        },
+      ),
+      Button(
+        'Sneak',
+        () {
+          osc.sendKey('sneak');
+        },
+      ),
+      Button(
+        'Rem Dim',
+        () {
+          osc.sendKey('rem_dim');
+        },
+      ),
+      Button(
+        'Select Manual',
+        () {
+          osc.sendKey('select_manual');
+        },
+      ),
+      Button(
+        'Select Last',
+        () {
+          osc.sendKey('select_last');
+        },
+      ),
+      Button(
+        'Select Active',
+        () {
+          osc.sendKey('select_active');
+        },
+      ),
+      Button(
+        'Home',
+        () {
+          osc.sendKey('home');
+        },
+      ),
+      Button(
+        'Level',
+        () {
+          osc.sendKey('level');
+        },
+      ),
+      Button(
+        'Time',
+        () {
+          osc.sendKey('time');
+        },
+      ),
+      Button(
+        'Live',
+        () {
+          osc.sendLive();
+        },
+      ),
+      Button(
+        'Blind',
+        () {
+          osc.sendBlind();
+        },
+      ),
+      Button(
+        'Undo',
+        () {
+          osc.sendKey('undo');
+        },
+      ),
       Button('', () {}),
       Button('', () {}),
-      Button('Enter', () {
-        osc.sendKey('enter');
-      }, fontSize: fontSize),
+      Button(
+        'Enter',
+        () {
+          osc.sendKey('enter');
+        },
+      ),
     ];
-    return Grid(3, additionalKeys, 2.2);
+    return Grid(3, additionalKeys);
   }
 }

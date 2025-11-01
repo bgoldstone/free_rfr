@@ -7,7 +7,7 @@ A new RFR for ETC Eos-based consoles using OSC Communication
 > **Warning**  
 > This project is under active development and breaking changes are likely. Use at your own risk!
 # Flutter Version
-Current Flutter Version: 3.24.3
+Current Flutter Version: 3.32.8
 
 ## Hot Keys
 Most of the hotkeys are mapped to eos hotkeys which are found [here](https://www.etcconnect.com/webdocs/Controls/EosFamilyOnlineHelp/en-us/Content/03_System_Basics/Keyboard_Shortcuts.htm).

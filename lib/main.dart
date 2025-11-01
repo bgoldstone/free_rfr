@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/free_rfr.dart';
 import 'package:free_rfr/objects/osc_control.dart';
@@ -19,7 +20,9 @@ void main() async {
     await hotKeyManager.unregisterAll();
   }
   runApp(ChangeNotifierProvider(
-      create: (context) => FreeRFRContext(), child: const MyApp()));
+    create: (context) => FreeRFRContext(),
+    child: ScreenUtilInit(builder: (context, child) => const MyApp()),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -108,7 +111,6 @@ class _MyAppState extends State<MyApp> {
           return FutureBuilder<OSC>(
               future: _oscFuture,
               builder: (ctx, snapshot) {
-                debugPrint("Has Data? ${snapshot.hasData}");
                 if (snapshot.hasData) {
                   return FreeRFR(
                       osc: snapshot.data!,
