@@ -35,6 +35,7 @@ void main() {
         'Undo': 'undo',
         'Enter': 'enter',
       };
+      when(() => mockOSC.sendKey(any())).thenAnswer((invocation) async {});
       for (var entry in buttonLabelsToKey.entries) {
         final buttonFinder = find.text(entry.key);
         expect(buttonFinder, findsOneWidget);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -10,6 +11,9 @@ import 'package:osc/osc.dart';
 
 class MockSocket extends Mock implements Socket {}
 
+class MockedStreamSubscription<T> extends Mock
+    implements StreamSubscription<T> {}
+
 Future<void> main() async {
   test('Test OSC Contruction', () async {
     late OSCMessage msg;
@@ -18,11 +22,11 @@ Future<void> main() async {
 
     when(() => client.address).thenReturn(InternetAddress('127.0.0.1'));
     when(() => client.port).thenReturn(12345);
-    OSC osc = await setUp(client, freeRFRContext);
-    when(() => client.listen(any())).thenAnswer((_) {
-      // Empty stream of Uint8List
-      return const Stream<Uint8List>.empty().listen(null);
+    when(() => client.listen(any<void Function(Uint8List?)>()))
+        .thenAnswer((invocation) {
+      return MockedStreamSubscription<Uint8List>();
     });
+    OSC osc = await setUp(client, freeRFRContext);
     verify(() => client.listen(any())).called(1);
     FaderControlsState state = FaderControlsState();
     //test setup fader bank.
@@ -57,7 +61,8 @@ Future<void> main() async {
     msg = OSCMessage('/eos/key/live', arguments: []);
     osc.sendBlind();
     msg = OSCMessage('/eos/key/blind', arguments: []);
-
+    when(() => client.flush()).thenAnswer((invocation) async {});
+    when(() => client.close()).thenAnswer((invocation) async {});
     await osc.close();
     verify(() => client.flush()).called(1);
     verify(() => client.close()).called(1);

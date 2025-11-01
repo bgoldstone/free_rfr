@@ -117,6 +117,7 @@ void main() {
 
   testWidgets('Test Backspace Functionality', (WidgetTester tester) async {
     await setUp(tester);
+    when(() => osc.sendKey('clear_cmdline')).thenAnswer((invocation) async {});
     await tester.tap(find.byIcon(Icons.backspace));
     await tester.pump();
     verify(() => osc.sendKey('clear_cmdline')).called(1);
@@ -134,6 +135,8 @@ void main() {
         equals('Shut Down MultiConsole'));
     await tester.tap(find.byIcon(Icons.power_settings_new));
     await tester.pump();
+    when(() => osc.shutdownMultiConsole()).thenAnswer((invocation) async {});
+    when(() => osc.close()).thenAnswer((invocation) async {});
     await tester.tap(find.text("OK"));
     verify(() => osc.shutdownMultiConsole()).called(1);
   });
