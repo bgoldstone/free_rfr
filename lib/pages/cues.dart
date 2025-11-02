@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
+import 'package:free_rfr/shortcuts.dart';
 import 'package:provider/provider.dart';
 
 class Cues extends StatelessWidget {
@@ -97,6 +98,8 @@ class Cues extends StatelessWidget {
 
   void editLabel(BuildContext context, double cueNumber) {
     String text = '';
+    final ctx = context.read<FreeRFRContext>();
+    unregisterHotKeys(context);
     showDialog(
         context: context,
         builder: (context) {
@@ -109,12 +112,16 @@ class Cues extends StatelessWidget {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
+                  ctx.hasHotKeyBeenUninitialized = true;
+                  registerHotKeys(osc);
                   Navigator.of(context).pop();
                 },
               ),
               TextButton(
                 child: const Text('Ok'),
                 onPressed: () {
+                  ctx.hasHotKeyBeenUninitialized = true;
+                  registerHotKeys(osc);
                   osc.setLabel(cueNumber, text);
                   Navigator.of(context).pop();
                 },

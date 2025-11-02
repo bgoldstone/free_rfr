@@ -49,7 +49,7 @@ class _FreeRFRState extends State<FreeRFR> {
       ),
       DirectSelects(osc: widget.osc),
     ];
-    //if desktop os
+    //if desktop os and popup is not open
     if (!(Platform.isAndroid || Platform.isIOS)) {
       registerHotKeys(widget.osc);
       setFreeRFRHotKeys();
@@ -64,8 +64,6 @@ class _FreeRFRState extends State<FreeRFR> {
     hotKeyManager.register(pageLeft, keyDownHandler: (key) {
       if (index > 0) {
         setState(() => index--);
-      } else {
-        setState(() {});
       }
     });
     HotKey pageRight =
@@ -74,8 +72,6 @@ class _FreeRFRState extends State<FreeRFR> {
       debugPrint("${index + 1} < ${pages.length}");
       if (index + 1 < pages.length) {
         setState(() => index++);
-      } else {
-        setState(() {});
       }
     });
   }
@@ -92,6 +88,10 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
+    if (ctx.hasHotKeyBeenUninitialized) {
+      setFreeRFRHotKeys();
+      ctx.hasHotKeyBeenUninitialized = false;
+    }
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
