@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:free_rfr/configurations/scroll_behavior.dart';
 import 'package:free_rfr/free_rfr.dart';
@@ -129,6 +130,30 @@ class _MyAppState extends State<MyApp> {
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return Shortcuts(
+          shortcuts: {
+            LogicalKeySet(LogicalKeyboardKey.arrowUp): const DoNothingIntent(),
+            LogicalKeySet(LogicalKeyboardKey.arrowDown):
+                const DoNothingIntent(),
+            LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+                const DoNothingIntent(),
+            LogicalKeySet(LogicalKeyboardKey.arrowRight):
+                const DoNothingIntent(),
+            LogicalKeySet(LogicalKeyboardKey.tab): const DoNothingIntent(),
+            LogicalKeySet(LogicalKeyboardKey.tab, LogicalKeyboardKey.shift):
+                const DoNothingIntent(),
+          },
+          child: Actions(
+            actions: {
+              DoNothingIntent: CallbackAction<DoNothingIntent>(
+                onInvoke: (intent) => null, // Swallow it
+              ),
+            },
+            child: child!,
+          ),
+        );
+      },
     );
   }
 }

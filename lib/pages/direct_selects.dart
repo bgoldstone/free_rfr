@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
+import 'package:free_rfr/shortcuts.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:free_rfr/widgets/grid.dart';
 import 'package:osc/osc.dart';
@@ -95,15 +96,28 @@ class _DirectSelectsState extends State<DirectSelects> {
                       return Grid(
                           4,
                           directSelects.entries.map((ds) {
+                            var address = '/eos/ds/1/${ds.key}';
                             return Button(
                               "${ds.value.name}\n(${ds.value.objectNumber})",
                               () {
-                                widget.osc.sendOSCMessage(OSCMessage(
-                                    '/eos/ds/1/${ds.key}',
-                                    arguments: [1]));
+                                widget.osc.send(
+                                  address,
+                                  [1],
+                                );
                                 callDS(ctx);
                               },
                               padding: 2,
+                              onLongPress: () {
+                                if (type != 'chan') {
+                                  showEditLabelDialog(
+                                    context,
+                                    type,
+                                    ds.value.objectNumber.toString(),
+                                    widget.osc,
+                                  );
+                                  callDS(ctx);
+                                }
+                              },
                             );
                           }).toList(),
                           scale: 2);
@@ -156,5 +170,54 @@ class _DirectSelectsState extends State<DirectSelects> {
         ),
       ],
     );
+  }
+
+  void showEditLabelDialog(
+      BuildContext context, String dsType, String objectNumber, OSC osc) {
+    String text = '';
+    final ctx = context.read<FreeRFRContext>();
+    unregisterHotKeys(context);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Edit Label'),
+            content: TextField(
+              onChanged: (value) {
+                text = value;
+              },
+              decoration: const InputDecoration(hintText: "Enter new label"),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    ctx.hasHotKeyBeenUninitialized = true;
+                    registerHotKeys(osc);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () {
+                    String? dsName = DirectSelects.dsTypes[dsType];
+                    if (dsName == null) {
+                      dsName = "";
+                    } else {
+                      //make singular and add space at end.
+                      dsName = "${dsName.substring(0, dsName.length - 1)} ";
+                    }
+                    // strip trailing .0 from object number if present.
+                    if (objectNumber.endsWith('.0')) {
+                      objectNumber = objectNumber.split('.').first;
+                    }
+                    osc.send(
+                        "/eos/newcmd", ["$dsName$objectNumber Label $text#"]);
+                    ctx.hasHotKeyBeenUninitialized = true;
+                    registerHotKeys(osc);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OK')),
+            ],
+          );
+        });
   }
 }

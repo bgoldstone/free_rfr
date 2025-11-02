@@ -5,9 +5,13 @@ class Button extends StatelessWidget {
   final String text;
   final double padding;
   final bool isSelected;
+  final Function()? onLongPress;
 
   const Button(this.text, this.onPressed,
-      {super.key, this.padding = 8.0, this.isSelected = false});
+      {super.key,
+      this.padding = 8.0,
+      this.isSelected = false,
+      this.onLongPress = null});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +25,7 @@ class Button extends StatelessWidget {
       padding: EdgeInsets.all(padding),
       child: ElevatedButton(
         onPressed: onPressed,
+        onLongPress: onLongPress == null ? () {} : onLongPress,
         style: buttonStyle,
         child: Text(
           text,

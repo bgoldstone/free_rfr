@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -376,4 +377,8 @@ void registerHotKeys(OSC osc) async {
       scope: HotKeyScope.inapp);
   hotKeyManager.register(parenthesisRight,
       keyDownHandler: (key) => osc.sendCmd(')'));
+}
+
+Future<void> unregisterHotKeys(BuildContext context) async {
+  await hotKeyManager.unregisterAll();
 }
