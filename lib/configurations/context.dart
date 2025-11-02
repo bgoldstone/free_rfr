@@ -14,8 +14,15 @@ class FreeRFRContext extends ChangeNotifier {
   List<double> _hueSaturation = [];
   Map<int, DS> _directSelects = {};
   int _currentConnectionIndex = -1;
+  bool _hasHotKeyBeenUninitialized = false;
 
   ParameterMap get currentChannel => _currentChannel;
+
+  bool get hasHotKeyBeenUninitialized => _hasHotKeyBeenUninitialized;
+  set hasHotKeyBeenUninitialized(bool value) {
+    _hasHotKeyBeenUninitialized = value;
+    notifyListeners();
+  }
 
   set currentChannel(ParameterMap channel) {
     _currentChannel = channel;
