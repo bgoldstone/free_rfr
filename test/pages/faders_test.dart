@@ -19,7 +19,6 @@ void main() {
     expect(find.text('Loading Faders...'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
-  //TODO: Fix broken tests.
   testWidgets(
     'Fader Controls Widget Test',
     (WidgetTester tester) async {

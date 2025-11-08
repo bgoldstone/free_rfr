@@ -53,9 +53,3 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
     );
   }
 }
-
-Widget colorSliderControl(OSC osc) {
-  return Scaffold(
-      appBar: AppBar(title: const Text('Color Adjustments')),
-      body: const Row());
-}
