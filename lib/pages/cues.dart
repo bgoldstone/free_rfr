@@ -11,6 +11,9 @@ class Cues extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
+    final bool isPreviousCueAvailable = ctx.previousCue >= 0;
+    final bool isNextCueAvailable = ctx.nextCue >= 0;
+    final bool isCurrentCueAvailable = ctx.currentCue >= 0;
     const currentCueStyle = TextStyle(fontWeight: FontWeight.bold);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -28,11 +31,12 @@ class Cues extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Card(
             child: ListTile(
-                title: const Text('Previous Cue'),
-                subtitle: Text(ctx.previousCueText),
-                onLongPress: () {
-                  editLabel(context, ctx.previousCue);
-                }),
+              title: const Text('Previous Cue'),
+              subtitle: Text(ctx.previousCueText),
+              onLongPress: () => isPreviousCueAvailable
+                  ? editCueLabel(context, ctx.previousCue)
+                  : null,
+            ),
           ),
         ),
         Padding(
@@ -48,9 +52,9 @@ class Cues extends StatelessWidget {
                 ctx.currentCueText,
                 style: currentCueStyle,
               ),
-              onLongPress: () {
-                editLabel(context, ctx.currentCue);
-              },
+              onLongPress: () => isCurrentCueAvailable
+                  ? editCueLabel(context, ctx.currentCue)
+                  : null,
             ),
           ),
         ),
@@ -60,9 +64,9 @@ class Cues extends StatelessWidget {
             child: ListTile(
               title: const Text('Next Cue'),
               subtitle: Text(ctx.nextCueText),
-              onLongPress: () {
-                editLabel(context, ctx.nextCue);
-              },
+              onLongPress: () => isNextCueAvailable
+                  ? editCueLabel(context, ctx.nextCue)
+                  : null,
             ),
           ),
         ),
@@ -72,10 +76,8 @@ class Cues extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => osc.sendKey('stop'),
-                  onLongPress: () {
-                    editLabel(context, ctx.previousCue);
-                  },
+                  onPressed: () =>
+                      ctx.currentCue > 0.0 ? osc.sendKey('stop') : null,
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.red)),
@@ -84,7 +86,8 @@ class Cues extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => osc.sendKey('go_0'),
+                  onPressed: () =>
+                      ctx.nextCueText.isNotEmpty ? osc.sendKey('go_0') : null,
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.green)),
@@ -96,11 +99,17 @@ class Cues extends StatelessWidget {
     );
   }
 
-  void editLabel(BuildContext context, double cueNumber) {
+  Future<void> editCueLabel(BuildContext context, double cueNumber) async {
+    var ctx = context.read<FreeRFRContext>();
+    await unregisterHotKeys(context);
+    await editLabel(context, cueNumber);
+    ctx.hasHotKeyBeenUninitialized = true;
+    await registerHotKeys(osc);
+  }
+
+  Future<void> editLabel(BuildContext context, double cueNumber) async {
     String text = '';
-    final ctx = context.read<FreeRFRContext>();
-    unregisterHotKeys(context);
-    showDialog(
+    await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -112,16 +121,12 @@ class Cues extends StatelessWidget {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
-                  ctx.hasHotKeyBeenUninitialized = true;
-                  registerHotKeys(osc);
                   Navigator.of(context).pop();
                 },
               ),
               TextButton(
                 child: const Text('Ok'),
                 onPressed: () {
-                  ctx.hasHotKeyBeenUninitialized = true;
-                  registerHotKeys(osc);
                   osc.setLabel(cueNumber, text);
                   Navigator.of(context).pop();
                 },

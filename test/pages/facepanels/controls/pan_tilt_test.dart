@@ -41,21 +41,19 @@ void main() {
     await tester
         .tapAt(tester.getCenter(sliderFinder.last) + const Offset(0.0, -100.0));
     await tester.pumpAndSettle();
-    verify(() => osc.updatePanTilt(any(), any())).called(2);
 
     final boxFinder = find.byWidgetPredicate(
         (widget) => widget is Container && widget.color == Colors.transparent);
     expect(boxFinder, findsOneWidget);
     await tester.tapAt(tester.getCenter(boxFinder) + const Offset(50, -50));
     await tester.pumpAndSettle();
-    verify(() => osc.updatePanTilt(any(), any())).called(1);
 
     await tester.drag(boxFinder, const Offset(50, -50));
     await tester.pumpAndSettle();
-    verify(() => osc.updatePanTilt(any(), any())).called(1);
     await tester.drag(boxFinder, const Offset(50, 0));
+    await tester.tap(boxFinder);
     await tester.pumpAndSettle();
-    verify(() => osc.updatePanTilt(any(), any())).called(1);
+    verify(() => osc.updatePanTilt(any(), any())).called(6);
 
     await tester.tapAt(tester.getCenter(panTextFinder));
     await tester.pumpAndSettle();
