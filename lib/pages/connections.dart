@@ -4,12 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:free_rfr/configurations/context.dart';
-import 'package:osc/osc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../widgets/button.dart';
 
 class Connections extends StatefulWidget {
   final void Function(
@@ -27,7 +24,7 @@ class _ConnectionsState extends State<Connections> {
   Map<String, dynamic> config = {"connections": []};
 
   final String configFile = 'free_rfr.json';
-  Directory path = Directory('');
+  Directory directory = Directory('');
   int listLength = 0;
   TextEditingController userIdController = TextEditingController();
 
@@ -38,30 +35,29 @@ class _ConnectionsState extends State<Connections> {
   }
 
   Future<bool> getConfig() async {
-    path = await getApplicationDocumentsDirectory();
-    if (!path.existsSync()) {
-      path.createSync(recursive: true);
+    directory = await getApplicationDocumentsDirectory();
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
     }
-    File file = File('${path.path}/$configFile');
+    File file = File('${directory.path}/$configFile');
     if (!file.existsSync()) {
       file.createSync();
       file.writeAsString(jsonEncode(config), encoding: utf8);
       return false;
     }
     file.readAsString(encoding: utf8).then((data) {
-      config = jsonDecode(data);
       setState(() {
-        config = config;
+        config = jsonDecode(data);
       });
     });
 
     return true;
   }
 
-  void saveConnections() {
-    File file = File('${path.path}/$configFile');
-    file.writeAsString(jsonEncode(config), encoding: utf8);
-    getConfig();
+  void saveConnections() async {
+    File file = File('${directory.path}/$configFile');
+    await file.writeAsString(jsonEncode(config), encoding: utf8);
+    await getConfig();
   }
 
   @override
@@ -92,15 +88,6 @@ class _ConnectionsState extends State<Connections> {
       ),
       body: Column(
         children: [
-          Button("start server", () {
-            OSCSocket socket = OSCSocket(
-              serverAddress: InternetAddress("0.0.0.0"),
-              serverPort: 8000,
-            );
-            socket.listen((OSCMessage message) {
-              debugPrint("Message received: ${message.address}");
-            });
-          }),
           Expanded(
             child: connectionsList(context.read<FreeRFRContext>()),
           )
