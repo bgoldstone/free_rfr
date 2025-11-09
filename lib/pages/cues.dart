@@ -11,6 +11,9 @@ class Cues extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
+    final bool isPreviousCueAvailable = ctx.previousCue >= 0;
+    final bool isNextCueAvailable = ctx.nextCue >= 0;
+    final bool isCurrentCueAvailable = ctx.currentCue >= 0;
     const currentCueStyle = TextStyle(fontWeight: FontWeight.bold);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -30,7 +33,9 @@ class Cues extends StatelessWidget {
             child: ListTile(
               title: const Text('Previous Cue'),
               subtitle: Text(ctx.previousCueText),
-              onLongPress: () => editCueLabel(context, ctx.previousCue),
+              onLongPress: () => isPreviousCueAvailable
+                  ? editCueLabel(context, ctx.previousCue)
+                  : null,
             ),
           ),
         ),
@@ -47,7 +52,9 @@ class Cues extends StatelessWidget {
                 ctx.currentCueText,
                 style: currentCueStyle,
               ),
-              onLongPress: () => editCueLabel(context, ctx.currentCue),
+              onLongPress: () => isCurrentCueAvailable
+                  ? editCueLabel(context, ctx.currentCue)
+                  : null,
             ),
           ),
         ),
@@ -57,7 +64,9 @@ class Cues extends StatelessWidget {
             child: ListTile(
               title: const Text('Next Cue'),
               subtitle: Text(ctx.nextCueText),
-              onLongPress: () => editCueLabel(context, ctx.nextCue),
+              onLongPress: () => isNextCueAvailable
+                  ? editCueLabel(context, ctx.nextCue)
+                  : null,
             ),
           ),
         ),
@@ -67,7 +76,8 @@ class Cues extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => osc.sendKey('stop'),
+                  onPressed: () =>
+                      ctx.currentCue > 0.0 ? osc.sendKey('stop') : null,
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.red)),
@@ -76,7 +86,8 @@ class Cues extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () => osc.sendKey('go_0'),
+                  onPressed: () =>
+                      ctx.nextCueText.isNotEmpty ? osc.sendKey('go_0') : null,
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.green)),
