@@ -107,14 +107,17 @@ class _DirectSelectsState extends State<DirectSelects> {
                                 callDS(ctx);
                               },
                               padding: 2,
-                              onLongPress: () {
+                              onLongPress: () async {
                                 if (type != 'chan') {
-                                  showEditLabelDialog(
+                                  await unregisterHotKeys(context);
+                                  await showEditLabelDialog(
                                     context,
                                     type,
                                     ds.value.objectNumber.toString(),
                                     widget.osc,
                                   );
+                                  ctx.hasHotKeyBeenUninitialized = true;
+                                  await registerHotKeys(widget.osc);
                                   callDS(ctx);
                                 }
                               },
@@ -172,12 +175,10 @@ class _DirectSelectsState extends State<DirectSelects> {
     );
   }
 
-  void showEditLabelDialog(
-      BuildContext context, String dsType, String objectNumber, OSC osc) {
+  Future<void> showEditLabelDialog(
+      BuildContext context, String dsType, String objectNumber, OSC osc) async {
     String text = '';
-    final ctx = context.read<FreeRFRContext>();
-    unregisterHotKeys(context);
-    showDialog(
+    await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -191,8 +192,6 @@ class _DirectSelectsState extends State<DirectSelects> {
             actions: [
               TextButton(
                   onPressed: () {
-                    ctx.hasHotKeyBeenUninitialized = true;
-                    registerHotKeys(osc);
                     Navigator.pop(context);
                   },
                   child: const Text('Cancel')),
@@ -211,8 +210,6 @@ class _DirectSelectsState extends State<DirectSelects> {
                     }
                     osc.send(
                         "/eos/newcmd", ["$dsName$objectNumber Label $text#"]);
-                    ctx.hasHotKeyBeenUninitialized = true;
-                    registerHotKeys(osc);
                     Navigator.pop(context);
                   },
                   child: const Text('OK')),

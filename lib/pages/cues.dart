@@ -28,11 +28,10 @@ class Cues extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Card(
             child: ListTile(
-                title: const Text('Previous Cue'),
-                subtitle: Text(ctx.previousCueText),
-                onLongPress: () {
-                  editLabel(context, ctx.previousCue);
-                }),
+              title: const Text('Previous Cue'),
+              subtitle: Text(ctx.previousCueText),
+              onLongPress: () => editCueLabel(context, ctx.previousCue),
+            ),
           ),
         ),
         Padding(
@@ -48,9 +47,7 @@ class Cues extends StatelessWidget {
                 ctx.currentCueText,
                 style: currentCueStyle,
               ),
-              onLongPress: () {
-                editLabel(context, ctx.currentCue);
-              },
+              onLongPress: () => editCueLabel(context, ctx.currentCue),
             ),
           ),
         ),
@@ -60,9 +57,7 @@ class Cues extends StatelessWidget {
             child: ListTile(
               title: const Text('Next Cue'),
               subtitle: Text(ctx.nextCueText),
-              onLongPress: () {
-                editLabel(context, ctx.nextCue);
-              },
+              onLongPress: () => editCueLabel(context, ctx.nextCue),
             ),
           ),
         ),
@@ -73,9 +68,6 @@ class Cues extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   onPressed: () => osc.sendKey('stop'),
-                  onLongPress: () {
-                    editLabel(context, ctx.previousCue);
-                  },
                   style: const ButtonStyle(
                       foregroundColor:
                           WidgetStatePropertyAll<Color>(Colors.red)),
@@ -96,11 +88,17 @@ class Cues extends StatelessWidget {
     );
   }
 
-  void editLabel(BuildContext context, double cueNumber) {
+  Future<void> editCueLabel(BuildContext context, double cueNumber) async {
+    var ctx = context.read<FreeRFRContext>();
+    await unregisterHotKeys(context);
+    await editLabel(context, cueNumber);
+    ctx.hasHotKeyBeenUninitialized = true;
+    await registerHotKeys(osc);
+  }
+
+  Future<void> editLabel(BuildContext context, double cueNumber) async {
     String text = '';
-    final ctx = context.read<FreeRFRContext>();
-    unregisterHotKeys(context);
-    showDialog(
+    await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -112,16 +110,12 @@ class Cues extends StatelessWidget {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
-                  ctx.hasHotKeyBeenUninitialized = true;
-                  registerHotKeys(osc);
                   Navigator.of(context).pop();
                 },
               ),
               TextButton(
                 child: const Text('Ok'),
                 onPressed: () {
-                  ctx.hasHotKeyBeenUninitialized = true;
-                  registerHotKeys(osc);
                   osc.setLabel(cueNumber, text);
                   Navigator.of(context).pop();
                 },
