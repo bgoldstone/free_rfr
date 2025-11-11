@@ -18,6 +18,13 @@ void main() {
     };
     await setupParameterWidget(tester, mockOSC, paramType, freeRFRContext);
     final maxButton = find.text('Max   ');
+
+    final paramButton = find.text('Pan [0.00]');
+    expect(paramButton, findsOneWidget);
+    await tester.tap(paramButton);
+    await tester.pump();
+    verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()}"))
+        .called(1);
     expect(maxButton, findsOneWidget);
     await tester.tap(maxButton);
     await tester.pump();
@@ -59,6 +66,17 @@ void main() {
     await tester.pump();
     verify(() => mockOSC.sendCmd("select_last ${paramType.getEosName()} Min#"))
         .called(1);
+  });
+
+  testWidgets('Parameter Widgets Pan/Tilt Test', (WidgetTester tester) async {
+    final freeRFRContext = FreeRFRContext();
+    ParameterRole role = ParameterRole.panTilt;
+    freeRFRContext.currentChannel = {
+      ParameterType.pan: [0],
+      ParameterType.tilt: [0]
+    };
+    await setupParametersWidget(tester, mockOSC, role, freeRFRContext);
+    expect(find.byType(ParameterWidget), findsNWidgets(2));
   });
 
   testWidgets('Parameter Widgets Test', (WidgetTester tester) async {
