@@ -17,11 +17,11 @@ The exception is the <ins>**home**</ins> key for page left and <ins>**end**</ins
 ## Requirements
 I have gotten this to work on Eos v3.2, but could work on versions earlier. 
 
-This uses UDP protocol, so the port must be configured properly. See [Getting Started](#getting-started)
+This uses TCP OSC on port 3032, so the console must allow TCP OSC connections from the device running free_rfr. See [Getting Started](#getting-started)
 
 ## Getting Started
 1. Please set up these settings on your console and ensure everything in the red box is configured as in the screenshot.
-2. These settings can be found in the Browser -> System Settings -> System -> Show Control -> OSC Tab (Should default to 3032 by default though)
+2. These settings can be found in the Browser -> System Settings -> System -> Show Control -> OSC Tab. Use the TCP OSC port 3032 (the default).
 <img width="1472" height="556" alt="image" src="https://github.com/user-attachments/assets/955dad94-2bf4-4b46-bf06-e50866445910" />
 3. Put in a Friendly name to remember your Eos Console by
 4. To find the IP address of your console, you can select the 'About' key on your eos console. the IP Addresses are located here:

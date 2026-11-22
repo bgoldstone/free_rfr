@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Update README to describe TCP OSC on port 3032.
+
 - Fix color picker RGB output on Flutter 3.50 and support RGBW, CMY, and other color wheels.
 
 - Optimized OSC framing, command delivery, inbound parsing, and config loading.
