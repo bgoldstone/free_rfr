@@ -5,6 +5,9 @@
 - `flutter test` runs only in the Windows CI job; the Linux job's test step is commented out.
 - Focused test example: `flutter test test/pages/facepanels/controls/color_picker_test.dart`.
 - Format with `dart format .` before PR (per `CONTRIBUTING.md`).
+- Coverage command: `flutter test --coverage`; `coverage/` is generated and gitignored.
+- Keep `CHANGELOG.md` updated in the same commit as user-visible changes; move `Unreleased` entries under a version heading when `pubspec.yaml` is tagged/released.
+- Do not read `CHANGELOG.md` unless explicitly asked; update it from the current task context without opening it.
 - Flutter version is pinned to `3.50.1` in the workflow and README; Android CI uses Temurin JDK 21.
 - From `android/`, verify Kotlin Gradle plugin drift with `.\gradlew kgpVersion -q`; Flutter has warned on older pins.
 
@@ -18,9 +21,12 @@
 
 ## Testing quirks
 - Most tests mirror `lib/` and need `ChangeNotifierProvider` + `MaterialApp`/`Scaffold` around the widget under test.
-- `test/connections_test.dart` fakes `path_provider`; other tests do not need a live Eos console. There are no fixture dirs or skipped tests.
+- `test/connections_test.dart` fakes `PathProviderPlatform.instance` (not just the legacy method channel) because Windows `path_provider` uses FFI; use a per-test temp directory for `free_rfr.json`. Other tests do not need a live Eos console. There are no fixture dirs or skipped tests.
 - Platform branches are forced with `debugDefaultTargetPlatformOverride`; reset it in `finally`.
 - Fader tests need `registerFallbackValue(FaderControlsState())` for mocktail matchers.
+- `MockOSC` overrides `sendOSCMessage`, so `mocktail.when()` cannot stub it; use a recording subclass like `RecordingMockOSC` in `test/pages/direct_selects_test.dart`.
+- Hotkey-dependent tests must mock both `dev.leanflutter.plugins/hotkey_manager` and `dev.leanflutter.plugins/hotkey_manager_event`, and reset the singleton with `hotKeyManager.unregisterAll()`.
+- `Connections.getConfig()` returns before `readAsString().then(setState)` completes; assert the JSON file rather than waiting for saved entries to appear in the UI.
 - `test/common.dart:3` `ignoreErrors()` is misnamed: it suppresses non-overflow Flutter errors and prints overflow errors.
 - `test/main_test.dart` calls `entry.main()` without awaiting; do not treat it as deterministic async startup coverage.
 
