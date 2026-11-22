@@ -7,7 +7,7 @@ name: Flutter Build
 
 env:
   FLUTTER_VERSION: 3.50.1
-  SIGN_ANDROID_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
+  SIGN_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
       - name: Prepare Android signing
-        if: env.SIGN_ANDROID_RELEASE == 'true'
+        if: env.SIGN_RELEASE == 'true'
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -75,7 +75,7 @@ jobs:
       - run: flutter build appbundle --release
       - run: flutter build apk --release
       - name: Verify signed Android artifacts
-        if: env.SIGN_ANDROID_RELEASE == 'true'
+        if: env.SIGN_RELEASE == 'true'
         shell: bash
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -119,24 +119,54 @@ jobs:
       - name: Upload Android AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SIGN_ANDROID_RELEASE == 'true' && 'free_rfr-android-aab-signed' || 'free_rfr-android-aab' }}
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-android-aab-signed' || 'free_rfr-android-aab' }}
           path: build/app/outputs/bundle/release/
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SIGN_ANDROID_RELEASE == 'true' && 'free_rfr-android-apk-signed' || 'free_rfr-android-apk' }}
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-android-apk-signed' || 'free_rfr-android-apk' }}
           path: build/app/outputs/flutter-apk/
       - run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev keybinder-3.0
       - run: flutter build linux --release
+      - name: Sign Linux artifacts
+        if: env.SIGN_RELEASE == 'true'
+        shell: bash
+        env:
+          GPG_PRIVATE_KEY_BASE64: ${{ secrets.GPG_PRIVATE_KEY_BASE64 }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          for secret in GPG_PRIVATE_KEY_BASE64 GPG_PASSPHRASE; do
+            if [ -z "${!secret}" ]; then
+              echo "::error::Missing required secret: $secret"
+              exit 1
+            fi
+          done
+
+          printf '%s' "$GPG_PRIVATE_KEY_BASE64" | base64 --decode | gpg --batch --import
+          archive="$RUNNER_TEMP/free_rfr-linux.tar.gz"
+          signature="$RUNNER_TEMP/free_rfr-linux.tar.gz.asc"
+          tar -czf "$archive" -C build/linux/x64/release bundle
+          printf '%s' "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --armor --detach-sign --output "$signature" "$archive"
+          gpg --verify "$signature" "$archive"
+          mv "$archive" "$signature" build/linux/x64/release/
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: free_rfr-linux
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-linux-signed' || 'free_rfr-linux' }}
           path: build/linux/x64/release/bundle
+      - name: Upload Linux signature
+        if: env.SIGN_RELEASE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: free_rfr-linux-signature
+          path: |
+            build/linux/x64/release/free_rfr-linux.tar.gz
+            build/linux/x64/release/free_rfr-linux.tar.gz.asc
       - name: Remove Android signing files
-        if: always() && env.SIGN_ANDROID_RELEASE == 'true'
+        if: always() && env.SIGN_RELEASE == 'true'
         shell: bash
         run: |
           rm -f "$RUNNER_TEMP/free_rfr-upload.jks" android/key.properties
@@ -155,11 +185,48 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build windows --release
+      - name: Import Windows signing certificate
+        if: env.SIGN_RELEASE == 'true'
+        shell: pwsh
+        env:
+          WINDOWS_PFX_BASE64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+          WINDOWS_PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          if (-not $env:WINDOWS_PFX_BASE64) { throw 'Missing required secret: WINDOWS_PFX_BASE64' }
+          if (-not $env:WINDOWS_PFX_PASSWORD) { throw 'Missing required secret: WINDOWS_PFX_PASSWORD' }
+
+          $pfx = Join-Path $env:RUNNER_TEMP 'free_rfr-signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_PFX_BASE64))
+          "WINDOWS_PFX_PATH=$pfx" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Sign Windows binaries
+        if: env.SIGN_RELEASE == 'true'
+        shell: pwsh
+        env:
+          WINDOWS_PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' -ErrorAction SilentlyContinue |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw 'signtool.exe was not found' }
+
+          $files = @(Get-ChildItem -LiteralPath 'build/windows/x64/runner/Release' -Recurse -File |
+            Where-Object { $_.Extension -in @('.exe', '.dll') })
+          if ($files.Count -eq 0) { throw 'No Windows executables were found' }
+
+          & $signtool sign /fd SHA256 /f $env:WINDOWS_PFX_PATH /p $env:WINDOWS_PFX_PASSWORD $files.FullName
+          & $signtool verify /pa $files.FullName
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: free_rfr-windows
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-windows-signed' || 'free_rfr-windows' }}
           path: build/windows/x64/runner/Release/
+      - name: Remove Windows signing certificate
+        if: always() && env.SIGN_RELEASE == 'true'
+        shell: pwsh
+        run: |
+          if ($env:WINDOWS_PFX_PATH -and (Test-Path -LiteralPath $env:WINDOWS_PFX_PATH)) {
+            Remove-Item -LiteralPath $env:WINDOWS_PFX_PATH -Force
+          }
   build-macos:
     runs-on: macos-latest
 
@@ -172,15 +239,126 @@ jobs:
       - run: flutter pub get --enforce-lockfile
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
-      - run: flutter build ipa --release --no-codesign
+      - name: Build unsigned IPA
+        if: env.SIGN_RELEASE != 'true'
+        run: flutter build ipa --release --no-codesign
+      - name: Build signed IPA
+        if: env.SIGN_RELEASE == 'true'
+        shell: bash
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+          IOS_EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'app-store' }}
+        run: |
+          set -euo pipefail
+          for secret in IOS_CERTIFICATE_BASE64 IOS_CERTIFICATE_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 IOS_PROVISIONING_PROFILE_NAME IOS_TEAM_ID; do
+            if [ -z "${!secret}" ]; then
+              echo "::error::Missing required secret: $secret"
+              exit 1
+            fi
+          done
+
+          keychain="$RUNNER_TEMP/free-rfr-ios.keychain-db"
+          certificate="$RUNNER_TEMP/ios-signing.p12"
+          profile="$RUNNER_TEMP/free_rfr.mobileprovision"
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          keychain_password='free-rfr-ios-keychain'
+
+          printf '%s' "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$certificate"
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$certificate" -k "$keychain" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+          existing=$(security list-keychains -d user | tr -d '"')
+          security list-keychains -d user -s "$keychain" $existing
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$profile" "$HOME/Library/MobileDevice/Provisioning Profiles/free_rfr.mobileprovision"
+
+          export IOS_EXPORT_OPTIONS_PATH="$options"
+          python3 - <<'PY'
+          import os
+          import plistlib
+
+          options = {
+              "method": os.environ["IOS_EXPORT_METHOD"],
+              "teamID": os.environ["IOS_TEAM_ID"],
+              "signingStyle": "manual",
+              "provisioningProfiles": {
+                  "com.github.bgoldstone.free_rfr": os.environ["IOS_PROVISIONING_PROFILE_NAME"]
+              },
+          }
+          with open(os.environ["IOS_EXPORT_OPTIONS_PATH"], "wb") as file:
+              plistlib.dump(options, file)
+          PY
+
+          flutter build ipa --release --no-codesign
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist "$options" \
+            -exportPath build/ios/ipa
+
+          ipa=$(find build/ios/ipa -maxdepth 2 -name '*.ipa' -print -quit)
+          if [ -z "$ipa" ]; then
+            echo "::error::Signed IPA was not found"
+            exit 1
+          fi
+          unzip -q "$ipa" -d "$RUNNER_TEMP/ios-ipa"
+          app=$(find "$RUNNER_TEMP/ios-ipa/Payload" -maxdepth 1 -name '*.app' -print -quit)
+          codesign --verify --deep --strict --verbose=2 "$app"
+
+          security delete-keychain "$keychain" || true
+          rm -f "$certificate" "$profile" "$options"
       - run: flutter build macos --release
+      - name: Sign macOS app
+        if: env.SIGN_RELEASE == 'true'
+        shell: bash
+        env:
+          MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+        run: |
+          set -euo pipefail
+          for secret in MACOS_CERTIFICATE_BASE64 MACOS_CERTIFICATE_PASSWORD MACOS_SIGNING_IDENTITY; do
+            if [ -z "${!secret}" ]; then
+              echo "::error::Missing required secret: $secret"
+              exit 1
+            fi
+          done
+
+          keychain="$RUNNER_TEMP/free-rfr-macos.keychain-db"
+          certificate="$RUNNER_TEMP/macos-signing.p12"
+          keychain_password='free-rfr-macos-keychain'
+
+          printf '%s' "$MACOS_CERTIFICATE_BASE64" | base64 --decode > "$certificate"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$certificate" -k "$keychain" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+          existing=$(security list-keychains -d user | tr -d '"')
+          security list-keychains -d user -s "$keychain" $existing
+
+          app=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
+          if [ -z "$app" ]; then
+            echo "::error::macOS app was not found"
+            exit 1
+          fi
+          codesign --force --deep --options runtime --sign "$MACOS_SIGNING_IDENTITY" "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+
+          security delete-keychain "$keychain" || true
+          rm -f "$certificate"
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: free_rfr-macos
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-macos-signed' || 'free_rfr-macos' }}
           path: build/macos/Build/Products/Release
       - name: Archive IPA
         uses: actions/upload-artifact@v4
         with:
-          name: free_rfr-ios
-          path: build/ios/ipa/release
+          name: ${{ env.SIGN_RELEASE == 'true' && 'free_rfr-ios-signed' || 'free_rfr-ios' }}
+          path: build/ios/ipa
