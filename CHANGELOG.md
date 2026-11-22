@@ -10,6 +10,7 @@ All notable changes to this project are documented here.
 - Committed `pubspec.lock` and enforced it in CI to satisfy dependency-locking security checks.
 
 ### Changed
+- Moved CI signing logic into reusable scripts and documented GitHub secret setup commands.
 - Upgraded Flutter to `3.50.1` and the Kotlin Gradle plugin to `2.4.20`.
 - Pinned `hotkey_manager` to `0.2.3` and declared `material_ui` as a direct dependency.
 - Updated README to describe TCP OSC on port `3032`.
