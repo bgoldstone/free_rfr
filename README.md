@@ -9,6 +9,9 @@ A new RFR for ETC Eos-based consoles using OSC Communication
 # Flutter Version
 Current Flutter Version: 3.50.1
 
+## Releasing
+Release signing setup and the commands for creating required GitHub secrets are documented in [docs/release-signing.md](docs/release-signing.md).
+
 ## Hot Keys
 Most of the hotkeys are mapped to eos hotkeys which are found [here](https://www.etcconnect.com/webdocs/Controls/EosFamilyOnlineHelp/en-us/Content/03_System_Basics/Keyboard_Shortcuts.htm).
 
