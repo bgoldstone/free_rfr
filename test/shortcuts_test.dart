@@ -77,6 +77,42 @@ void main() {
       isTrue,
     );
     expect(hasHotKey(LogicalKeyboardKey.slash, []), isTrue);
+    expect(hasHotKey(LogicalKeyboardKey.keyL, []), isTrue);
+    expect(hasHotKey(LogicalKeyboardKey.keyX, [HotKeyModifier.shift]), isTrue);
+  });
+
+  test('restored shortcuts use distinct hotkeys', () {
+    bool matches(
+      HotKey hotKey,
+      LogicalKeyboardKey key,
+      List<HotKeyModifier> modifiers,
+    ) {
+      final actual = hotKey.modifiers ?? const <HotKeyModifier>[];
+      if (hotKey.logicalKey != key || actual.length != modifiers.length) {
+        return false;
+      }
+      for (var i = 0; i < modifiers.length; i++) {
+        if (actual[i] != modifiers[i]) return false;
+      }
+      return true;
+    }
+
+    final levelBindings = shortcutBindings
+        .where(
+            (binding) => matches(binding.hotKey, LogicalKeyboardKey.keyL, []))
+        .toList();
+    final cueOnlyBindings = shortcutBindings
+        .where(
+          (binding) => matches(
+            binding.hotKey,
+            LogicalKeyboardKey.keyX,
+            [HotKeyModifier.shift],
+          ),
+        )
+        .toList();
+
+    expect(levelBindings, hasLength(1));
+    expect(cueOnlyBindings, hasLength(1));
   });
 
   test('shortcut bindings have unique identifiers', () {

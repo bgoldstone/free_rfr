@@ -81,6 +81,7 @@ final List<_ShortcutBinding> shortcutBindings = [
   _binding(LogicalKeyboardKey.keyL, _sendKey('select_last'), [
     HotKeyModifier.control,
   ]),
+  _binding(LogicalKeyboardKey.keyL, _sendKey('level')),
   _binding(LogicalKeyboardKey.keyH, _sendKey('home'), [
     HotKeyModifier.control,
   ]),
@@ -121,6 +122,9 @@ final List<_ShortcutBinding> shortcutBindings = [
   _binding(LogicalKeyboardKey.f1, (osc) => osc.sendLive()),
   _binding(LogicalKeyboardKey.f2, (osc) => osc.sendBlind()),
   _binding(LogicalKeyboardKey.keyX, _sendKey('undo')),
+  _binding(LogicalKeyboardKey.keyX, _sendKey('cueonlytrack'), [
+    HotKeyModifier.shift,
+  ]),
   _binding(LogicalKeyboardKey.keyU, _sendCmd('update')),
   _binding(LogicalKeyboardKey.keyF, _sendKey('full')),
   _binding(LogicalKeyboardKey.keyO, _sendKey('out')),

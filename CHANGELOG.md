@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Restored `level` and `cueonlytrack` shortcuts on distinct keys.
 - Fixed initial color picker preview for RGBW/CMY/emitter fixtures and when Eos reports zero saturation.
 - Kept the picker preview in sync when Eos color feedback changes after a local selection.
 
