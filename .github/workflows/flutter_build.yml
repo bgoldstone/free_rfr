@@ -276,7 +276,8 @@ jobs:
           certificate="$RUNNER_TEMP/ios-signing.p12"
           profile="$RUNNER_TEMP/free_rfr.mobileprovision"
           options="$RUNNER_TEMP/ExportOptions.plist"
-          keychain_password='free-rfr-ios-keychain'
+          # Generate an ephemeral keychain password so no credential value is stored in the workflow.
+          keychain_password=$(openssl rand -hex 24)
 
           # Decode signing material to temporary files and add the keychain to the user search list for codesign/xcodebuild.
           printf '%s' "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$certificate"
@@ -347,7 +348,8 @@ jobs:
 
           keychain="$RUNNER_TEMP/free-rfr-macos.keychain-db"
           certificate="$RUNNER_TEMP/macos-signing.p12"
-          keychain_password='free-rfr-macos-keychain'
+          # Generate an ephemeral keychain password so no credential value is stored in the workflow.
+          keychain_password=$(openssl rand -hex 24)
 
           printf '%s' "$MACOS_CERTIFICATE_BASE64" | base64 --decode > "$certificate"
           security create-keychain -p "$keychain_password" "$keychain"
