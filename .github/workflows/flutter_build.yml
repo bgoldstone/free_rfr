@@ -7,12 +7,15 @@ name: Flutter Build
 
 env:
   FLUTTER_VERSION: 3.50.1
+  SIGN_ANDROID_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
 
 on:
   push:
     branches: ["main"]
+    tags: ["v*"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   build-linux:
@@ -20,24 +23,107 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
+      - name: Prepare Android signing
+        if: env.SIGN_ANDROID_RELEASE == 'true'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          for secret in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+            if [ -z "${!secret}" ]; then
+              echo "::error::Missing required secret: $secret"
+              exit 1
+            fi
+          done
+
+          keystore="$RUNNER_TEMP/free_rfr-upload.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          chmod 600 "$keystore"
+
+          ANDROID_KEYSTORE_PATH="$keystore" python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def escape(value: str) -> str:
+              return value.replace("\\", "\\\\").replace(":", "\\:")
+
+          lines = [
+              f"storePassword={escape(os.environ['ANDROID_KEYSTORE_PASSWORD'])}",
+              f"keyPassword={escape(os.environ['ANDROID_KEY_PASSWORD'])}",
+              f"keyAlias={escape(os.environ['ANDROID_KEY_ALIAS'])}",
+              f"storeFile={escape(os.environ['ANDROID_KEYSTORE_PATH'])}",
+          ]
+          Path("android/key.properties").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+          chmod 600 android/key.properties
       - run: flutter clean
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter build appbundle --release
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: free_rfr-android-aab
-          path: build/app/outputs/bundle/release/
       - run: flutter build apk --release
-      - name: Upload Build Artifact
+      - name: Verify signed Android artifacts
+        if: env.SIGN_ANDROID_RELEASE == 'true'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+
+          keystore="$RUNNER_TEMP/free_rfr-upload.jks"
+          aab=$(find build/app/outputs/bundle/release -maxdepth 1 -name '*.aab' -print -quit)
+          apk=$(find build/app/outputs/flutter-apk -maxdepth 1 -name '*.apk' -print -quit)
+          if [ -z "$aab" ] || [ -z "$apk" ]; then
+            echo "::error::Signed Android artifacts were not found"
+            exit 1
+          fi
+
+          normalize() {
+            tr -d ':' | tr '[:lower:]' '[:upper:]'
+          }
+          expected=$(keytool -list -v -keystore "$keystore" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" | awk -F': ' '/SHA256:/ {print $2; exit}' | normalize)
+          aab_cert=$(keytool -printcert -jarfile "$aab" | awk -F': ' '/SHA256:/ {print $2; exit}' | normalize)
+
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [ -z "$sdk_root" ]; then
+            echo "::error::Android SDK path is not available"
+            exit 1
+          fi
+          apksigner=$(find "$sdk_root/build-tools" -type f -name apksigner -print -quit)
+          if [ -z "$apksigner" ]; then
+            echo "::error::apksigner was not found in the Android SDK"
+            exit 1
+          fi
+
+          jarsigner -verify "$aab"
+          "$apksigner" verify --print-certs "$apk"
+          apk_cert=$("$apksigner" verify --print-certs "$apk" | awk '/SHA-256 digest/ {print $NF; exit}' | normalize)
+
+          if [ -z "$expected" ] || [ "$expected" != "$aab_cert" ] || [ "$expected" != "$apk_cert" ]; then
+            echo "::error::Android artifacts were not signed with the expected certificate"
+            exit 1
+          fi
+      - name: Upload Android AAB
         uses: actions/upload-artifact@v4
         with:
-          name: free_rfr-android-apk
+          name: ${{ env.SIGN_ANDROID_RELEASE == 'true' && 'free_rfr-android-aab-signed' || 'free_rfr-android-aab' }}
+          path: build/app/outputs/bundle/release/
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SIGN_ANDROID_RELEASE == 'true' && 'free_rfr-android-apk-signed' || 'free_rfr-android-apk' }}
           path: build/app/outputs/flutter-apk/
       - run: |
           sudo apt-get update -y
@@ -48,6 +134,11 @@ jobs:
         with:
           name: free_rfr-linux
           path: build/linux/x64/release/bundle
+      - name: Remove Android signing files
+        if: always() && env.SIGN_ANDROID_RELEASE == 'true'
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/free_rfr-upload.jks" android/key.properties
       #- run: flutter test
   build-windows:
     runs-on: windows-latest
