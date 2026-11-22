@@ -159,4 +159,35 @@ void main() {
       'userId': 3,
     });
   });
+
+  testWidgets('Connections resets malformed config', (tester) async {
+    configFile.writeAsStringSync('{invalid json');
+
+    await setUpConnectionsPage(tester);
+
+    expect(find.text('No Connections'), findsOneWidget);
+    final saved =
+        jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
+    expect(saved['connections'], isEmpty);
+  });
+
+  testWidgets('Connections removes dismissed connection from config',
+      (tester) async {
+    configFile.writeAsStringSync(jsonEncode({
+      'connections': [
+        {'name': 'Old Console', 'ip': '10.0.0.1', 'userId': 1},
+      ],
+    }));
+
+    await setUpConnectionsPage(tester);
+    expect(find.text('Old Console'), findsOneWidget);
+
+    await tester.drag(find.byType(Dismissible), const Offset(500, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('No Connections'), findsOneWidget);
+    final saved =
+        jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
+    expect(saved['connections'], isEmpty);
+  });
 }

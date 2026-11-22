@@ -70,6 +70,7 @@ jobs:
           chmod 600 android/key.properties
       - run: flutter clean
       - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter build appbundle --release
       - run: flutter build apk --release
@@ -150,6 +151,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
       - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter test
       - run: flutter build windows --release
@@ -168,6 +170,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
       - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter build ipa --release --no-codesign
       - run: flutter build macos --release

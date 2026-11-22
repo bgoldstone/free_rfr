@@ -79,7 +79,19 @@ void main() {
     expect(hasHotKey(LogicalKeyboardKey.slash, []), isTrue);
   });
 
-  testWidgets('unregisterHotKeys clears registrations and calls platform',
+  test('shortcut bindings have unique identifiers', () {
+    final identifiers = <String>{};
+
+    for (final binding in shortcutBindings) {
+      expect(
+        identifiers.add(binding.hotKey.identifier),
+        isTrue,
+        reason: 'Duplicate hotkey ${binding.hotKey.identifier}',
+      );
+    }
+  });
+
+  testWidgets('unregisterHotKeys removes only app shortcut registrations',
       (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
@@ -93,11 +105,15 @@ void main() {
       ),
     );
     await registerHotKeys(MockOSC());
-    expect(hotKeyManager.registeredHotKeyList, isNotEmpty);
+    final unrelated = HotKey(
+      key: LogicalKeyboardKey.f12,
+      scope: HotKeyScope.inapp,
+    );
+    await hotKeyManager.register(unrelated);
 
     await unregisterHotKeys(context);
 
-    expect(hotKeyManager.registeredHotKeyList, isEmpty);
-    expect(methodCalls, contains('unregisterAll'));
+    expect(hotKeyManager.registeredHotKeyList, [unrelated]);
+    expect(methodCalls, isNot(contains('unregisterAll')));
   });
 }

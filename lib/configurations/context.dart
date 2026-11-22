@@ -34,6 +34,19 @@ class FreeRFRContext extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updatePanTiltBounds(
+    double minPan,
+    double maxPan,
+    double minTilt,
+    double maxTilt,
+  ) {
+    _currentChannel[ParameterType.minPan] = [minPan];
+    _currentChannel[ParameterType.maxPan] = [maxPan];
+    _currentChannel[ParameterType.minTilt] = [minTilt];
+    _currentChannel[ParameterType.maxTilt] = [maxTilt];
+    notifyListeners();
+  }
+
   String get commandLine => _commandLine;
 
   set commandLine(String command) {
@@ -87,6 +100,25 @@ class FreeRFRContext extends ChangeNotifier {
 
   set nextCueText(String text) {
     _nextCueText = text;
+    notifyListeners();
+  }
+
+  void updateCurrentCue({double? cue, int? cueList, String? text}) {
+    if (cue != null) _currentCue = cue;
+    if (cueList != null) _currentCueList = cueList;
+    if (text != null) _currentCueText = text;
+    notifyListeners();
+  }
+
+  void updateNextCue({double? cue, String? text}) {
+    if (cue != null) _nextCue = cue;
+    if (text != null) _nextCueText = text;
+    notifyListeners();
+  }
+
+  void updatePreviousCue({double? cue, String? text}) {
+    if (cue != null) _previousCue = cue;
+    if (text != null) _previousCueText = text;
     notifyListeners();
   }
 

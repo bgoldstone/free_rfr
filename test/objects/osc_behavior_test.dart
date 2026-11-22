@@ -95,6 +95,7 @@ void main() {
 
     await harness.osc.sendOSCMessage(message);
 
+    expect(harness.writes.length - start, 1);
     expect(harness.framesFrom(start), [equals(message.toBytes())]);
     expect(
       harness.writes.skip(start).expand((item) => item).take(4).toList(),

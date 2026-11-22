@@ -120,6 +120,7 @@ void main() {
 
     verify(() => osc.setLabel(3.0, 'New label')).called(1);
     expect(ctx.hasHotKeyBeenUninitialized, isTrue);
-    expect(methodCalls, contains('unregisterAll'));
+    expect(hotKeyManager.registeredHotKeyList, isNotEmpty);
+    expect(methodCalls, isNot(contains('unregisterAll')));
   });
 }

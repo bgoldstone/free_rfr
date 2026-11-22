@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Optimized OSC framing, command delivery, inbound parsing, and config loading.
+- Preserved page state and cleaned up connections and hotkeys on disconnect.
+- Hardened malformed config handling and expanded regression coverage.
+
 ### Added
 - `CHANGELOG.md` and an `AGENTS.md` rule to update it with each commit.
 - Committed `pubspec.lock` and enforced it in CI to satisfy dependency-locking security checks.

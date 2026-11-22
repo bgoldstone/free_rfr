@@ -26,7 +26,7 @@
 - Fader tests need `registerFallbackValue(FaderControlsState())` for mocktail matchers.
 - `MockOSC` overrides `sendOSCMessage`, so `mocktail.when()` cannot stub it; use a recording subclass like `RecordingMockOSC` in `test/pages/direct_selects_test.dart`.
 - Hotkey-dependent tests must mock both `dev.leanflutter.plugins/hotkey_manager` and `dev.leanflutter.plugins/hotkey_manager_event`, and reset the singleton with `hotKeyManager.unregisterAll()`.
-- `Connections.getConfig()` returns before `readAsString().then(setState)` completes; assert the JSON file rather than waiting for saved entries to appear in the UI.
+- `Connections.loadConfig()` reads/writes `free_rfr.json` synchronously after one async path lookup and resets malformed configs; tests can assert the JSON file immediately.
 - `test/common.dart:3` `ignoreErrors()` is misnamed: it suppresses non-overflow Flutter errors and prints overflow errors.
 - `test/main_test.dart` calls `entry.main()` without awaiting; do not treat it as deterministic async startup coverage.
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
@@ -38,14 +39,40 @@ class _MyAppState extends State<MyApp> {
   OSC? _oscCache;
   Socket? _socketCache;
   Future<OSC>? _oscFuture;
+  String? _activeConnectionKey;
   bool isOSCInitialized = false;
   Map<String, dynamic> activeConnection = {};
   int currentConnectionIndex = -1;
 
-  void setActiveConnection(
+  String connectionKey(Map<String, dynamic> connection) {
+    return '${connection['ip']}::${connection['userId']}';
+  }
+
+  Future<void> closeConnection() async {
+    final osc = _oscCache;
+    final socket = _socketCache;
+    _oscCache = null;
+    _socketCache = null;
+    _oscFuture = null;
+    _activeConnectionKey = null;
+    isOSCInitialized = false;
+    if (osc != null) {
+      await osc.close();
+      return;
+    }
+    if (socket != null) {
+      try {
+        await socket.flush();
+        await socket.close();
+      } catch (_) {}
+    }
+  }
+
+  Future<void> setActiveConnection(
       Map<String, dynamic> connection, int index, FreeRFRContext ctx) async {
-    if (isOSCInitialized) {
-      isOSCInitialized = false;
+    final key = connectionKey(connection);
+    if (key != _activeConnectionKey) {
+      await closeConnection();
     }
     debugPrint(connection.toString());
 
@@ -54,6 +81,7 @@ class _MyAppState extends State<MyApp> {
       activeConnection = connection;
       currentConnectionIndex = index;
       isOSCInitialized = true;
+      _activeConnectionKey = key;
       _oscFuture = getOSC(ctx);
     });
   }
@@ -76,9 +104,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   void setCurrentConnection(int index) {
+    if (index == -1) {
+      activeConnection = {};
+      unawaited(closeConnection());
+    }
     setState(() {
       currentConnectionIndex = index;
     });
+  }
+
+  @override
+  void dispose() {
+    unawaited(closeConnection());
+    super.dispose();
   }
 
   // This widget is the root of your application.
@@ -101,8 +139,6 @@ class _MyAppState extends State<MyApp> {
       themeMode: ThemeMode.system,
       routes: {
         '/': (context) {
-          _socketCache = null;
-          _oscCache = null;
           return Connections(
             setActiveConnection,
             currentConnectionIndex: currentConnectionIndex,
@@ -117,7 +153,6 @@ class _MyAppState extends State<MyApp> {
                       osc: snapshot.data!,
                       setCurrentConnection: setCurrentConnection);
                 } else if (snapshot.hasError) {
-                  activeConnection = {};
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     setCurrentConnection(-1);
                   });

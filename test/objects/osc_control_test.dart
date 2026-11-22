@@ -39,16 +39,22 @@ Future<void> main() async {
     osc.sendColor(0, 0, 0);
     expect(isPrivateIPAddress('127.0.0.1'), true);
     expect(isPrivateIPAddress('1.1.1.1'), false);
-    osc.sleep250();
-    osc.sleep100();
 
     osc.sendCmd('/eos/key/live');
+    await osc.drainCommands();
     msg = OSCMessage('/eos/cmd', arguments: ['/eos/key/live']);
-    verify(() => client.add(msg.toBytes())).called(1);
+    final framed = Uint8List(4 + msg.toBytes().length);
+    ByteData.view(framed.buffer).setInt32(0, msg.toBytes().length, Endian.big);
+    framed.setRange(4, framed.length, msg.toBytes());
+    verify(() => client.add(framed)).called(1);
 
     osc.send('/eos/key/abc', []);
     msg = OSCMessage('/eos/key/abc', arguments: []);
-    verify(() => client.add(msg.toBytes())).called(1);
+    final framedSend = Uint8List(4 + msg.toBytes().length);
+    ByteData.view(framedSend.buffer)
+        .setInt32(0, msg.toBytes().length, Endian.big);
+    framedSend.setRange(4, framedSend.length, msg.toBytes());
+    verify(() => client.add(framedSend)).called(1);
 
     osc.setParameter('Intens', 0);
     msg = OSCMessage('/eos/cmd', arguments: ['Intens 0#']);
@@ -63,6 +69,7 @@ Future<void> main() async {
     msg = OSCMessage('/eos/key/blind', arguments: []);
     when(() => client.flush()).thenAnswer((invocation) async {});
     when(() => client.close()).thenAnswer((invocation) async {});
+    await osc.close();
     await osc.close();
     verify(() => client.flush()).called(1);
     verify(() => client.close()).called(1);
