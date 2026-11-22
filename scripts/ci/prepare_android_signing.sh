@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Materializes the Android upload keystore and writes android/key.properties for Gradle.
+# Requires the ANDROID_* secrets and RUNNER_TEMP.
 set -euo pipefail
 
 require_env() {

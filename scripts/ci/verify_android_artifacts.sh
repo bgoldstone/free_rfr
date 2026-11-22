@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Verifies the AAB and APK were signed by the configured Android upload key.
+# Requires ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, RUNNER_TEMP, and the Android SDK path.
 set -euo pipefail
 
 require_env() {

@@ -2,14 +2,25 @@
 
 Release signing runs only for `v*` tags and manual `workflow_dispatch` runs. Pull requests and `main` builds stay unsigned.
 
-The workflow delegates signing to scripts in `scripts/ci`:
+The workflow delegates work to these scripts in `scripts/ci`:
 
-- `prepare_android_signing.sh`
-- `verify_android_artifacts.sh`
-- `sign_linux.sh`
-- `sign_windows.ps1`
-- `export_ios_ipa.sh`
-- `sign_macos_app.sh`
+| Script | Purpose | Inputs / outputs |
+| --- | --- | --- |
+| `check_release_signing.sh` | Checks that all platform signing keys are configured | Reads `*_SIGNING_READY`; writes `publish=true\|false` to `GITHUB_OUTPUT` |
+| `read_app_version.sh` | Reads the pubspec version and artifact tags | Reads `pubspec.yaml`, `SIGN_RELEASE`, `*_SIGNING_READY`; writes `APP_VERSION` and `*_ARTIFACT_VERSION` to `GITHUB_ENV` |
+| `prepare_android_signing.sh` | Creates the Android keystore and `android/key.properties` | Reads `ANDROID_*` secrets and `RUNNER_TEMP` |
+| `verify_android_artifacts.sh` | Verifies the AAB and APK certificate fingerprints | Reads `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `RUNNER_TEMP`, and Android SDK paths |
+| `sign_linux.sh` | Creates and verifies the Linux GPG archive signature | Reads `GPG_PRIVATE_KEY_BASE64`, `GPG_PASSPHRASE`, `RUNNER_TEMP`, and `LINUX_ARTIFACT_VERSION` |
+| `sign_windows.ps1` | Signs and verifies Windows PE files | Reads `WINDOWS_PFX_BASE64`, `WINDOWS_PFX_PASSWORD`, `RUNNER_TEMP`, and `ALLOW_SELF_SIGNED_SIGNATURES` |
+| `export_ios_ipa.sh` | Exports and verifies a signed IPA | Reads `IOS_*` secrets, `RUNNER_TEMP`, and `ALLOW_SELF_SIGNED_SIGNATURES` |
+| `sign_macos_app.sh` | Signs and verifies the macOS app | Reads `MACOS_*` secrets, `RUNNER_TEMP`, and `ALLOW_SELF_SIGNED_SIGNATURES` |
+| `publish_release_assets.sh` | Packages and uploads released artifacts | Reads `GH_TOKEN`, `GITHUB_REF_NAME`, and `release-assets/` |
+
+## Artifact naming
+
+`scripts/ci/read_app_version.sh` reads the version from `pubspec.yaml` and sets `APP_VERSION` plus per-platform artifact tags. A platform's artifacts use the version alone only when the release trigger and that platform's signing secrets are both present, for example `free_rfr-windows-1.0.2+3`. Otherwise they append `-snapshot`, for example `free_rfr-windows-1.0.2+3-snapshot`. The Linux GPG archive and signature use the Linux tag.
+
+Tag builds with all signing secrets present also upload packaged artifacts to the GitHub release for that tag. Missing secrets skip that platform's signing step and keep the artifact marked as a snapshot.
 
 ## Required GitHub repository secrets
 
@@ -33,6 +44,8 @@ The workflow delegates signing to scripts in `scripts/ci`:
 | `GPG_PASSPHRASE` | GPG private key passphrase |
 
 `IOS_EXPORT_METHOD` is optional and defaults to `app-store`. Valid examples are `app-store`, `ad-hoc`, `development`, and `enterprise`.
+
+`GITHUB_TOKEN` is generated automatically for every workflow run; do not create it as a repository secret. The `release-assets` job requests `contents: write` so it can create or update the GitHub release for the tag.
 
 ## GitHub CLI setup commands
 

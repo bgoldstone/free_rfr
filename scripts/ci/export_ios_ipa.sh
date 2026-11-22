@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Imports iOS signing material, exports a signed IPA from the Flutter archive, and verifies the embedded app.
+# Requires the IOS_* secrets and RUNNER_TEMP; ALLOW_SELF_SIGNED_SIGNATURES defaults to true.
 set -euo pipefail
 
 require_env() {
