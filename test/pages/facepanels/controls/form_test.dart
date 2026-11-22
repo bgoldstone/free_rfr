@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import '../../../mocks/MockOSC.dart';
 
-
 MockOSC osc = MockOSC();
 FreeRFRContext freeRFRContext = FreeRFRContext();
 void main() {

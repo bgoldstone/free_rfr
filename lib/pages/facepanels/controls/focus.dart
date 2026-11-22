@@ -5,8 +5,7 @@ import 'package:free_rfr/widgets/parameter_widget.dart';
 
 class FocusControl extends StatelessWidget {
   final OSC osc;
-  const FocusControl(
-      {super.key, required this.osc});
+  const FocusControl({super.key, required this.osc});
 
   @override
   Widget build(BuildContext context) {
