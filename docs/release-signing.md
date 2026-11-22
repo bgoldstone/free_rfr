@@ -6,8 +6,7 @@ The workflow delegates work to these scripts in `scripts/ci`:
 
 | Script | Purpose | Inputs / outputs |
 | --- | --- | --- |
-| `check_release_signing.sh` | Checks that all platform signing keys are configured | Reads `*_SIGNING_READY`; writes `publish=true\|false` to `GITHUB_OUTPUT` |
-| `read_app_version.sh` | Reads the pubspec version and artifact tags | Reads `pubspec.yaml`, `SIGN_RELEASE`, `*_SIGNING_READY`; writes `APP_VERSION` and `*_ARTIFACT_VERSION` to `GITHUB_ENV` |
+| `read_app_version.sh` | Reads the pubspec version and artifact tags | Reads `pubspec.yaml` and `IS_RELEASE`; writes `APP_VERSION` and `*_ARTIFACT_VERSION` to `GITHUB_ENV` |
 | `prepare_android_signing.sh` | Creates the Android keystore and `android/key.properties` | Reads `ANDROID_*` secrets and `RUNNER_TEMP` |
 | `verify_android_artifacts.sh` | Verifies the AAB and APK certificate fingerprints | Reads `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `RUNNER_TEMP`, and Android SDK paths |
 | `sign_linux.sh` | Creates and verifies the Linux GPG archive signature | Reads `GPG_PRIVATE_KEY_BASE64`, `GPG_PASSPHRASE`, `RUNNER_TEMP`, and `LINUX_ARTIFACT_VERSION` |
@@ -18,9 +17,9 @@ The workflow delegates work to these scripts in `scripts/ci`:
 
 ## Artifact naming
 
-`scripts/ci/read_app_version.sh` reads the version from `pubspec.yaml` and sets `APP_VERSION` plus per-platform artifact tags. A platform's artifacts use the version alone only when the release trigger and that platform's signing secrets are both present, for example `free_rfr-windows-1.0.2+3`. Otherwise they append `-snapshot`, for example `free_rfr-windows-1.0.2+3-snapshot`. The Linux GPG archive and signature use the Linux tag.
+`scripts/ci/read_app_version.sh` reads the version from `pubspec.yaml` and sets `APP_VERSION` plus per-platform artifact tags. Release builds use the version alone, for example `free_rfr-windows-1.0.2+3`, even when a platform's signing secrets are missing. Non-release builds append `-snapshot`, for example `free_rfr-windows-1.0.2+3-snapshot`. The Linux GPG archive and signature use the Linux tag.
 
-Tag builds with all signing secrets present also upload packaged artifacts to the GitHub release for that tag. Missing secrets skip that platform's signing step and keep the artifact marked as a snapshot.
+Tag builds upload the packaged build artifacts to the GitHub release for that tag. Missing secrets skip that platform's signing step but do not change the artifact tag.
 
 ## Required GitHub repository secrets
 
@@ -113,7 +112,7 @@ Self-signed certificates are not trusted by Windows SmartScreen, Gatekeeper, or 
 Do not create these as repository secrets or variables:
 
 - `FLUTTER_VERSION` is pinned in `.github/workflows/flutter_build.yml`.
-- `SIGN_RELEASE` is computed from the trigger.
+- `IS_RELEASE` is computed from the trigger.
 - `RUNNER_TEMP`, `ANDROID_HOME`, and `ANDROID_SDK_ROOT` are supplied by GitHub runners.
 - Temporary macOS/iOS keychain passwords are generated in the scripts.
 

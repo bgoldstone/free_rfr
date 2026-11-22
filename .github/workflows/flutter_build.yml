@@ -8,7 +8,7 @@ name: Flutter Build
 env:
   FLUTTER_VERSION: 3.50.1
   # Signed artifacts are produced only for version tags and manual dispatch; PR/main builds remain unsigned.
-  SIGN_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
+  IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
   ALLOW_SELF_SIGNED_SIGNATURES: ${{ vars.ALLOW_SELF_SIGNED_SIGNATURES || 'true' }}
   ANDROID_SIGNING_READY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' }}
   LINUX_SIGNING_READY: ${{ secrets.GPG_PRIVATE_KEY_BASE64 != '' && secrets.GPG_PASSPHRASE != '' }}
@@ -42,7 +42,7 @@ jobs:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
       - name: Prepare Android signing
-        if: env.SIGN_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -57,7 +57,7 @@ jobs:
       - run: flutter build appbundle --release
       - run: flutter build apk --release
       - name: Verify signed Android artifacts
-        if: env.SIGN_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -78,7 +78,7 @@ jobs:
           sudo apt-get install -y ninja-build libgtk-3-dev keybinder-3.0
       - run: flutter build linux --release
       - name: Sign Linux artifacts
-        if: env.SIGN_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
         shell: bash
         env:
           GPG_PRIVATE_KEY_BASE64: ${{ secrets.GPG_PRIVATE_KEY_BASE64 }}
@@ -90,7 +90,7 @@ jobs:
           name: free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}
           path: build/linux/x64/release/bundle
       - name: Upload Linux signature
-        if: env.SIGN_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: free_rfr-linux-signature-${{ env.LINUX_ARTIFACT_VERSION }}
@@ -98,7 +98,7 @@ jobs:
             build/linux/x64/release/free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}.tar.gz
             build/linux/x64/release/free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}.tar.gz.asc
       - name: Remove Android signing files
-        if: always() && env.SIGN_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
+        if: always() && env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
         run: |
           rm -f "$RUNNER_TEMP/free_rfr-upload.jks" android/key.properties
@@ -121,7 +121,7 @@ jobs:
       - run: flutter test
       - run: flutter build windows --release
       - name: Sign Windows binaries
-        if: env.SIGN_RELEASE == 'true' && env.WINDOWS_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.WINDOWS_SIGNING_READY == 'true'
         shell: pwsh
         env:
           WINDOWS_PFX_BASE64: ${{ secrets.WINDOWS_PFX_BASE64 }}
@@ -149,10 +149,10 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
       - name: Build unsigned IPA
-        if: env.SIGN_RELEASE != 'true' || env.IOS_SIGNING_READY != 'true'
+        if: env.IS_RELEASE != 'true' || env.IOS_SIGNING_READY != 'true'
         run: flutter build ipa --release --no-codesign
       - name: Build signed IPA
-        if: env.SIGN_RELEASE == 'true' && env.IOS_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.IOS_SIGNING_READY == 'true'
         shell: bash
         env:
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
@@ -164,7 +164,7 @@ jobs:
         run: bash scripts/ci/export_ios_ipa.sh
       - run: flutter build macos --release
       - name: Sign macOS app
-        if: env.SIGN_RELEASE == 'true' && env.MACOS_SIGNING_READY == 'true'
+        if: env.IS_RELEASE == 'true' && env.MACOS_SIGNING_READY == 'true'
         shell: bash
         env:
           MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
@@ -190,28 +190,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Check release signing keys
-        id: release_check
-        shell: bash
-        env:
-          ANDROID_SIGNING_READY: ${{ env.ANDROID_SIGNING_READY }}
-          LINUX_SIGNING_READY: ${{ env.LINUX_SIGNING_READY }}
-          WINDOWS_SIGNING_READY: ${{ env.WINDOWS_SIGNING_READY }}
-          IOS_SIGNING_READY: ${{ env.IOS_SIGNING_READY }}
-          MACOS_SIGNING_READY: ${{ env.MACOS_SIGNING_READY }}
-        run: bash scripts/ci/check_release_signing.sh
-      - name: Read app version
-        if: steps.release_check.outputs.publish == 'true'
-        shell: bash
-        run: bash scripts/ci/read_app_version.sh
       - name: Download build artifacts
-        if: steps.release_check.outputs.publish == 'true'
         uses: actions/download-artifact@v4
         with:
           pattern: free_rfr-*
           path: release-assets
       - name: Publish release assets
-        if: steps.release_check.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
