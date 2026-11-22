@@ -5,6 +5,9 @@
 - `flutter test` runs only in the Windows CI job; the Linux job's test step is commented out.
 - Focused test example: `flutter test test/pages/facepanels/controls/color_picker_test.dart`.
 - Format with `dart format .` before PR (per `CONTRIBUTING.md`).
+- Validate changes with `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`; focused tests are fine while iterating, but run the full suite before PR.
+- Document new helpers, state, and behavior; keep doc comments accurate when changing existing code.
+- Make atomic commits: one logical change per commit, including related tests and changelog entries; never mix in local-only workspace files.
 - Coverage command: `flutter test --coverage`; `coverage/` is generated and gitignored.
 - Keep `CHANGELOG.md` updated in the same commit as user-visible changes; move `Unreleased` entries under a version heading when `pubspec.yaml` is tagged/released.
 - Do not read `CHANGELOG.md` unless explicitly asked; update it from the current task context without opening it.
