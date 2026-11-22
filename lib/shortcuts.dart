@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
