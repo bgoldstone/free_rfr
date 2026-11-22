@@ -7,6 +7,7 @@ name: Flutter Build
 
 env:
   FLUTTER_VERSION: 3.50.1
+  # Signed artifacts are produced only for version tags and manual dispatch; PR/main builds remain unsigned.
   SIGN_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
 
 on:
@@ -41,6 +42,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           set -euo pipefail
+          # Materialize the base64-encoded upload keystore into a temporary file that Android Gradle can read during this job only.
           for secret in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
             if [ -z "${!secret}" ]; then
               echo "::error::Missing required secret: $secret"
@@ -52,6 +54,7 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
           chmod 600 "$keystore"
 
+          # key.properties is a Java properties file, so backslashes and colons in secrets and paths need escaping.
           ANDROID_KEYSTORE_PATH="$keystore" python3 - <<'PY'
           import os
           from pathlib import Path
@@ -82,7 +85,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           set -euo pipefail
-
+          # Prove the AAB and APK were signed by the same upload key by comparing normalized SHA-256 certificate fingerprints.
           keystore="$RUNNER_TEMP/free_rfr-upload.jks"
           aab=$(find build/app/outputs/bundle/release -maxdepth 1 -name '*.aab' -print -quit)
           apk=$(find build/app/outputs/flutter-apk -maxdepth 1 -name '*.apk' -print -quit)
@@ -91,12 +94,14 @@ jobs:
             exit 1
           fi
 
+          # keytool and apksigner print fingerprints with different separators and casing, so normalize before comparing.
           normalize() {
             tr -d ':' | tr '[:lower:]' '[:upper:]'
           }
           expected=$(keytool -list -v -keystore "$keystore" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" | awk -F': ' '/SHA256:/ {print $2; exit}' | normalize)
           aab_cert=$(keytool -printcert -jarfile "$aab" | awk -F': ' '/SHA256:/ {print $2; exit}' | normalize)
 
+          # apksigner is versioned under build-tools, so resolve the installed path instead of assuming a fixed SDK version.
           sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
           if [ -z "$sdk_root" ]; then
             echo "::error::Android SDK path is not available"
@@ -108,6 +113,7 @@ jobs:
             exit 1
           fi
 
+          # jarsigner validates the AAB JAR signature; apksigner validates the APK signature schemes and exposes its certificate digest.
           jarsigner -verify "$aab"
           "$apksigner" verify --print-certs "$apk"
           apk_cert=$("$apksigner" verify --print-certs "$apk" | awk '/SHA-256 digest/ {print $NF; exit}' | normalize)
@@ -138,6 +144,7 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           set -euo pipefail
+          # GitHub Actions artifacts are not code-signed; publish a detached GPG signature for the Linux release archive so downloads can be verified.
           for secret in GPG_PRIVATE_KEY_BASE64 GPG_PASSPHRASE; do
             if [ -z "${!secret}" ]; then
               echo "::error::Missing required secret: $secret"
@@ -145,6 +152,7 @@ jobs:
             fi
           done
 
+          # Import the CI key, archive the release bundle, then pass the passphrase on stdin so it never appears in process arguments.
           printf '%s' "$GPG_PRIVATE_KEY_BASE64" | base64 --decode | gpg --batch --import
           archive="$RUNNER_TEMP/free_rfr-linux.tar.gz"
           signature="$RUNNER_TEMP/free_rfr-linux.tar.gz.asc"
@@ -192,6 +200,7 @@ jobs:
           WINDOWS_PFX_BASE64: ${{ secrets.WINDOWS_PFX_BASE64 }}
           WINDOWS_PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
         run: |
+          # Decode the base64 PFX to a temporary file and expose the path through GITHUB_ENV for the signing step.
           if (-not $env:WINDOWS_PFX_BASE64) { throw 'Missing required secret: WINDOWS_PFX_BASE64' }
           if (-not $env:WINDOWS_PFX_PASSWORD) { throw 'Missing required secret: WINDOWS_PFX_PASSWORD' }
 
@@ -204,6 +213,7 @@ jobs:
         env:
           WINDOWS_PFX_PASSWORD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
         run: |
+          # Use the newest installed Windows SDK signtool.exe, sign every PE file in the Flutter release folder, then verify all signatures.
           $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' -ErrorAction SilentlyContinue |
             Sort-Object FullName -Descending |
             Select-Object -First 1 -ExpandProperty FullName
@@ -254,6 +264,7 @@ jobs:
           IOS_EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'app-store' }}
         run: |
           set -euo pipefail
+          # Import the P12 and provisioning profile into a temporary keychain because Flutter emits an unsigned archive that xcodebuild exports.
           for secret in IOS_CERTIFICATE_BASE64 IOS_CERTIFICATE_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 IOS_PROVISIONING_PROFILE_NAME IOS_TEAM_ID; do
             if [ -z "${!secret}" ]; then
               echo "::error::Missing required secret: $secret"
@@ -267,6 +278,7 @@ jobs:
           options="$RUNNER_TEMP/ExportOptions.plist"
           keychain_password='free-rfr-ios-keychain'
 
+          # Decode signing material to temporary files and add the keychain to the user search list for codesign/xcodebuild.
           printf '%s' "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$certificate"
           printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
           security create-keychain -p "$keychain_password" "$keychain"
@@ -278,6 +290,7 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$profile" "$HOME/Library/MobileDevice/Provisioning Profiles/free_rfr.mobileprovision"
 
+          # ExportOptions.plist tells xcodebuild which team, profile, and distribution method to use for the unsigned archive.
           export IOS_EXPORT_OPTIONS_PATH="$options"
           python3 - <<'PY'
           import os
@@ -295,12 +308,14 @@ jobs:
               plistlib.dump(options, file)
           PY
 
+          # Building with --no-codesign creates the archive; exportArchive applies the imported identity and profile to produce the signed IPA.
           flutter build ipa --release --no-codesign
           xcodebuild -exportArchive \
             -archivePath build/ios/archive/Runner.xcarchive \
             -exportOptionsPlist "$options" \
             -exportPath build/ios/ipa
 
+          # Verify the embedded app inside the exported IPA, not just the archive, because exportArchive rewrites the signature.
           ipa=$(find build/ios/ipa -maxdepth 2 -name '*.ipa' -print -quit)
           if [ -z "$ipa" ]; then
             echo "::error::Signed IPA was not found"
@@ -322,6 +337,7 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
           set -euo pipefail
+          # Import the Developer ID certificate into a temporary keychain so codesign can use it without modifying the runner's default keychain.
           for secret in MACOS_CERTIFICATE_BASE64 MACOS_CERTIFICATE_PASSWORD MACOS_SIGNING_IDENTITY; do
             if [ -z "${!secret}" ]; then
               echo "::error::Missing required secret: $secret"
@@ -342,6 +358,7 @@ jobs:
           existing=$(security list-keychains -d user | tr -d '"')
           security list-keychains -d user -s "$keychain" $existing
 
+          # Flutter's release build may already be ad-hoc signed, so force a Developer ID signature with the hardened runtime option.
           app=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)
           if [ -z "$app" ]; then
             echo "::error::macOS app was not found"
