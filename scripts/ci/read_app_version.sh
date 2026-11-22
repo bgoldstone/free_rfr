@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Reads the app version from pubspec.yaml and exports APP_VERSION and per-platform artifact tags.
-# Requires GITHUB_ENV; uses SIGN_RELEASE and *_SIGNING_READY to decide snapshot suffixes.
+# Requires GITHUB_ENV; uses IS_RELEASE to decide the snapshot suffix.
 set -euo pipefail
 
 version=$(awk '/^version:/ { sub(/^version:[[:space:]]*/, ""); print; exit }' pubspec.yaml | tr -d '"' | tr -d "'" | tr -d '[:space:]')
@@ -14,15 +14,13 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$ ]]; then
 fi
 
 github_env="${GITHUB_ENV:?GITHUB_ENV is required}"
-release="${SIGN_RELEASE:-false}"
+artifact_version="$version"
+if [[ "${IS_RELEASE:-false}" != "true" ]]; then
+  artifact_version="${version}-snapshot"
+fi
 {
   echo "APP_VERSION=$version"
   for platform in ANDROID LINUX WINDOWS IOS MACOS; do
-    ready_var="${platform}_SIGNING_READY"
-    artifact_version="$version"
-    if [[ "$release" != "true" || "${!ready_var:-false}" != "true" ]]; then
-      artifact_version="${version}-snapshot"
-    fi
     echo "${platform}_ARTIFACT_VERSION=$artifact_version"
   done
 } >> "$github_env"
