@@ -1,3 +1,5 @@
+# Signs Windows PE files with the supplied PFX and verifies signer identity and signature status.
+# Requires WINDOWS_PFX_BASE64, WINDOWS_PFX_PASSWORD, and RUNNER_TEMP; ALLOW_SELF_SIGNED_SIGNATURES defaults to true.
 $ErrorActionPreference = 'Stop'
 $allowSelfSigned = ($env:ALLOW_SELF_SIGNED_SIGNATURES -ne 'false')
 

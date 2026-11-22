@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Signs the built macOS app with the supplied Developer ID identity and verifies the signature.
+# Requires the MACOS_* secrets, RUNNER_TEMP, and ALLOW_SELF_SIGNED_SIGNATURES.
 set -euo pipefail
 
 require_env() {
