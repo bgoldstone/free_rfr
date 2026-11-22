@@ -74,6 +74,56 @@ void main() {
     expect(hsv.value, closeTo(1.0, 0.01));
   });
 
+  testWidgets('prefers usable Eos hue and saturation over wheel values',
+      (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..hueSaturation = [30.0, 1.0]
+      ..putCurrentChannel(ParameterType('Red', ParameterRole.color), [100])
+      ..putCurrentChannel(ParameterType('Green', ParameterRole.color), [0])
+      ..putCurrentChannel(ParameterType('Blue', ParameterRole.color), [0]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(30.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('uses non-RGB emitter wheels when Eos saturation is zero',
+      (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..hueSaturation = [0, 0]
+      ..putCurrentChannel(ParameterType('Amber 1', ParameterRole.color), [100]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(36.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+    expect(hsv.value, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('refreshes the picker when feedback changes after a local tap',
+      (tester) async {
+    final osc = MockOSC();
+    when(() => osc.sendColor(any(), any(), any())).thenAnswer((_) async => {});
+    final ctx = FreeRFRContext()..hueSaturation = [0, 1];
+    await setUp(tester, osc, ctx);
+
+    final colorWheel = find.byWidgetPredicate(
+      (widget) =>
+          widget is CustomPaint && widget.painter is HUEColorWheelPainter,
+    );
+    await tester.tapAt(tester.getCenter(colorWheel) + const Offset(121, -70));
+    await tester.pumpAndSettle();
+    expect(wheelHsv(tester).hue, closeTo(30.0, 2.0));
+
+    ctx.hueSaturation = [240.0, 1.0];
+    await tester.pumpAndSettle();
+
+    expect(wheelHsv(tester).hue, closeTo(240.0, 1.0));
+  });
+
   testWidgets('Color Home resets the selected color', (tester) async {
     final osc = MockOSC();
     when(() => osc.sendCmd('select_last Color Home#')).thenAnswer((_) async {});

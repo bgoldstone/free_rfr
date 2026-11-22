@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
+import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/widgets/button.dart';
 import 'package:provider/provider.dart';
 
@@ -18,21 +19,23 @@ class ColorPickerControl extends StatefulWidget {
 
 class _ColorPickerControlState extends State<ColorPickerControl> {
   int index = 0;
+
+  /// Locally selected color from the picker until Eos feedback changes.
   Color? currentColor;
+
+  /// Last color derived from Eos feedback, used to detect stale selection.
+  Color? lastFeedbackColor;
 
   @override
   Widget build(BuildContext context) {
     final ctx = context.watch<FreeRFRContext>();
-    Color? colorFromWheels = _colorFromWheels(ctx);
-    Color colorFromEos = colorFromWheels ??
-        (ctx.hueSaturation.length >= 2
-            ? HSVColor.fromAHSV(
-                1,
-                ctx.hueSaturation[0],
-                ctx.hueSaturation[1],
-                1,
-              ).toColor()
-            : Colors.white);
+    final colorFromEos = _colorFromFeedback(ctx);
+    if (currentColor != null &&
+        lastFeedbackColor != null &&
+        colorFromEos != lastFeedbackColor) {
+      currentColor = null;
+    }
+    lastFeedbackColor = colorFromEos;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -60,10 +63,27 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
   }
 }
 
+/// Builds the preview color from Eos feedback.
+///
+/// Usable hue/saturation feedback wins; otherwise the color is reconstructed
+/// from active color wheels. Falls back to white when neither is available.
+Color _colorFromFeedback(FreeRFRContext ctx) {
+  final hueSaturation = ctx.hueSaturation;
+  if (hueSaturation.length >= 2 && hueSaturation[1] > 0) {
+    return HSVColor.fromAHSV(
+      1,
+      hueSaturation[0],
+      hueSaturation[1].clamp(0.0, 1.0).toDouble(),
+      1,
+    ).toColor();
+  }
+  return _colorFromWheels(ctx) ?? Colors.white;
+}
+
 /// Builds a preview color from the active color wheels.
 ///
-/// Prefers explicit hue/saturation wheels, then RGB/RGBW values, then CMY
-/// values. Returns null when the active color wheels do not describe a color.
+/// Prefers explicit hue/saturation wheels, then RGB/RGBW/CMY values, then
+/// other known emitter wheels. Returns null when no wheel describes a color.
 Color? _colorFromWheels(FreeRFRContext ctx) {
   /// Returns the first active wheel value whose name ends in one of [names].
   double? wheelValue(List<String> names) {
@@ -101,7 +121,7 @@ Color? _colorFromWheels(FreeRFRContext ctx) {
   green ??= magenta == null ? null : 100 - magenta;
   blue ??= yellow == null ? null : 100 - yellow;
   if (red == null && green == null && blue == null && white == 0) {
-    return null;
+    return _colorFromEmitters(ctx);
   }
 
   final whiteLevel = white / 100;
@@ -114,6 +134,60 @@ Color? _colorFromWheels(FreeRFRContext ctx) {
     (component(red) * 255).round(),
     (component(green) * 255).round(),
     (component(blue) * 255).round(),
+    1,
+  );
+}
+
+/// Blends known emitter wheels into an approximate RGB preview.
+Color? _colorFromEmitters(FreeRFRContext ctx) {
+  const emitterColors = <String, List<double>>{
+    'amber': [1, 0.6, 0],
+    'blue': [0, 0, 1],
+    'cyan': [0, 1, 1],
+    'green': [0, 1, 0],
+    'indigo': [0.3, 0, 1],
+    'lime': [0.6, 1, 0],
+    'magenta': [1, 0, 1],
+    'orange': [1, 0.5, 0],
+    'pink': [1, 0.4, 0.6],
+    'red': [1, 0, 0],
+    'red oran': [1, 0.35, 0],
+    'ultraviolet': [0.25, 0, 0.6],
+    'uv': [0.25, 0, 0.6],
+    'white': [1, 1, 1],
+    'yellow': [1, 1, 0],
+  };
+
+  var red = 0.0;
+  var green = 0.0;
+  var blue = 0.0;
+  var found = false;
+  for (final entry in ctx.currentChannel.entries) {
+    if (entry.key.role != ParameterRole.color) continue;
+    final values = entry.value;
+    if (values == null || values.isEmpty) continue;
+    final name =
+        entry.key.oscName.toLowerCase().replaceAll(RegExp(r'[_-]'), ' ');
+    for (final emitter in emitterColors.entries) {
+      final matches = name == emitter.key ||
+          name.endsWith(' ${emitter.key}') ||
+          name.startsWith('${emitter.key} ') ||
+          name.contains(' ${emitter.key} ');
+      if (!matches) continue;
+      final level = (values.first / 100).clamp(0.0, 1.0).toDouble();
+      red += emitter.value[0] * level;
+      green += emitter.value[1] * level;
+      blue += emitter.value[2] * level;
+      found = true;
+      break;
+    }
+  }
+  if (!found) return null;
+
+  return Color.fromRGBO(
+    (red.clamp(0.0, 1.0) * 255).round(),
+    (green.clamp(0.0, 1.0) * 255).round(),
+    (blue.clamp(0.0, 1.0) * 255).round(),
     1,
   );
 }

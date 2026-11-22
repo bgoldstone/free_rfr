@@ -4,6 +4,9 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Fixed initial color picker preview for RGBW/CMY/emitter fixtures and when Eos reports zero saturation.
+- Kept the picker preview in sync when Eos color feedback changes after a local selection.
+
 - Update README to describe TCP OSC on port 3032.
 
 - Fix color picker RGB output on Flutter 3.50 and support RGBW, CMY, and other color wheels.
