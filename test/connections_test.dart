@@ -194,6 +194,26 @@ void main() {
     });
   });
 
+  testWidgets('Connections reports config write failures', (tester) async {
+    await setUpConnectionsPage(tester);
+    testDirectory.deleteSync(recursive: true);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Console Name'),
+      'Unsaved Console',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Console IP'),
+      '10.0.0.2',
+    );
+    await tester.tap(find.text('Add'));
+    await tester.pump();
+
+    expect(find.text('Unable to save connections'), findsOneWidget);
+  });
+
   testWidgets('Connections resets malformed config', (tester) async {
     configFile.writeAsStringSync('{invalid json');
 

@@ -34,6 +34,7 @@ All notable changes to this project are documented here.
 - Reformatted Dart sources with `dart format .`.
 
 ### Fixed
+- Report connection config write failures instead of failing silently.
 - Wait for active connection setup before navigating to Home.
 - Fixed color-picker widget tests under `material_ui` by disabling legacy labels.
 - Downgraded `hotkey_manager_linux` uninitialized-variable warnings from errors in Linux builds.

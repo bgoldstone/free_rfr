@@ -58,15 +58,24 @@ class _ConnectionsState extends State<Connections> {
     writeConfig();
   }
 
-  void writeConfig() {
+  bool writeConfig() {
     try {
       final file = File('${directory.path}/$configFile');
       file.writeAsStringSync(jsonEncode(config), encoding: utf8);
-    } catch (_) {}
+      return true;
+    } catch (error) {
+      debugPrint('Failed to write config: $error');
+      return false;
+    }
   }
 
-  void saveConnections() {
-    writeConfig();
+  bool saveConnections() => writeConfig();
+
+  void showConfigWriteError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to save connections')),
+    );
   }
 
   @override
@@ -172,7 +181,7 @@ class _ConnectionsState extends State<Connections> {
                       setState(() {
                         config['connections'].removeAt(index);
                       });
-                      saveConnections();
+                      if (!saveConnections()) showConfigWriteError();
                     },
                   );
                 });
@@ -249,7 +258,7 @@ class _ConnectionsState extends State<Connections> {
               config['connections'].add(
                   {'name': consoleName, 'ip': consoleIP, 'userId': userId});
             });
-            saveConnections();
+            if (!saveConnections()) showConfigWriteError();
           },
           child: const Text('Add'),
         )
