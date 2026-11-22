@@ -38,39 +38,67 @@ void main() {
       expect(find.text('Faders (Page 1)'), findsOneWidget);
     },
   );
-  testWidgets(
-    'Fader Controls Page Change Test',
-    (WidgetTester tester) async {
-      when(() =>
-              mockOSC.setupFaderBank(10, any(that: isA<FaderControlsState>())))
-          .thenAnswer((invocation) async {
-        debugPrint(invocation.positionalArguments.toString());
-        var controlsState = invocation.positionalArguments[1];
-        for (int i = 1; i <= 10; i++) {
-          controlsState.updateFader(i, 0.5, 'Fader $i', 100);
-        }
-      });
-      await setUp(tester, mockOSC);
-      final backButtonFinder = find.byIcon(Icons.arrow_back);
-      final forwardButtonFinder = find.byIcon(Icons.arrow_forward);
-      expect(backButtonFinder, findsOneWidget);
-      expect(forwardButtonFinder, findsOneWidget);
-      expect(find.text('Faders (Page 1)'), findsOneWidget);
-      await tester.tap(forwardButtonFinder);
-      await tester.pump();
-      verify(() => mockOSC.send("/eos/fader/1/page/1", [])).called(1);
-      expect(find.text('Faders (Page 2)'), findsOneWidget);
-      await tester.tap(backButtonFinder);
-      await tester.pump();
-      verify(() => mockOSC.send("/eos/fader/1/page/-1", [])).called(1);
-      expect(find.text('Faders (Page 1)'), findsOneWidget);
-      await tester.tap(backButtonFinder);
-      await tester.pump();
-      // Should not go below page 1
-      verifyNever(() => mockOSC.send("/eos/fader/1/page/-1", []));
-      expect(find.text('Faders (Page 1)'), findsOneWidget);
-    },
-  );
+  testWidgets('Fader Controls Page Change Test', (WidgetTester tester) async {
+    when(() => mockOSC.setupFaderBank(10, any(that: isA<FaderControlsState>())))
+        .thenAnswer((invocation) async {
+      debugPrint(invocation.positionalArguments.toString());
+      var controlsState = invocation.positionalArguments[1];
+      for (int i = 1; i <= 10; i++) {
+        controlsState.updateFader(i, 0.5, 'Fader $i', 100);
+      }
+    });
+    await setUp(tester, mockOSC);
+    final backButtonFinder = find.byIcon(Icons.arrow_back);
+    final forwardButtonFinder = find.byIcon(Icons.arrow_forward);
+    expect(backButtonFinder, findsOneWidget);
+    expect(forwardButtonFinder, findsOneWidget);
+    expect(find.text('Faders (Page 1)'), findsOneWidget);
+    await tester.tap(forwardButtonFinder);
+    await tester.pump();
+    verify(() => mockOSC.send("/eos/fader/1/page/1", [])).called(1);
+    expect(find.text('Faders (Page 2)'), findsOneWidget);
+    await tester.tap(backButtonFinder);
+    await tester.pump();
+    verify(() => mockOSC.send("/eos/fader/1/page/-1", [])).called(1);
+    expect(find.text('Faders (Page 1)'), findsOneWidget);
+    await tester.tap(backButtonFinder);
+    await tester.pump();
+    // Should not go below page 1
+    verifyNever(() => mockOSC.send("/eos/fader/1/page/-1", []));
+    expect(find.text('Faders (Page 1)'), findsOneWidget);
+  });
+
+  testWidgets('Fader updates preserve state unless forced', (tester) async {
+    FaderControlsState? controlsState;
+    when(() => mockOSC.setupFaderBank(10, any(that: isA<FaderControlsState>())))
+        .thenAnswer((invocation) {
+      controlsState = invocation.positionalArguments[1] as FaderControlsState;
+      for (int i = 1; i <= 10; i++) {
+        controlsState!.updateFader(i, 0.5, 'Fader $i', 100);
+      }
+    });
+
+    await setUp(tester, mockOSC);
+    final state = controlsState!;
+
+    expect(state.faders, hasLength(10));
+
+    state.updateFader(1, 0.0, '', 0);
+    expect(state.faders.first.name, 'Fader 1');
+    expect(state.faders.first.intensity, 0.5);
+
+    state.updateFader(1, 0.75, 'Dimmer', 100);
+    expect(state.faders.first.name, 'Dimmer');
+    expect(state.faders.first.intensity, 0.75);
+    expect(state.faders, hasLength(10));
+
+    state.updateFader(1, 0.0, '', 0, forceUpdate: true);
+    expect(state.faders.first.name, '');
+    expect(state.faders.first.intensity, 0.0);
+    expect(state.faders, hasLength(10));
+
+    await tester.pump();
+  });
 }
 
 Future<FreeRFRContext> setUp(WidgetTester tester, MockOSC mockOSC) async {

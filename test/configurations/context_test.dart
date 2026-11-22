@@ -71,4 +71,27 @@ void main() {
     expect(ds.name, equals("test"));
     expect(ds.objectNumber, equals(1));
   });
+
+  test('Context mutators update state and notify listeners', () {
+    final context = FreeRFRContext();
+    var notifications = 0;
+    context.addListener(() => notifications++);
+
+    context.putCurrentChannel(ParameterType.intens, [50.0]);
+    expect(context.currentChannel[ParameterType.intens], [50.0]);
+
+    context.updateDirectSelects(3, 12.0, 'Group');
+    expect(context.directSelects, hasLength(1));
+    expect(context.directSelects[3]!.name, 'Group');
+    expect(context.directSelects[3]!.objectNumber, 12.0);
+
+    context.updateDirectSelects(3, 13.0, 'Macro');
+    expect(context.directSelects, hasLength(1));
+    expect(context.directSelects[3]!.name, 'Macro');
+    expect(context.directSelects[3]!.objectNumber, 13.0);
+
+    context.clearDirectSelects();
+    expect(context.directSelects, isEmpty);
+    expect(notifications, greaterThan(0));
+  });
 }
