@@ -38,7 +38,8 @@ dependencies:
   path_provider: ^2.1.5
   flutter_colorpicker: ^1.1.0
   material_symbols_icons: ^4.2874.0
-  hotkey_manager: ^0.4.1
+  material_ui: ^1.11.1
+  hotkey_manager: ^0.2.3
   provider: ^6.1.5+1
   font_awesome_flutter: ^11.0.0
   url_launcher: ^6.3.2
