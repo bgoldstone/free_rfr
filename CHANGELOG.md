@@ -6,6 +6,7 @@ All notable changes to this project are documented here.
 
 ### Added
 - `CHANGELOG.md` and an `AGENTS.md` rule to update it with each commit.
+- Committed `pubspec.lock` and enforced it in CI to satisfy dependency-locking security checks.
 
 ## [1.0.2+3] - Unreleased
 
