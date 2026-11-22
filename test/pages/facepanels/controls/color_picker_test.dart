@@ -32,6 +32,7 @@ void main() {
       expect(colorFinder, findsOneWidget);
       when(() => osc.sendCmd("select_last Color Home#"))
           .thenAnswer((_) async => {});
+      await tester.ensureVisible(colorFinder);
       await tester.tap(colorFinder);
       await tester.pump();
       verify(() => osc.sendCmd("select_last Color Home#")).called(1);
@@ -46,7 +47,7 @@ void main() {
 
 Future<void> setUp(
     WidgetTester tester, MockOSC mockOSC, FreeRFRContext freeRFRContext) async {
-  tester.view.physicalSize = const Size(4096, 2160);
+  tester.view.physicalSize = const Size(800, 600);
   tester.view.devicePixelRatio = 1.0;
   await tester.pumpWidget(
     ChangeNotifierProvider(

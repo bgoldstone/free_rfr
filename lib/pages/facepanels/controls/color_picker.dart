@@ -38,6 +38,7 @@ class _ColorPickerControlState extends State<ColorPickerControl> {
             currentColor = newColor;
           },
           enableAlpha: false,
+          labelTypes: const [],
           paletteType: PaletteType.hueWheel,
         ),
         SizedBox(
