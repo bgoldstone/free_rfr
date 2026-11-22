@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Connections extends StatefulWidget {
-  final void Function(
+  final Future<void> Function(
           Map<String, dynamic> activeConnection, int index, FreeRFRContext ctx)
       setActiveConnection;
   final int currentConnectionIndex;
@@ -152,14 +152,15 @@ class _ConnectionsState extends State<Connections> {
                         subtitle: Text("""
                             Host: ${connections[index]['ip']}
                             User ID: ${connections[index]['userId']}"""),
-                        onTap: () {
+                        onTap: () async {
                           if (currentConnection != index) {
                             currentConnection = index;
                           } else {
                             currentConnection = -1;
                           }
-                          widget.setActiveConnection(
+                          await widget.setActiveConnection(
                               connections[index], currentConnection, ctx);
+                          if (!context.mounted) return;
                           Navigator.of(context).pushNamed('/home');
                         },
                         tileColor: index == currentConnection

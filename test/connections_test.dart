@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -105,14 +106,23 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<FreeRFRContext> setUpConnectionsPage(WidgetTester tester) async {
+  Future<FreeRFRContext> setUpConnectionsPage(
+    WidgetTester tester, {
+    Future<void> Function(
+      Map<String, dynamic> connection,
+      int index,
+      FreeRFRContext ctx,
+    )? onSelect,
+    Map<String, WidgetBuilder>? routes,
+  }) async {
     final ctx = FreeRFRContext();
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (context) => ctx,
         child: MaterialApp(
+          routes: routes ?? const <String, WidgetBuilder>{},
           home: Connections(
-            (connection, index, context) {},
+            onSelect ?? (connection, index, context) async {},
             currentConnectionIndex: -1,
           ),
         ),
@@ -127,6 +137,30 @@ void main() {
     await setUpConnectionsPage(tester);
 
     expect(find.text('No Connections'), findsOneWidget);
+  });
+
+  testWidgets('Connections waits for activation before navigating',
+      (tester) async {
+    final activation = Completer<void>();
+    configFile.writeAsStringSync(jsonEncode({
+      'connections': [
+        {'name': 'Old Console', 'ip': '10.0.0.1', 'userId': 1},
+      ],
+    }));
+
+    await setUpConnectionsPage(
+      tester,
+      onSelect: (connection, index, context) => activation.future,
+      routes: {'/home': (context) => const Text('Home')},
+    );
+
+    await tester.tap(find.text('Old Console'));
+    await tester.pump();
+    expect(find.text('Home'), findsNothing);
+
+    activation.complete();
+    await tester.pumpAndSettle();
+    expect(find.text('Home'), findsOneWidget);
   });
 
   testWidgets('Connections writes newly added connection to config',
