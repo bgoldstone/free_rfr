@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
@@ -30,11 +30,14 @@ class _FreeRFRState extends State<FreeRFR> {
   Map<String, dynamic> activeConnection = {};
   int index = 0;
   List<Widget> pages = [];
+  late final FreeRFRContext rfrContext;
+  bool _pageHotKeysRegistered = false;
 
   int currentConnectionIndex = -1;
 
   @override
   void initState() {
+    super.initState();
     pages = [
       FacePanel(key: const Key('Facepanel'), osc: widget.osc),
       FaderControls(osc: widget.osc),
@@ -49,16 +52,26 @@ class _FreeRFRState extends State<FreeRFR> {
       ),
       DirectSelects(osc: widget.osc),
     ];
+    rfrContext = context.read<FreeRFRContext>();
+    rfrContext.addListener(_handleContextChange);
     //if desktop os and popup is not open
     if (!(Platform.isAndroid || Platform.isIOS)) {
       registerHotKeys(widget.osc);
       setFreeRFRHotKeys();
     }
+  }
 
-    super.initState();
+  void _handleContextChange() {
+    if (Platform.isAndroid || Platform.isIOS) return;
+    if (rfrContext.hasHotKeyBeenUninitialized) {
+      setFreeRFRHotKeys();
+      rfrContext.hasHotKeyBeenUninitialized = false;
+    }
   }
 
   void setFreeRFRHotKeys() {
+    if (_pageHotKeysRegistered) return;
+    _pageHotKeysRegistered = true;
     HotKey pageLeft =
         HotKey(key: LogicalKeyboardKey.home, scope: HotKeyScope.inapp);
     hotKeyManager.register(pageLeft, keyDownHandler: (key) {
@@ -69,7 +82,6 @@ class _FreeRFRState extends State<FreeRFR> {
     HotKey pageRight =
         HotKey(key: LogicalKeyboardKey.end, scope: HotKeyScope.inapp);
     hotKeyManager.register(pageRight, keyDownHandler: (key) {
-      debugPrint("${index + 1} < ${pages.length}");
       if (index + 1 < pages.length) {
         setState(() => index++);
       }
@@ -78,28 +90,26 @@ class _FreeRFRState extends State<FreeRFR> {
 
   @override
   void dispose() {
+    rfrContext.removeListener(_handleContextChange);
     //if desktop os
     if (!(Platform.isAndroid || Platform.isIOS)) {
       hotKeyManager.unregisterAll();
     }
+    _pageHotKeysRegistered = false;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final ctx = context.watch<FreeRFRContext>();
-    if (ctx.hasHotKeyBeenUninitialized) {
-      setFreeRFRHotKeys();
-      ctx.hasHotKeyBeenUninitialized = false;
-    }
+    final ctx = context.read<FreeRFRContext>();
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
-        widget.osc.close();
       },
       child: Scaffold(
         appBar: AppBar(
           title: TextButton(
+            key: const Key('CommandLineButton'),
             onPressed: () {
               AlertDialog alert = AlertDialog(
                   title: const Text('Command Line'),
@@ -120,14 +130,17 @@ class _FreeRFRState extends State<FreeRFR> {
                   ]);
               showDialog(context: context, builder: (context) => alert);
             },
-            child: Text(
-              ctx.commandLine,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: ctx.commandLine.startsWith('BLIND')
-                    ? Colors.blue
-                    : Theme.of(context).primaryColor,
-                fontSize: 15,
+            child: AnimatedBuilder(
+              animation: ctx,
+              builder: (context, _) => Text(
+                ctx.commandLine,
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: ctx.commandLine.startsWith('BLIND')
+                      ? Colors.blue
+                      : Theme.of(context).primaryColor,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -137,7 +150,9 @@ class _FreeRFRState extends State<FreeRFR> {
             keypad(context),
           ],
         ),
-        body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
+        body: pages.isEmpty
+            ? const CircularProgressIndicator()
+            : IndexedStack(index: index, children: pages),
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(
@@ -246,11 +261,12 @@ class _FreeRFRState extends State<FreeRFR> {
     showGeneralDialog(
         context: context,
         pageBuilder: (context, anim1, anim2) {
-          final ctx = context.watch<FreeRFRContext>();
+          final ctx = context.read<FreeRFRContext>();
           return Scaffold(
             appBar: AppBar(
                 automaticallyImplyLeading: false,
                 title: TextButton(
+                  key: const Key('CommandLineButton'),
                   onPressed: () {
                     AlertDialog alert = AlertDialog(
                       title: const Text('Command Line'),
@@ -265,14 +281,17 @@ class _FreeRFRState extends State<FreeRFR> {
                     );
                     showDialog(context: context, builder: (context) => alert);
                   },
-                  child: Text(
-                    ctx.commandLine,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: ctx.commandLine.startsWith('BLIND')
-                          ? Colors.blue
-                          : Theme.of(context).primaryColor,
-                      fontSize: 15,
+                  child: AnimatedBuilder(
+                    animation: ctx,
+                    builder: (context, _) => Text(
+                      ctx.commandLine,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        color: ctx.commandLine.startsWith('BLIND')
+                            ? Colors.blue
+                            : Theme.of(context).primaryColor,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ),

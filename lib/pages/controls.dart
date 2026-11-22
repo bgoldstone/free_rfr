@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/controls/color.dart';
@@ -44,9 +44,7 @@ class _ControlsState extends State<Controls> {
       FocusControl(
         osc: widget.osc,
       ),
-      ctx.hueSaturation.isNotEmpty &&
-              getParameterForType(ctx.currentChannel, ParameterRole.color)
-                  .isNotEmpty
+      getParameterForType(ctx.currentChannel, ParameterRole.color).isNotEmpty
           ? ColorPickerControl(widget.osc)
           : noParametersForThisChannel("Color Picker"),
       ColorControl(osc: widget.osc),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 Future<void> ignoreErrors() async {
   FlutterError.onError = (
@@ -7,21 +7,18 @@ Future<void> ignoreErrors() async {
   }) {
     assert(details != null);
     assert(details?.exception != null);
-    // ---
 
-    bool ifIsOverflowError = false;
-
-    // Detect overflow error.
-    var exception = details?.exception;
+    final exception = details?.exception;
+    var isOverflowError = false;
     if (exception is FlutterError) {
-      ifIsOverflowError = !exception.diagnostics.any(
-          (e) => e.value.toString().startsWith("A RenderFlex overflowed by"));
+      isOverflowError = exception.diagnostics.any(
+        (diagnostic) => diagnostic.value.toString().startsWith(
+              'A RenderFlex overflowed by',
+            ),
+      );
     }
 
-    // Ignore if is overflow error.
-    if (ifIsOverflowError) {
-      debugPrint('Overflow error.');
-    } else {
+    if (!isOverflowError) {
       FlutterError.dumpErrorToConsole(details!, forceReport: forceReport);
     }
   };

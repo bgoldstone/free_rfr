@@ -44,4 +44,28 @@ void main() {
     expect(getParameterForType(paramMap, ParameterRole.intens).length, 1);
     expect(getParameterForType(paramMap, ParameterRole.panTilt).length, 2);
   });
+
+  test('ParameterType formats names and keeps default bounds', () {
+    final parameter = ParameterType('Max Pan', ParameterRole.panTilt);
+
+    expect(parameter.getEosName(), 'Max_Pan');
+    expect(parameter.toString(), 'Max Pan');
+    expect(parameter.minValue, 0);
+    expect(parameter.maxValue, 100);
+  });
+
+  test('Parameter helpers preserve values and handle empty maps', () {
+    final focus = ParameterType('Focus', ParameterRole.focus);
+    final parameters = <ParameterType, List<double>?>{
+      focus: [10.0, 50.0],
+      ParameterType.intens: [0.0, 100.0],
+    };
+
+    expect(filterByParameterType(parameters, ParameterRole.focus), {
+      focus: [10.0, 50.0],
+    });
+    expect(getParameterForType(parameters, ParameterRole.focus), [focus]);
+    expect(filterByParameterType({}, ParameterRole.focus), isEmpty);
+    expect(getParameterForType({}, ParameterRole.focus), isEmpty);
+  });
 }

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
+import 'package:free_rfr/objects/parameters.dart';
 import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -9,44 +10,149 @@ import 'package:provider/provider.dart';
 import '../../../mocks/MockOSC.dart';
 
 void main() {
-  MockOSC osc = MockOSC();
-  testWidgets(
-    'Targets Widget Test',
-    (WidgetTester tester) async {
-      final freeRFRContext = FreeRFRContext();
-      freeRFRContext.hueSaturation = [0, 1];
-      await setUp(tester, osc, freeRFRContext);
-      var colorPickerFinder = find.byType(ColorPicker);
-      expect(colorPickerFinder, findsOneWidget);
-      when(() => osc.sendColor(any(), any(), any()))
-          .thenAnswer((_) async => {});
-      var colorWheel = find.byWidgetPredicate((widget) =>
-          widget is CustomPaint && widget.painter is HUEColorWheelPainter);
-      await tester.ensureVisible(colorWheel);
+  testWidgets('sends the tapped orange color as RGB', (tester) async {
+    final osc = MockOSC();
+    when(() => osc.sendColor(any(), any(), any())).thenAnswer((_) async => {});
+    final ctx = FreeRFRContext()..hueSaturation = [0, 1];
+    await setUp(tester, osc, ctx);
 
-      await tester.tap(colorWheel);
-      await tester.pumpAndSettle();
-      verify(() => osc.sendColor(any(), any(), any())).called(1);
+    final colorWheel = find.byWidgetPredicate(
+      (widget) =>
+          widget is CustomPaint && widget.painter is HUEColorWheelPainter,
+    );
+    await tester.ensureVisible(colorWheel);
+    await tester.tapAt(tester.getCenter(colorWheel) + const Offset(121, -70));
+    await tester.pumpAndSettle();
 
-      var colorFinder = find.text('Color Home');
-      expect(colorFinder, findsOneWidget);
-      when(() => osc.sendCmd("select_last Color Home#"))
-          .thenAnswer((_) async => {});
-      await tester.tap(colorFinder);
-      await tester.pump();
-      verify(() => osc.sendCmd("select_last Color Home#")).called(1);
-    },
-  );
-  testWidgets('Targets Button Press Test', (WidgetTester tester) async {
-    final freeRFRContext = FreeRFRContext();
-    freeRFRContext.hueSaturation = [0, 0];
-    await setUp(tester, osc, freeRFRContext);
+    final captured = verify(
+      () => osc.sendColor(captureAny(), captureAny(), captureAny()),
+    ).captured;
+    expect(captured[0] as double, closeTo(1.0, 0.01));
+    expect(captured[1] as double, closeTo(0.5, 0.01));
+    expect(captured[2] as double, closeTo(0.0, 0.01));
+  });
+
+  testWidgets('uses RGBW wheel values when Eos saturation is zero',
+      (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..hueSaturation = [0, 0]
+      ..putCurrentChannel(ParameterType('Red', ParameterRole.color), [100])
+      ..putCurrentChannel(ParameterType('Green', ParameterRole.color), [50])
+      ..putCurrentChannel(ParameterType('Blue', ParameterRole.color), [0])
+      ..putCurrentChannel(ParameterType('White', ParameterRole.color), [0]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(30.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+    expect(hsv.value, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('uses CMY wheel values for non-RGBW fixtures', (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..putCurrentChannel(ParameterType('Cyan', ParameterRole.color), [0])
+      ..putCurrentChannel(ParameterType('Magenta', ParameterRole.color), [50])
+      ..putCurrentChannel(ParameterType('Yellow', ParameterRole.color), [100]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(30.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+    expect(hsv.value, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('uses Eos hue and saturation as HSV', (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()..hueSaturation = [210.0, 0.75];
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(210.0, 1.0));
+    expect(hsv.saturation, closeTo(0.75, 0.01));
+    expect(hsv.value, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('prefers usable Eos hue and saturation over wheel values',
+      (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..hueSaturation = [30.0, 1.0]
+      ..putCurrentChannel(ParameterType('Red', ParameterRole.color), [100])
+      ..putCurrentChannel(ParameterType('Green', ParameterRole.color), [0])
+      ..putCurrentChannel(ParameterType('Blue', ParameterRole.color), [0]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(30.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('uses non-RGB emitter wheels when Eos saturation is zero',
+      (tester) async {
+    final osc = MockOSC();
+    final ctx = FreeRFRContext()
+      ..hueSaturation = [0, 0]
+      ..putCurrentChannel(ParameterType('Amber 1', ParameterRole.color), [100]);
+    await setUp(tester, osc, ctx);
+
+    final hsv = wheelHsv(tester);
+    expect(hsv.hue, closeTo(36.0, 1.0));
+    expect(hsv.saturation, closeTo(1.0, 0.01));
+    expect(hsv.value, closeTo(1.0, 0.01));
+  });
+
+  testWidgets('refreshes the picker when feedback changes after a local tap',
+      (tester) async {
+    final osc = MockOSC();
+    when(() => osc.sendColor(any(), any(), any())).thenAnswer((_) async => {});
+    final ctx = FreeRFRContext()..hueSaturation = [0, 1];
+    await setUp(tester, osc, ctx);
+
+    final colorWheel = find.byWidgetPredicate(
+      (widget) =>
+          widget is CustomPaint && widget.painter is HUEColorWheelPainter,
+    );
+    await tester.tapAt(tester.getCenter(colorWheel) + const Offset(121, -70));
+    await tester.pumpAndSettle();
+    expect(wheelHsv(tester).hue, closeTo(30.0, 2.0));
+
+    ctx.hueSaturation = [240.0, 1.0];
+    await tester.pumpAndSettle();
+
+    expect(wheelHsv(tester).hue, closeTo(240.0, 1.0));
+  });
+
+  testWidgets('Color Home resets the selected color', (tester) async {
+    final osc = MockOSC();
+    when(() => osc.sendCmd('select_last Color Home#')).thenAnswer((_) async {});
+    await setUp(tester, osc, FreeRFRContext());
+
+    final colorFinder = find.text('Color Home');
+    expect(colorFinder, findsOneWidget);
+    await tester.ensureVisible(colorFinder);
+    await tester.tap(colorFinder);
+    await tester.pump();
+    verify(() => osc.sendCmd('select_last Color Home#')).called(1);
   });
 }
 
+/// Returns the HSV color currently rendered by the hue wheel painter.
+HSVColor wheelHsv(WidgetTester tester) {
+  final colorWheel = find.byWidgetPredicate(
+    (widget) => widget is CustomPaint && widget.painter is HUEColorWheelPainter,
+  );
+  final painter = tester.widget<CustomPaint>(colorWheel).painter;
+  return (painter as HUEColorWheelPainter).hsvColor;
+}
+
 Future<void> setUp(
-    WidgetTester tester, MockOSC mockOSC, FreeRFRContext freeRFRContext) async {
-  tester.view.physicalSize = const Size(4096, 2160);
+  WidgetTester tester,
+  MockOSC mockOSC,
+  FreeRFRContext freeRFRContext,
+) async {
+  tester.view.physicalSize = const Size(800, 600);
   tester.view.devicePixelRatio = 1.0;
   await tester.pumpWidget(
     ChangeNotifierProvider(

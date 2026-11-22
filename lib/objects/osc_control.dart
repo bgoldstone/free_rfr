@@ -3,7 +3,8 @@ import 'dart:core';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:material_ui/material_ui.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:free_rfr/objects/parameters.dart';
 import 'package:osc/osc.dart';
@@ -19,6 +20,17 @@ class OSC {
 
   final Socket client;
 
+  bool _isClosed = false;
+  Future<void> _commandQueue = Future.value();
+  Uint8List _buffer = Uint8List(0);
+  int _bufferOffset = 0;
+
+  void _debugLog(String message) {
+    if (kDebugMode) {
+      debugPrint(message);
+    }
+  }
+
   OSC(this.ctx, this.userId, this.client) {
     OSCMessage message = OSCMessage('/eos/subscribe', arguments: [1]);
     sendOSCMessage(message);
@@ -26,18 +38,18 @@ class OSC {
     sendOSCMessage(message);
     _updateEosOutput();
     // _setUDPTXIP();
-    debugPrint('OSC initialized with ${client.address}:${client.port}');
+    _debugLog('OSC initialized with ${client.address}:${client.port}');
   }
 
   Future<void> sendOSCMessage(OSCMessage message) async {
     try {
       final data = message.toBytes();
-      final lengthBytes = Uint8List(4); // 4 bytes for the length (big-endian)
-      ByteData.view(lengthBytes.buffer).setInt32(0, data.length, Endian.big);
-      client.add(lengthBytes);
-      client.add(message.toBytes());
+      final packet = Uint8List(4 + data.length);
+      ByteData.view(packet.buffer).setInt32(0, data.length, Endian.big);
+      packet.setRange(4, packet.length, data);
+      client.add(packet);
     } catch (e) {
-      debugPrint("Error sending OSC message: $e");
+      _debugLog("Error sending OSC message: $e");
     }
   }
 
@@ -45,7 +57,7 @@ class OSC {
     controlStates
         .removeWhere((e) => e.runtimeType == controlWidget.runtimeType);
     controlStates.add(controlWidget);
-    debugPrint("added $controlWidget to controlstates");
+    _debugLog("added $controlWidget to controlstates");
   }
 
   ControlWidget? getControlWidgetForType(ParameterType type) {
@@ -63,10 +75,6 @@ class OSC {
     await close();
   }
 
-  void sleep100() {
-    sleep(const Duration(milliseconds: 100));
-  }
-
   void sendBlind() {
     OSCMessage message = OSCMessage('/eos/key/blind', arguments: [1]);
     sendOSCMessage(message);
@@ -80,7 +88,7 @@ class OSC {
   }
 
   Future<void> sendKey(String key, {int sleepMillis = 100}) async {
-    debugPrint('Sending key $key');
+    _debugLog('Sending key $key');
     OSCMessage message = OSCMessage('/eos/key/$key', arguments: []);
     await sendOSCMessage(message);
     await Future.delayed(Duration(milliseconds: sleepMillis));
@@ -102,30 +110,31 @@ class OSC {
   // }
 
   void _updateEosOutput() async {
-    debugPrint('Updating Eos Output');
-    List<int> buffer = [];
+    _debugLog('Updating Eos Output');
     List<Object> currentChannel = [];
     client.listen((packet) {
-      buffer.addAll(packet);
-      while (buffer.isNotEmpty) {
-        if (buffer.length < 4) {
+      _appendIncomingBytes(packet);
+      while (_buffer.length - _bufferOffset >= 4) {
+        final frameStart = _bufferOffset;
+        final messageLength =
+            ByteData.view(_buffer.buffer, _buffer.offsetInBytes + frameStart, 4)
+                .getUint32(0);
+        if (_buffer.length - frameStart < 4 + messageLength) {
           break;
         }
-        final lengthBytes = Uint8List.fromList(buffer.sublist(0, 4));
-        final lengthBuffer = lengthBytes.buffer.asByteData();
-        final messageLength = lengthBuffer.getUint32(0);
-        if (buffer.length < 4 + messageLength) {
-          break;
-        }
-        final messageBytes = buffer.sublist(0, 4 + messageLength);
-        final messageData = Uint8List.fromList(messageBytes);
+        final messageStart = frameStart + 4;
+        final messageEnd = messageStart + messageLength;
+        final messageData =
+            Uint8List.sublistView(_buffer, messageStart, messageEnd);
         try {
-          final message = parseEosMessage(messageData.sublist(4));
-          debugPrint(
+          final message = parseEosMessage(messageData);
+          _debugLog(
               "Is hs:${message.address.startsWith('/eos/out/color/hs')}, actual :${message.address}");
-          debugPrint(message.toString());
-          debugPrint(
-              "Raw: ${utf8.decode(messageData.sublist(4), allowMalformed: true).trim()}");
+          _debugLog(message.toString());
+          if (kDebugMode) {
+            _debugLog(
+                "Raw: ${utf8.decode(messageData, allowMalformed: true).trim()}");
+          }
           if (message.address == '/eos/out/active/chan') {
             if (message.arguments != currentChannel) {
               currentChannel = message.arguments;
@@ -135,23 +144,21 @@ class OSC {
             ctx.commandLine = '${message.arguments[0]}';
           } else if (message.address.startsWith("/eos/out/pantilt") &&
               message.arguments.length >= 4) {
-            ctx.putCurrentChannel(
-                ParameterType.minPan, [message.arguments[0] as double]);
-            ctx.putCurrentChannel(
-                ParameterType.maxPan, [message.arguments[1] as double]);
-            ctx.putCurrentChannel(
-                ParameterType.minTilt, [message.arguments[2] as double]);
-            ctx.putCurrentChannel(
-                ParameterType.maxTilt, [message.arguments[3] as double]);
+            ctx.updatePanTiltBounds(
+              message.arguments[0] as double,
+              message.arguments[1] as double,
+              message.arguments[2] as double,
+              message.arguments[3] as double,
+            );
           } else if (message.address.startsWith('/eos/out/active/wheel/')) {
-            debugPrint('Original name: ${message.arguments[0]}');
+            _debugLog('Original name: ${message.arguments[0]}');
             var origParamName = message.arguments[0].toString().split(" ");
             var parameterName =
                 origParamName.sublist(0, origParamName.length - 1).join(" ");
             var value = message.arguments.last as double;
             var role = ParameterRole.getTypeById(message.arguments[1] as int);
             parameterName = parameterName.trimRight();
-            debugPrint("Parameter Name: $parameterName|");
+            _debugLog("Parameter Name: $parameterName|");
             var currentParams = [
               ...ctx.currentChannel.keys,
               ...ParameterType.staticParamTypes
@@ -165,9 +172,9 @@ class OSC {
             }
             //if type null create parameterType.
             type ??= ParameterType(parameterName, role);
-            debugPrint(
+            _debugLog(
                 "Creating new ParameterType : $parameterName | ${role.name}");
-            debugPrint(ctx.currentChannel.toString());
+            _debugLog(ctx.currentChannel.toString());
 
             if (type == ParameterType.intens) {
               ctx.putCurrentChannel(ParameterType.intens, [value]);
@@ -182,51 +189,40 @@ class OSC {
               message.arguments.isNotEmpty) {
             double hue = double.parse(message.arguments[0].toString());
             double saturation =
-                double.parse(message.arguments[1].toString()) / 255;
-            debugPrint("HUESAT: $hue $saturation");
+                (double.parse(message.arguments[1].toString()) / 100).clamp(
+              0.0,
+              1.0,
+            );
+            _debugLog("HUESAT: $hue $saturation");
             ctx.hueSaturation = [hue, saturation];
           } else if (message.address.startsWith('/eos/out/active/cue/text')) {
             String text = message.arguments[0].toString();
-            if (text.length > 1) {
-              ctx.currentCueText = text;
-            } else {
-              ctx.currentCueText = '';
-            }
+            ctx.updateCurrentCue(text: text.length > 1 ? text : '');
           } else if (message.address.startsWith('/eos/out/active/cue/')) {
             List<String> address = message.address.split('/');
-            ctx.currentCue = double.parse(address.last);
-            ctx.currentCueList = int.parse(address[address.length - 2]);
+            ctx.updateCurrentCue(
+              cue: double.parse(address.last),
+              cueList: int.parse(address[address.length - 2]),
+            );
           } else if (message.address.startsWith('/eos/out/pending/cue/text')) {
             String text = message.arguments[0].toString();
-            if (text.length > 1) {
-              ctx.nextCueText = text;
-            } else {
-              ctx.nextCueText = '';
-            }
+            ctx.updateNextCue(text: text.length > 1 ? text : '');
           } else if (message.address.startsWith('/eos/out/pending/cue/')) {
             List<String> address = message.address.split('/');
-            try {
-              ctx.nextCue = double.parse(address.last);
-            } catch (e) {
-              ctx.nextCue = 0;
-            }
+            ctx.updateNextCue(
+              cue: double.tryParse(address.last) ?? 0,
+            );
           } else if (message.address.startsWith('/eos/out/previous/cue/text')) {
             String text = message.arguments[0].toString();
-            if (text.length > 1) {
-              ctx.previousCueText = text;
-            } else {
-              ctx.previousCueText = '';
-            }
+            ctx.updatePreviousCue(text: text.length > 1 ? text : '');
           } else if (message.address.startsWith('/eos/out/previous/cue/')) {
             List<String> address = message.address.split('/');
-            try {
-              ctx.previousCue = double.parse(address.last);
-            } catch (e) {
-              ctx.previousCue = 0;
-            }
+            ctx.updatePreviousCue(
+              cue: double.tryParse(address.last) ?? 0,
+            );
           } else if (message.address.startsWith("/eos/out/fader")) {
             var components = message.address.split("/");
-            debugPrint(components.toString());
+            _debugLog(components.toString());
             if (components[4] == "range") {
               // var faderPage = int.parse(components[5]);
               var faderIndex = int.parse(components[6]);
@@ -238,7 +234,7 @@ class OSC {
                 var faderIndex = int.parse(components[5]);
                 if (faderControlsState != null) {
                   if (message.arguments.toString() == "[]") {
-                    debugPrint("Empty arguments");
+                    _debugLog("Empty arguments");
                     faderControlsState!
                         .updateFader(faderIndex, 0, "", 0, forceUpdate: true);
                   } else {
@@ -257,15 +253,13 @@ class OSC {
           } else if (message.address.startsWith("/eos/out/pantilt")) {
             if (getControlWidgetForType(ParameterType.pan) != null) {
               var args = message.arguments;
-              if (args.isNotEmpty && args.length <= 4) {
-                ctx.putCurrentChannel(
-                    ParameterType.minPan, [double.parse(args[0].toString())]);
-                ctx.putCurrentChannel(
-                    ParameterType.maxPan, [double.parse(args[1].toString())]);
-                ctx.putCurrentChannel(
-                    ParameterType.minTilt, [double.parse(args[2].toString())]);
-                ctx.putCurrentChannel(
-                    ParameterType.maxTilt, [double.parse(args[3].toString())]);
+              if (args.length == 4) {
+                ctx.updatePanTiltBounds(
+                  double.parse(args[0].toString()),
+                  double.parse(args[1].toString()),
+                  double.parse(args[2].toString()),
+                  double.parse(args[3].toString()),
+                );
               }
             }
           } else if (message.address.startsWith('/eos/out/ds/1/')) {
@@ -278,34 +272,71 @@ class OSC {
             ctx.updateDirectSelects(dsIndex, objectNumber, name);
           }
         } catch (e) {
-          debugPrint(
-              'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
-          // Consider how to handle parsing errors (e.g., send an error message to the client, close the connection).
-          // socket.add(Uint8List.fromList("ERROR".codeUnits)); //send error
-          // socket.close();
+          if (kDebugMode) {
+            _debugLog(
+                'Error parsing OSC message: $e ${utf8.decode(messageData, allowMalformed: true).trim()}');
+          }
         }
-        buffer.removeRange(0, 4 + messageLength);
+        _bufferOffset = messageEnd;
       }
+      _compactBuffer();
     });
+  }
+
+  void _appendIncomingBytes(List<int> packet) {
+    final incoming = Uint8List.fromList(packet);
+    final remaining = _buffer.length - _bufferOffset;
+    if (remaining == 0) {
+      _buffer = incoming;
+      _bufferOffset = 0;
+      return;
+    }
+    final combined = Uint8List(remaining + incoming.length);
+    combined.setRange(0, remaining, _buffer, _bufferOffset);
+    combined.setRange(remaining, combined.length, incoming);
+    _buffer = combined;
+    _bufferOffset = 0;
+  }
+
+  void _compactBuffer() {
+    final remaining = _buffer.length - _bufferOffset;
+    if (_bufferOffset == 0) {
+      return;
+    }
+    if (remaining == 0) {
+      _buffer = Uint8List(0);
+      _bufferOffset = 0;
+      return;
+    }
+    if (_bufferOffset < 4096) {
+      return;
+    }
+    final compacted = Uint8List(remaining);
+    compacted.setRange(0, remaining, _buffer, _bufferOffset);
+    _buffer = compacted;
+    _bufferOffset = 0;
   }
 
   void setupFaderBank(int count, FaderControlsState state) {
     OSCMessage message = OSCMessage('/eos/fader/1/config/10', arguments: []);
     sendOSCMessage(message);
-    debugPrint('Sent: $message, configuration done!');
+    _debugLog('Sent: $message, configuration done!');
     faderControlsState = state;
   }
 
   void sendCmd(String cmd) {
-    OSCMessage message = OSCMessage('/eos/cmd', arguments: [cmd]);
-    sendOSCMessage(message);
-    sleep100();
+    _commandQueue = _commandQueue.then((_) async {
+      await sendOSCMessage(OSCMessage('/eos/cmd', arguments: [cmd]));
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
   }
+
+  Future<void> drainCommands() => _commandQueue;
 
   void send(String cmd, List<Object> list) {
     OSCMessage message = OSCMessage(cmd, arguments: list);
     sendOSCMessage(message);
-    debugPrint('Sent: $message');
+    _debugLog('Sent: $message');
   }
 
   void setParameter(String attributeName, double parameterValue) {
@@ -325,13 +356,17 @@ class OSC {
   }
 
   Future<void> close() async {
-    await client.flush();
-    await client.close();
-    debugPrint('OSC connection closed');
-  }
-
-  void sleep250() {
-    sleep(const Duration(milliseconds: 250));
+    if (_isClosed) {
+      return;
+    }
+    _isClosed = true;
+    try {
+      await client.flush();
+    } catch (_) {}
+    try {
+      await client.close();
+    } catch (_) {}
+    _debugLog('OSC connection closed');
   }
 
   void updatePanTilt(double pan, double tilt) {

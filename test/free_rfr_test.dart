@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_rfr/configurations/context.dart';
@@ -87,6 +87,7 @@ void main() {
     expect(find.text("Cancel"), findsOneWidget);
     expect(find.text("OK"), findsOneWidget);
     await tester.tap(find.text("Cancel"));
+    await tester.pump(const Duration(milliseconds: 500));
     expect(
         find.byWidgetPredicate((widget) =>
             widget is IconButton && widget.tooltip == "Clear Command Line"),
@@ -97,13 +98,10 @@ void main() {
         findsOneWidget);
     var keypadPopupFinder = find.byWidgetPredicate(
         (widget) => widget is IconButton && widget.tooltip == "Keypad");
-    final commandLineFinder = find.byWidgetPredicate((widget) =>
-        widget is TextButton &&
-        widget.child is Text &&
-        (widget.child as Text).textAlign == TextAlign.left);
+    final commandLineFinder = find.byKey(const Key('CommandLineButton'));
     expect(commandLineFinder, findsOneWidget);
     await tester.tap(commandLineFinder);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
     await tester.sendKeyUpEvent(LogicalKeyboardKey.escape);
     await tester.pump();

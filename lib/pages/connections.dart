@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:free_rfr/configurations/context.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Connections extends StatefulWidget {
-  final void Function(
+  final Future<void> Function(
           Map<String, dynamic> activeConnection, int index, FreeRFRContext ctx)
       setActiveConnection;
   final int currentConnectionIndex;
@@ -25,39 +25,57 @@ class _ConnectionsState extends State<Connections> {
 
   final String configFile = 'free_rfr.json';
   Directory directory = Directory('');
-  int listLength = 0;
   TextEditingController userIdController = TextEditingController();
+  late final Future<void> configLoaded;
 
   @override
   void initState() {
     super.initState();
     userIdController.text = '0';
+    configLoaded = loadConfig();
   }
 
-  Future<bool> getConfig() async {
+  Future<void> loadConfig() async {
     directory = await getApplicationDocumentsDirectory();
     if (!directory.existsSync()) {
       directory.createSync(recursive: true);
     }
-    File file = File('${directory.path}/$configFile');
+    final file = File('${directory.path}/$configFile');
     if (!file.existsSync()) {
-      file.createSync();
-      file.writeAsString(jsonEncode(config), encoding: utf8);
-      return false;
+      writeConfig();
+      return;
     }
-    file.readAsString(encoding: utf8).then((data) {
-      setState(() {
-        config = jsonDecode(data);
-      });
-    });
-
-    return true;
+    try {
+      final decoded = jsonDecode(file.readAsStringSync(encoding: utf8));
+      if (decoded is Map<String, dynamic> && decoded['connections'] is List) {
+        if (!mounted) return;
+        setState(() {
+          config = decoded;
+        });
+        return;
+      }
+    } catch (_) {}
+    writeConfig();
   }
 
-  void saveConnections() async {
-    File file = File('${directory.path}/$configFile');
-    await file.writeAsString(jsonEncode(config), encoding: utf8);
-    await getConfig();
+  bool writeConfig() {
+    try {
+      final file = File('${directory.path}/$configFile');
+      file.writeAsStringSync(jsonEncode(config), encoding: utf8);
+      return true;
+    } catch (error) {
+      debugPrint('Failed to write config: $error');
+      return false;
+    }
+  }
+
+  bool saveConnections() => writeConfig();
+
+  void showConfigWriteError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to save connections')),
+    );
   }
 
   @override
@@ -121,37 +139,37 @@ class _ConnectionsState extends State<Connections> {
   }
 
   FutureBuilder connectionsList(FreeRFRContext ctx) {
-    final Future<bool> configRetrival = getConfig();
-    int currentConnection = widget.currentConnectionIndex;
-    return FutureBuilder(
-        future: configRetrival,
+    var currentConnection = widget.currentConnectionIndex;
+    return FutureBuilder<void>(
+        future: configLoaded,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text(snapshot.error.toString()));
-          } else if (config['connections'].length > 0) {
+          }
+          final connections = config['connections'] as List<dynamic>;
+          if (connections.isNotEmpty) {
             return ListView.builder(
-                itemCount: config['connections'].length,
+                itemCount: connections.length,
                 itemBuilder: (context, index) {
                   return Dismissible(
                     key: Key('Connection $index'),
                     child: Card(
                       child: ListTile(
-                        title: Text(config['connections'][index]['name']),
+                        title: Text(connections[index]['name']),
                         subtitle: Text("""
-                            Host: ${config['connections'][index]['ip']}
-                            User ID: ${config['connections'][index]['userId']}"""),
-                        onTap: () {
+                            Host: ${connections[index]['ip']}
+                            User ID: ${connections[index]['userId']}"""),
+                        onTap: () async {
                           if (currentConnection != index) {
                             currentConnection = index;
                           } else {
                             currentConnection = -1;
                           }
-                          widget.setActiveConnection(
-                              config['connections'][index],
-                              currentConnection,
-                              ctx);
+                          await widget.setActiveConnection(
+                              connections[index], currentConnection, ctx);
+                          if (!context.mounted) return;
                           Navigator.of(context).pushNamed('/home');
                         },
                         tileColor: index == currentConnection
@@ -162,8 +180,8 @@ class _ConnectionsState extends State<Connections> {
                     onDismissed: (direction) {
                       setState(() {
                         config['connections'].removeAt(index);
-                        saveConnections();
                       });
+                      if (!saveConnections()) showConfigWriteError();
                     },
                   );
                 });
@@ -236,10 +254,11 @@ class _ConnectionsState extends State<Connections> {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            config['connections']
-                .add({'name': consoleName, 'ip': consoleIP, 'userId': userId});
-            saveConnections();
-            setState(() {});
+            setState(() {
+              config['connections'].add(
+                  {'name': consoleName, 'ip': consoleIP, 'userId': userId});
+            });
+            if (!saveConnections()) showConfigWriteError();
           },
           child: const Text('Add'),
         )

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:free_rfr/configurations/context.dart';
 
 import 'package:free_rfr/objects/osc_control.dart';
