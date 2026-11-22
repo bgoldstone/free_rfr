@@ -189,7 +189,10 @@ class OSC {
               message.arguments.isNotEmpty) {
             double hue = double.parse(message.arguments[0].toString());
             double saturation =
-                double.parse(message.arguments[1].toString()) / 255;
+                (double.parse(message.arguments[1].toString()) / 100).clamp(
+              0.0,
+              1.0,
+            );
             _debugLog("HUESAT: $hue $saturation");
             ctx.hueSaturation = [hue, saturation];
           } else if (message.address.startsWith('/eos/out/active/cue/text')) {

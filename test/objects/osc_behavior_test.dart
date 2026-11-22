@@ -201,8 +201,11 @@ void main() {
     harness.emit(OSCMessage('/eos/out/cmd', arguments: ['LIVE : ']));
     expect(harness.context.commandLine, 'LIVE : ');
 
-    harness.emit(OSCMessage('/eos/out/color/hs', arguments: [240, 127.5]));
+    harness.emit(OSCMessage('/eos/out/color/hs', arguments: [240, 50]));
     expect(harness.context.hueSaturation, [240.0, 0.5]);
+
+    harness.emit(OSCMessage('/eos/out/color/hs', arguments: [30, 150]));
+    expect(harness.context.hueSaturation, [30.0, 1.0]);
 
     harness.emit(
       OSCMessage('/eos/out/active/cue/text', arguments: ['Long label']),

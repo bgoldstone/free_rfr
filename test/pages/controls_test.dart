@@ -69,8 +69,7 @@ void main() {
     expect(find.byType(PanTiltControl), findsOneWidget);
   });
 
-  testWidgets('Controls gates color picker on hue and color parameter',
-      (tester) async {
+  testWidgets('Controls gates color picker on color parameter', (tester) async {
     final ctx = FreeRFRContext()..hueSaturation = [240.0, 1.0];
     await setUpPage(tester, osc: MockOSC(), context: ctx);
 
@@ -85,6 +84,20 @@ void main() {
       ParameterType('Color', ParameterRole.color),
       [50.0],
     );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ColorPickerControl), findsOneWidget);
+  });
+
+  testWidgets('Controls shows color picker for arbitrary color wheels',
+      (tester) async {
+    final ctx = FreeRFRContext()
+      ..putCurrentChannel(ParameterType('Color Wheel', ParameterRole.color), [
+        50.0,
+      ]);
+    await setUpPage(tester, osc: MockOSC(), context: ctx);
+
+    await tester.tap(find.text('Color Picker'));
     await tester.pumpAndSettle();
 
     expect(find.byType(ColorPickerControl), findsOneWidget);

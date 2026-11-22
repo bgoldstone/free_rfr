@@ -44,9 +44,7 @@ class _ControlsState extends State<Controls> {
       FocusControl(
         osc: widget.osc,
       ),
-      ctx.hueSaturation.isNotEmpty &&
-              getParameterForType(ctx.currentChannel, ParameterRole.color)
-                  .isNotEmpty
+      getParameterForType(ctx.currentChannel, ParameterRole.color).isNotEmpty
           ? ColorPickerControl(widget.osc)
           : noParametersForThisChannel("Color Picker"),
       ColorControl(osc: widget.osc),
