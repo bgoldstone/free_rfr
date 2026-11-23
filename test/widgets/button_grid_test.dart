@@ -62,6 +62,21 @@ void main() {
     expect(text.overflow, isNull);
   });
 
+  testWidgets('Button uses minimal inner padding', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Button('Padded', () {}),
+        ),
+      ),
+    );
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.style?.padding?.resolve(<WidgetState>{}),
+        const EdgeInsets.symmetric(horizontal: 4, vertical: 2));
+    expect(button.style?.minimumSize?.resolve(<WidgetState>{}), Size.zero);
+  });
+
   testWidgets('Grid renders nothing when empty', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
