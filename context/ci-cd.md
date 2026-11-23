@@ -2,8 +2,10 @@
 
 ## Workflow shape
 
-- `.github/workflows/flutter_build.yml` triggers on `push` to `main`, `v*` tags, PRs to `main`, and manual dispatch. Pushes to `dev` do not trigger CI.
-- A `verify` job runs first on Ubuntu and gates all build jobs with `needs: verify`; it runs `flutter pub get --enforce-lockfile`, format check, `flutter analyze`, and `flutter test`.
+- `.github/workflows/flutter_build.yml` is the orchestrator and triggers on `push` to `main`, `v*` tags, PRs to `main`, and manual dispatch. Pushes to `dev` do not trigger CI.
+- `verify` and `release-assets` are reusable workflows under `.github/workflows/flutter_build/`; build jobs stay inline in the orchestrator.
+- The orchestrator owns triggers, concurrency, `needs`, top-level `env`, and secret inheritance; called workflows do not inherit top-level `env`.
+- The `verify` workflow runs first on Ubuntu and gates all build jobs with `needs: verify`; it runs `flutter pub get --enforce-lockfile`, format check, `flutter analyze`, and `flutter test`.
 - Build jobs then run in parallel: `build-android`, `build-linux`, `build-windows`, `build-ios`, `build-macos`.
 - PR builds use debug mode for Android, Linux, and Windows; iOS and macOS jobs are skipped on PRs.
 - `main` pushes, `v*` tags, and manual dispatch use release mode for every platform.
@@ -13,7 +15,7 @@
 
 ## Release artifacts
 
-- `release-assets` runs only for `v*` tags and depends on `verify` plus every build job.
+- The reusable `release-assets` workflow runs only for `v*` tags and its orchestrator job depends on `verify` plus every build job.
 - Do not replace the `release-assets` tag check with `env.IS_RELEASE`: job-level `if` cannot reliably use top-level `env`, and `IS_RELEASE` is true on manual dispatch where `github.ref_name` is a branch, not a tag.
 - `scripts/ci/publish_release_assets.sh` uses `GITHUB_REF_NAME` as the release tag and requires `GH_TOKEN`.
 - Tag builds upload all packaged `free_rfr-*` artifacts to the GitHub release, even if some platforms are unsigned; missing signing secrets skip only that platform's signing step and do not change artifact tags.

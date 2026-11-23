@@ -1,0 +1,21 @@
+name: Verify
+
+on:
+  workflow_call:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: "stable"
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test
