@@ -88,14 +88,14 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: bash scripts/ci/verify_android_artifacts.sh
       - name: Upload Android AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-android-aab-${{ env.ANDROID_ARTIFACT_VERSION }}
           path: |
             build/app/outputs/bundle/release/
             build/app/outputs/bundle/debug/
       - name: Upload Android APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-android-apk-${{ env.ANDROID_ARTIFACT_VERSION }}
           path: build/app/outputs/flutter-apk/
@@ -133,13 +133,13 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: bash scripts/ci/sign_linux.sh
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}
           path: build/linux/x64/${{ env.FLUTTER_BUILD_MODE }}/bundle
       - name: Upload Linux signature
         if: env.IS_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-linux-signature-${{ env.LINUX_ARTIFACT_VERSION }}
           path: |
@@ -172,7 +172,7 @@ jobs:
           ALLOW_SELF_SIGNED_SIGNATURES: ${{ env.ALLOW_SELF_SIGNED_SIGNATURES }}
         run: .\scripts\ci\sign_windows.ps1
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-windows-${{ env.WINDOWS_ARTIFACT_VERSION }}
           path: build/windows/x64/runner/${{ github.event_name == 'pull_request' && 'Debug' || 'Release' }}/
@@ -215,7 +215,7 @@ jobs:
           IOS_EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'app-store' }}
         run: bash scripts/ci/export_ios_ipa.sh
       - name: Archive IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-ios-${{ env.IOS_ARTIFACT_VERSION }}
           path: build/ios/ipa
@@ -253,7 +253,7 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: bash scripts/ci/sign_macos_app.sh
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-macos-${{ env.MACOS_ARTIFACT_VERSION }}
           path: build/macos/Build/Products/${{ github.event_name == 'pull_request' && 'Debug' || 'Release' }}
@@ -268,7 +268,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: free_rfr-*
           path: release-assets
