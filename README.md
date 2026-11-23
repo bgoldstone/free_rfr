@@ -7,7 +7,7 @@ A new RFR for ETC Eos-based consoles using OSC Communication
 > **Warning**  
 > This project is under active development and breaking changes are likely. Use at your own risk!
 # Flutter Version
-Current Flutter Version: 3.50.1 (pinned in `pubspec.yaml`)
+Current Flutter Version: 3.50.1 (pinned in `pubspec.yaml`; CI reads `.fvmrc`)
 
 ## Releasing
 Release signing setup and the commands for creating required GitHub secrets are documented in [docs/release-signing.md](docs/release-signing.md).

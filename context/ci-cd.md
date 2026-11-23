@@ -8,7 +8,8 @@
 - PR builds use debug mode for Android, Linux, and Windows; iOS and macOS jobs are skipped on PRs.
 - `main` pushes, `v*` tags, and manual dispatch use release mode for every platform.
 - Top-level concurrency cancels superseded PR runs; `main`, tag, and manual runs are not cancelled.
-- Flutter SDK and pub caches are enabled through `subosito/flutter-action`; Android uses `actions/setup-java` Gradle caching; iOS/macOS cache `~/Library/Caches/CocoaPods`.
+- Flutter SDK and pub caches are enabled through `subosito/flutter-action`; Android uses `actions/setup-java` Gradle caching; Linux caches ccache for CMake builds; iOS/macOS cache `~/Library/Caches/CocoaPods` and Xcode `DerivedData`.
+- Flutter SDK version comes from `.fvmrc` so Windows jobs avoid `yq` installation.
 
 ## Release artifacts
 

@@ -111,7 +111,7 @@ Self-signed certificates are not trusted by Windows SmartScreen, Gatekeeper, or 
 
 Do not create these as repository secrets or variables:
 
-- Flutter `3.50.1` is pinned in `pubspec.yaml` and read by CI via `flutter-version-file`.
+- Flutter `3.50.1` is pinned in `pubspec.yaml` and `.fvmrc`; CI reads `.fvmrc` via `flutter-version-file`.
 - `IS_RELEASE` is computed from the trigger.
 - `RUNNER_TEMP`, `ANDROID_HOME`, and `ANDROID_SDK_ROOT` are supplied by GitHub runners.
 - Temporary macOS/iOS keychain passwords are generated in the scripts.
