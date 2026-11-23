@@ -1,8 +1,8 @@
 # AGENTS
 
 ## Commands
-- CI order: `flutter clean` → `flutter pub get --enforce-lockfile` → `dart format --output=none --set-exit-if-changed .` → `flutter analyze` → platform builds; see `.github/workflows/flutter_build.yml`.
-- `flutter test` runs only in the Windows CI job; the Linux job's test step is commented out.
+- CI order: `flutter pub get --enforce-lockfile` → `dart format --output=none --set-exit-if-changed .` → `flutter analyze` → platform builds; see `.github/workflows/flutter_build.yml`.
+- PR builds use debug mode; `main` pushes, `v*` tags, and manual dispatch use release mode. `flutter test` runs only in the Windows CI job; the Linux job's test step is commented out.
 - Focused test example: `flutter test test/pages/facepanels/controls/color_picker_test.dart`.
 - Format with `dart format .` before PR (per `CONTRIBUTING.md`).
 - Validate changes with `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`; focused tests are fine while iterating, but run the full suite before PR.
