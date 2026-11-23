@@ -6,7 +6,6 @@
 name: Flutter Build
 
 env:
-  FLUTTER_VERSION: 3.50.1
   FLUTTER_BUILD_MODE: ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
   # Signed artifacts are produced only for version tags and manual dispatch; PR/main builds remain unsigned.
   IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
@@ -38,7 +37,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - run: flutter pub get --enforce-lockfile
@@ -66,7 +65,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - name: Prepare Android signing
@@ -118,7 +117,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - run: |
@@ -159,7 +158,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - run: flutter pub get --enforce-lockfile
@@ -191,7 +190,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - uses: actions/cache@v4
@@ -234,7 +233,7 @@ jobs:
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
       - uses: actions/cache@v4
