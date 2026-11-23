@@ -37,3 +37,6 @@ This uses TCP OSC on port 3032, so the console must allow TCP OSC connections fr
 <img src="https://github.com/bgoldstone/free_rfr/assets/23127820/aca7f33f-9639-448a-9fc0-5cb5732bc697" alt="free_rfr_4" width=150/>
 <img src="https://github.com/bgoldstone/free_rfr/assets/23127820/1b865f12-ba8f-4083-b6a4-80bb3b9d6b80" alt="free_rfr_5" width=150/>
 <img src="https://github.com/bgoldstone/free_rfr/assets/23127820/2fadac4d-a748-49d1-a430-908479da23df" alt="free_rfr_6" width=150/>
+
+## License
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE).

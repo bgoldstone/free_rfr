@@ -7,6 +7,7 @@ All notable changes to this project are documented here.
 ### Changed
 - Scale button labels to fill available space without truncating text.
 - Scale bottom navigation labels based on available width.
+- Switch the project license to Apache License 2.0.
 
 ## [1.0.2+3] - 2026-11-22
 
