@@ -3,7 +3,7 @@
 ## Workflow shape
 
 - `.github/workflows/flutter_build.yml` triggers on `push` to `main`, `v*` tags, PRs to `main`, and manual dispatch. Pushes to `dev` do not trigger CI.
-- A `verify` job runs first on Windows and gates all build jobs with `needs: verify`; it runs `flutter pub get --enforce-lockfile`, format check, `flutter analyze`, and `flutter test`.
+- A `verify` job runs first on Ubuntu and gates all build jobs with `needs: verify`; it runs `flutter pub get --enforce-lockfile`, format check, `flutter analyze`, and `flutter test`.
 - Build jobs then run in parallel: `build-android`, `build-linux`, `build-windows`, `build-ios`, `build-macos`.
 - PR builds use debug mode for Android, Linux, and Windows; iOS and macOS jobs are skipped on PRs.
 - `main` pushes, `v*` tags, and manual dispatch use release mode for every platform.
