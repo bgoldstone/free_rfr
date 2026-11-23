@@ -1,59 +1,18 @@
 # AGENTS
 
-## Commands
-- CI order: `flutter pub get --enforce-lockfile` → `dart format --output=none --set-exit-if-changed .` → `flutter analyze` → platform builds; see `.github/workflows/flutter_build.yml`.
-- PR builds use debug mode; `main` pushes, `v*` tags, and manual dispatch use release mode. `flutter test` runs only in the Windows CI job; the Linux job's test step is commented out.
-- Focused test example: `flutter test test/pages/facepanels/controls/color_picker_test.dart`.
-- Format with `dart format .` before PR (per `CONTRIBUTING.md`).
-- Validate changes with `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, and `flutter test`; focused tests are fine while iterating, but run the full suite before PR.
-- Document new helpers, state, and behavior; keep doc comments accurate when changing existing code.
-- Make atomic commits: one logical change per commit, including related tests and changelog entries; never mix in local-only workspace files.
-- Coverage command: `flutter test --coverage`; `coverage/` is generated and gitignored.
+Read only the relevant `context/*.md` file(s) before changing code, workflows, or docs; do not load the full context set unless the task spans multiple areas:
+
+- `context/commands.md` — formatting, validation, coverage, pinned toolchain.
+- `context/architecture.md` — app entrypoint, state ownership, OSC transport, fader/color-picker behavior.
+- `context/testing.md` — widget-test setup, mocks, platform overrides, config-file tests.
+- `context/dependencies.md` — pubspec/native-build traps, Gradle language, lockfile expectations.
+- `context/ci-cd.md` — workflow shape, verify gate, build modes, caches, artifacts, signing, release publishing.
+- `context/workspace.md` — local-only files, local signing context, SSH push requirement.
+
+## Global rules
+
+- Make atomic commits: one logical change per commit, including related tests and changelog entries.
+- Commit or push only when explicitly requested.
 - Keep `CHANGELOG.md` updated in the same commit as user-visible changes; use the version heading from `pubspec.yaml` and do not create placeholder sections.
 - Do not read `CHANGELOG.md` unless explicitly asked; update it from the current task context without opening it.
-- Flutter version is pinned to `3.50.1` in the workflow and README; Android CI uses Temurin JDK 21.
-- From `android/`, verify Kotlin Gradle plugin drift with `.\gradlew kgpVersion -q`; Flutter has warned on older pins.
-
-## Architecture
-- `lib/main.dart` is the only app entrypoint; `lib/test.dart` is a manual OSC socket probe to `127.0.0.1:3032`, not a `flutter test` target.
-- Root `ChangeNotifierProvider` creates `FreeRFRContext`, but connection/socket state actually lives in `MyApp` (`_oscCache`, `_socketCache`, `currentConnectionIndex`). `FreeRFRContext.currentConnectionIndex` is effectively unused by the app.
-- `OSC` is not provided via Provider; it is passed as a concrete constructor arg through pages/widgets. Tests mock it with `test/mocks/MockOSC.dart` and use `MockSocket` for protocol assertions.
-- TCP OSC port is fixed at `3032`; frames are 4-byte big-endian length + OSC bytes (`lib/objects/osc_control.dart`).
-- `OSC.setupFaderBank` stores a `FaderControlsState` back-reference; inbound OSC mutates fader widgets directly.
-- `ColorPickerControl` sets `labelTypes: const []` because `flutter_colorpicker`'s legacy `DropdownButton` needs a Flutter `Material` ancestor that `material_ui`'s `Scaffold` does not provide; re-enabling labels breaks color-picker tests.
-
-## Testing quirks
-- Most tests mirror `lib/` and need `ChangeNotifierProvider` + `MaterialApp`/`Scaffold` around the widget under test.
-- `test/connections_test.dart` fakes `PathProviderPlatform.instance` (not just the legacy method channel) because Windows `path_provider` uses FFI; use a per-test temp directory for `free_rfr.json`. Other tests do not need a live Eos console. There are no fixture dirs or skipped tests.
-- Platform branches are forced with `debugDefaultTargetPlatformOverride`; reset it in `finally`.
-- Fader tests need `registerFallbackValue(FaderControlsState())` for mocktail matchers.
-- `MockOSC` overrides `sendOSCMessage`, so `mocktail.when()` cannot stub it; use a recording subclass like `RecordingMockOSC` in `test/pages/direct_selects_test.dart`.
-- Hotkey-dependent tests must mock both `dev.leanflutter.plugins/hotkey_manager` and `dev.leanflutter.plugins/hotkey_manager_event`, and reset the singleton with `hotKeyManager.unregisterAll()`.
-- `Connections.loadConfig()` reads/writes `free_rfr.json` synchronously after one async path lookup and resets malformed configs; tests can assert the JSON file immediately.
-- `test/common.dart:3` `ignoreErrors()` is misnamed: it suppresses non-overflow Flutter errors and prints overflow errors.
-- `test/main_test.dart` calls `entry.main()` without awaiting; do not treat it as deterministic async startup coverage.
-
-## Dependency/toolchain traps
-- Most Dart files import `package:material_ui/material_ui.dart`; `material_ui` is an explicit direct dependency, so don't remove it to simplify pubspec. Changing `hotkey_manager` can still break native builds — run `flutter analyze` and `flutter test` after any pubspec change.
-- `hotkey_manager >=0.4` pulls `nativeapi`/`cnativeapi`, which need a native compiler on Windows; `flutter test` fails locally without Visual Studio Build Tools even though GitHub's Windows runner has it.
-- `linux/CMakeLists.txt` downgrades the `-Werror` from `hotkey_manager_linux` 0.2.0's uninitialized-variable warnings; keep the compiler-specific suppression while pinned to that plugin version.
-- `pubspec.lock` is committed and CI uses `flutter pub get --enforce-lockfile`; plugin registrants under `linux/flutter`, `macos/Flutter`, and `windows/flutter` are checked in and regenerated by `flutter pub get`.
-- Signing activates only for `v*` tags/manual dispatch; PR and `main` builds remain unsigned.
-- Signing logic lives in `scripts/ci`; keep workflow steps thin and pass secrets through environment variables.
-- `IS_RELEASE` (formerly `SIGN_RELEASE`) is computed from `v*` tags/manual dispatch; `scripts/ci/read_app_version.sh` reads it from the environment and appends `-snapshot` only for non-release builds.
-- Tag builds upload all packaged `free_rfr-*` artifacts to the GitHub release, even if some platforms are unsigned; missing signing secrets skip only that platform's signing step and do not change artifact tags.
-- `GITHUB_TOKEN` is automatic; do not create it as a repository secret. The `release-assets` job requests `contents: write` so it can create or update the tag release.
-- `ALLOW_SELF_SIGNED_SIGNATURES` defaults to `true` for self-signed development certificates; set it to `false` to require trusted OS chains.
-- Android CI creates `android/key.properties` from `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, and `ANDROID_KEY_ALIAS`.
-- Windows CI signs `.exe`/`.dll` files from `WINDOWS_PFX_BASE64` and `WINDOWS_PFX_PASSWORD`.
-- macOS CI signs the `.app` from `MACOS_CERTIFICATE_BASE64`, `MACOS_CERTIFICATE_PASSWORD`, and `MACOS_SIGNING_IDENTITY`.
-- iOS CI exports a signed IPA from `IOS_CERTIFICATE_BASE64`, `IOS_CERTIFICATE_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`, `IOS_PROVISIONING_PROFILE_NAME`, `IOS_TEAM_ID`, and optional `IOS_EXPORT_METHOD`.
-- Linux CI creates a detached GPG signature from `GPG_PRIVATE_KEY_BASE64` and `GPG_PASSPHRASE`.
-- Temporary macOS/iOS keychain passwords are generated inside CI; do not add them as secrets.
-- Signing secret setup commands and all `scripts/ci` helpers are documented in `docs/release-signing.md`.
-- Android Gradle files are Groovy (`android/app/build.gradle`, `android/settings.gradle`); do not add `.gradle.kts` duplicates.
-
-## Workspace hygiene
-- Machine-specific signing paths, identities, and local key locations belong in `AGENTS.local.md` (gitignored); do not commit them.
-- Leave `.vscode/`, `.sonarlint/`, and `analysis_options.yaml` local; do not stage them without an explicit request.
-- In this workspace, push workflow changes over SSH; HTTPS OAuth lacks workflow scope for `.github/workflows/flutter_build.yml`.
+- Never mix local-only workspace files into commits.
