@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
@@ -50,11 +50,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "21"
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
@@ -151,7 +151,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
@@ -183,7 +183,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
@@ -193,7 +193,7 @@ jobs:
           flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/Library/Caches/CocoaPods
           key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/Podfile.lock') }}-${{ hashFiles('ios/Podfile') }}
@@ -226,7 +226,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
@@ -236,7 +236,7 @@ jobs:
           flutter-version-file: pubspec.yaml
           cache: true
           pub-cache: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/Library/Caches/CocoaPods
           key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/Podfile.lock') }}-${{ hashFiles('ios/Podfile') }}
@@ -266,7 +266,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
