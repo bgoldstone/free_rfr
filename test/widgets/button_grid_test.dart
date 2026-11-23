@@ -40,6 +40,27 @@ void main() {
     expect(text.style?.color, Colors.yellow);
   });
 
+  testWidgets('Button scales long text to fit', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 80,
+              height: 48,
+              child: Button('A very long button label', () {}),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(FittedBox), findsOneWidget);
+    final text = tester.widget<Text>(find.text('A very long button label'));
+    expect(text.maxLines, isNull);
+    expect(text.overflow, isNull);
+  });
+
   testWidgets('Grid renders nothing when empty', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(

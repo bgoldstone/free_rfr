@@ -15,6 +15,15 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = isSelected ? Colors.yellow : Colors.white;
+    final labelStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ) ??
+        TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+        );
     ButtonStyle buttonStyle = ElevatedButton.styleFrom(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
@@ -27,14 +36,13 @@ class Button extends StatelessWidget {
         onPressed: onPressed,
         onLongPress: onLongPress == null ? () {} : onLongPress,
         style: buttonStyle,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.yellow : Colors.white,
-            fontWeight: FontWeight.bold,
-            // fontSize: (fontSize! * aspectRatio),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            style: labelStyle,
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );

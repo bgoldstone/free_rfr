@@ -4,6 +4,9 @@ All notable changes to this project are documented here.
 
 ## [1.0.2+3] - 2026-11-22
 
+### Changed
+- Scale button labels to fit smaller screens without truncating text.
+
 ### Added
 - Signed release artifacts for Android, Windows, macOS, iOS, and Linux on version tags and manual releases.
 - `CHANGELOG.md` and an `AGENTS.md` rule to update it with each commit.
