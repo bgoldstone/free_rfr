@@ -3,7 +3,7 @@
 ## Workflow shape
 
 - `.github/workflows/flutter_build.yml` is the orchestrator and triggers on `push` to `main`, `v*` tags, PRs to `main`, and manual dispatch. Pushes to `dev` do not trigger CI.
-- `verify` and `release-assets` are reusable workflows under `.github/workflows/flutter_build/`; build jobs stay inline in the orchestrator.
+- `verify` and `release-assets` are reusable workflows at the top level of `.github/workflows/`; build jobs stay inline in the orchestrator.
 - The orchestrator owns triggers, concurrency, `needs`, top-level `env`, and secret inheritance; called workflows do not inherit top-level `env`.
 - The `verify` workflow runs first on Ubuntu and gates all build jobs with `needs: verify`; it runs `flutter pub get --enforce-lockfile`, format check, `flutter analyze`, and `flutter test`.
 - Build jobs then run in parallel: `build-android`, `build-linux`, `build-windows`, `build-ios`, `build-macos`.
