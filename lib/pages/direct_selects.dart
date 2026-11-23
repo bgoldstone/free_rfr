@@ -73,7 +73,7 @@ class _DirectSelectsState extends State<DirectSelects> {
                       callDS(ctx);
                     });
                   },
-                  padding: 1,
+                  padding: const EdgeInsets.all(1),
                   isSelected: type == entry.key,
                 );
               }).toList(),
@@ -106,7 +106,7 @@ class _DirectSelectsState extends State<DirectSelects> {
                                 );
                                 callDS(ctx);
                               },
-                              padding: 2,
+                              padding: const EdgeInsets.all(2),
                               onLongPress: () async {
                                 if (type != 'chan') {
                                   await unregisterHotKeys(context);

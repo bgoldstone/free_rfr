@@ -46,6 +46,8 @@ void main() {
 
     expect(bottomNavBarWidget.items.first.label, equals('Facepanel'));
     expect(bottomNavBarWidget.currentIndex, equals(0));
+    expect(bottomNavBarWidget.selectedLabelStyle?.fontSize, 12);
+    expect(bottomNavBarWidget.unselectedLabelStyle?.fontSize, 12);
     expect(bottomNavBarWidget.items[1].label, equals('Faders'));
     expect(find.byIcon(Symbols.instant_mix), findsOneWidget);
     expect(bottomNavBarWidget.items[2].label, equals('Channel Check'));

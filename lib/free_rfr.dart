@@ -12,6 +12,7 @@ import 'package:free_rfr/pages/facepanel.dart';
 import 'package:free_rfr/pages/facepanels/faders.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/shortcuts.dart';
+import 'package:free_rfr/widgets/bottom_nav_label_style.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:provider/provider.dart';
@@ -102,6 +103,7 @@ class _FreeRFRState extends State<FreeRFR> {
   @override
   Widget build(BuildContext context) {
     final ctx = context.read<FreeRFRContext>();
+    final labelStyle = bottomNavLabelStyle(context);
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         widget.setCurrentConnection(-1);
@@ -180,6 +182,8 @@ class _FreeRFRState extends State<FreeRFR> {
                 label: 'Direct Selects',
                 tooltip: 'Direct Selects'),
           ],
+          selectedLabelStyle: labelStyle,
+          unselectedLabelStyle: labelStyle,
           selectedItemColor: Colors.yellow,
           currentIndex: index,
           unselectedItemColor:

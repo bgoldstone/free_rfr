@@ -24,3 +24,4 @@ doc/api/
 .flutter-plugins
 .flutter-plugins-dependencies
 coverage/
+AGENTS.local.md

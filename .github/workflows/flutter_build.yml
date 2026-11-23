@@ -6,8 +6,7 @@
 name: Flutter Build
 
 env:
-  FLUTTER_VERSION: 3.50.1
-  # Signed artifacts are produced only for version tags and manual dispatch; PR/main builds remain unsigned.
+  FLUTTER_BUILD_MODE: ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
   IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
   ALLOW_SELF_SIGNED_SIGNATURES: ${{ vars.ALLOW_SELF_SIGNED_SIGNATURES || 'true' }}
   ANDROID_SIGNING_READY: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' }}
@@ -24,23 +23,37 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  build-linux:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  build-android:
+    needs: verify
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "21"
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle*
+            pubspec.lock
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
       - name: Prepare Android signing
         if: env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
@@ -50,12 +63,9 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: bash scripts/ci/prepare_android_signing.sh
-      - run: flutter clean
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: flutter analyze
-      - run: flutter build appbundle --release
-      - run: flutter build apk --release
+      - run: flutter build appbundle --${{ env.FLUTTER_BUILD_MODE }}
+      - run: flutter build apk --${{ env.FLUTTER_BUILD_MODE }}
       - name: Verify signed Android artifacts
         if: env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
@@ -64,19 +74,63 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: bash scripts/ci/verify_android_artifacts.sh
       - name: Upload Android AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-android-aab-${{ env.ANDROID_ARTIFACT_VERSION }}
-          path: build/app/outputs/bundle/release/
+          path: |
+            build/app/outputs/bundle/release/
+            build/app/outputs/bundle/debug/
       - name: Upload Android APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-android-apk-${{ env.ANDROID_ARTIFACT_VERSION }}
           path: build/app/outputs/flutter-apk/
+      - name: Remove Android signing files
+        if: always() && env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/free_rfr-upload.jks" android/key.properties
+
+  build-linux:
+    needs: verify
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_MAXSIZE: 2G
+      CCACHE_COMPILERCHECK: content
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_NOHASHDIR: "true"
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read app version
+        shell: bash
+        run: bash scripts/ci/read_app_version.sh
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: "stable"
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
       - run: |
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev keybinder-3.0
-      - run: flutter build linux --release
+          sudo apt-get install -y ninja-build libgtk-3-dev keybinder-3.0 ccache
+      - name: Cache ccache
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('pubspec.lock', 'linux/**') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+      - name: Reset ccache stats
+        run: ccache -z
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter build linux --${{ env.FLUTTER_BUILD_MODE }}
+      - name: Show ccache stats
+        if: always()
+        run: ccache -s || true
       - name: Sign Linux artifacts
         if: env.IS_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
         shell: bash
@@ -85,41 +139,36 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: bash scripts/ci/sign_linux.sh
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}
-          path: build/linux/x64/release/bundle
+          path: build/linux/x64/${{ env.FLUTTER_BUILD_MODE }}/bundle
       - name: Upload Linux signature
         if: env.IS_RELEASE == 'true' && env.LINUX_SIGNING_READY == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-linux-signature-${{ env.LINUX_ARTIFACT_VERSION }}
           path: |
             build/linux/x64/release/free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}.tar.gz
             build/linux/x64/release/free_rfr-linux-${{ env.LINUX_ARTIFACT_VERSION }}.tar.gz.asc
-      - name: Remove Android signing files
-        if: always() && env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
-        shell: bash
-        run: |
-          rm -f "$RUNNER_TEMP/free_rfr-upload.jks" android/key.properties
-      #- run: flutter test
+
   build-windows:
+    needs: verify
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: flutter analyze
-      - run: flutter test
-      - run: flutter build windows --release
+      - run: flutter build windows --${{ env.FLUTTER_BUILD_MODE }}
       - name: Sign Windows binaries
         if: env.IS_RELEASE == 'true' && env.WINDOWS_SIGNING_READY == 'true'
         shell: pwsh
@@ -129,28 +178,44 @@ jobs:
           ALLOW_SELF_SIGNED_SIGNATURES: ${{ env.ALLOW_SELF_SIGNED_SIGNATURES }}
         run: .\scripts\ci\sign_windows.ps1
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-windows-${{ env.WINDOWS_ARTIFACT_VERSION }}
-          path: build/windows/x64/runner/Release/
-  build-macos:
+          path: build/windows/x64/runner/${{ github.event_name == 'pull_request' && 'Debug' || 'Release' }}/
+
+  build-ios:
+    needs: verify
+    if: github.event_name != 'pull_request'
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
+      - uses: actions/cache@v6
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/Podfile.lock') }}-${{ hashFiles('ios/Podfile') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v6
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/Runner-*
+          key: ${{ runner.os }}-xcode-derived-ios-${{ hashFiles('pubspec.lock', 'ios/**') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-derived-ios-
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: flutter analyze
       - name: Build unsigned IPA
         if: env.IS_RELEASE != 'true' || env.IOS_SIGNING_READY != 'true'
-        run: flutter build ipa --release --no-codesign
+        run: flutter build ipa --${{ env.FLUTTER_BUILD_MODE }} --no-codesign
       - name: Build signed IPA
         if: env.IS_RELEASE == 'true' && env.IOS_SIGNING_READY == 'true'
         shell: bash
@@ -162,7 +227,43 @@ jobs:
           IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
           IOS_EXPORT_METHOD: ${{ secrets.IOS_EXPORT_METHOD || 'app-store' }}
         run: bash scripts/ci/export_ios_ipa.sh
-      - run: flutter build macos --release
+      - name: Archive IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: free_rfr-ios-${{ env.IOS_ARTIFACT_VERSION }}
+          path: build/ios/ipa
+
+  build-macos:
+    needs: verify
+    if: github.event_name != 'pull_request'
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read app version
+        shell: bash
+        run: bash scripts/ci/read_app_version.sh
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: "stable"
+          flutter-version-file: .fvmrc
+          cache: true
+          pub-cache: true
+      - uses: actions/cache@v6
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('ios/Podfile.lock') }}-${{ hashFiles('ios/Podfile') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v6
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/Runner-*
+          key: ${{ runner.os }}-xcode-derived-macos-${{ hashFiles('pubspec.lock', 'macos/**') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-derived-macos-
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter build macos --${{ env.FLUTTER_BUILD_MODE }}
       - name: Sign macOS app
         if: env.IS_RELEASE == 'true' && env.MACOS_SIGNING_READY == 'true'
         shell: bash
@@ -172,31 +273,15 @@ jobs:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: bash scripts/ci/sign_macos_app.sh
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: free_rfr-macos-${{ env.MACOS_ARTIFACT_VERSION }}
-          path: build/macos/Build/Products/Release
-      - name: Archive IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: free_rfr-ios-${{ env.IOS_ARTIFACT_VERSION }}
-          path: build/ios/ipa
+          path: build/macos/Build/Products/${{ github.event_name == 'pull_request' && 'Debug' || 'Release' }}
+
   release-assets:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [verify, build-android, build-linux, build-windows, build-ios, build-macos]
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
     permissions:
       contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: free_rfr-*
-          path: release-assets
-      - name: Publish release assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-        run: bash scripts/ci/publish_release_assets.sh
+    uses: ./.github/workflows/release-assets.yml
+    secrets: inherit
