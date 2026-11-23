@@ -4,6 +4,7 @@ import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/controls/color.dart';
 import 'package:free_rfr/pages/facepanels/controls/color_picker.dart';
 import 'package:free_rfr/pages/facepanels/controls/pan_tilt.dart';
+import 'package:free_rfr/widgets/bottom_nav_label_style.dart';
 import 'package:provider/provider.dart';
 
 import '../objects/parameters.dart';
@@ -59,10 +60,13 @@ class _ControlsState extends State<Controls> {
         osc: widget.osc,
       )
     ];
+    final labelStyle = bottomNavLabelStyle(context);
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: true,
         showUnselectedLabels: true,
+        selectedLabelStyle: labelStyle,
+        unselectedLabelStyle: labelStyle,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.brightness_medium_rounded),

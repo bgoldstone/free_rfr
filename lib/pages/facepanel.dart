@@ -3,6 +3,7 @@ import 'package:free_rfr/objects/osc_control.dart';
 import 'package:free_rfr/pages/facepanels/keypad.dart';
 import 'package:free_rfr/pages/facepanels/additional_keys.dart';
 import 'package:free_rfr/pages/facepanels/targets.dart';
+import 'package:free_rfr/widgets/bottom_nav_label_style.dart';
 
 class FacePanel extends StatefulWidget {
   final OSC osc;
@@ -27,10 +28,13 @@ class _FacePanelState extends State<FacePanel> {
         osc: widget.osc,
       )
     ];
+    final labelStyle = bottomNavLabelStyle(context);
 
     return Scaffold(
       body: pages.isEmpty ? const CircularProgressIndicator() : pages[index],
       bottomNavigationBar: BottomNavigationBar(
+        selectedLabelStyle: labelStyle,
+        unselectedLabelStyle: labelStyle,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.adjust), label: 'Targets'),
           BottomNavigationBarItem(icon: Icon(Icons.keyboard), label: 'Keypad'),

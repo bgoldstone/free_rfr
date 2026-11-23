@@ -37,7 +37,7 @@ class Button extends StatelessWidget {
         onLongPress: onLongPress == null ? () {} : onLongPress,
         style: buttonStyle,
         child: FittedBox(
-          fit: BoxFit.scaleDown,
+          fit: BoxFit.contain,
           child: Text(
             text,
             style: labelStyle,

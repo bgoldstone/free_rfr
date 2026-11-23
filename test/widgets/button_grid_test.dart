@@ -55,7 +55,8 @@ void main() {
       ),
     );
 
-    expect(find.byType(FittedBox), findsOneWidget);
+    final fittedBox = tester.widget<FittedBox>(find.byType(FittedBox));
+    expect(fittedBox.fit, BoxFit.contain);
     final text = tester.widget<Text>(find.text('A very long button label'));
     expect(text.maxLines, isNull);
     expect(text.overflow, isNull);

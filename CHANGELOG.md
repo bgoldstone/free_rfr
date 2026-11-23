@@ -5,7 +5,8 @@ All notable changes to this project are documented here.
 ## [1.0.3+0] - 2026-11-22
 
 ### Changed
-- Scale button labels to fit smaller screens without truncating text.
+- Scale button labels to fill available space without truncating text.
+- Scale bottom navigation labels based on available width.
 
 ## [1.0.2+3] - 2026-11-22
 
