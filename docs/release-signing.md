@@ -17,7 +17,7 @@ The workflow delegates work to these scripts in `scripts/ci`:
 
 ## Artifact naming
 
-`scripts/ci/read_app_version.sh` reads the version from `pubspec.yaml` and sets `APP_VERSION` plus per-platform artifact tags. Release builds use the version alone, for example `free_rfr-windows-1.0.2+3`, even when a platform's signing secrets are missing. Non-release builds append `-snapshot`, for example `free_rfr-windows-1.0.2+3-snapshot`. The Linux GPG archive and signature use the Linux tag.
+`scripts/ci/read_app_version.sh` reads the version from `pubspec.yaml` and sets `APP_VERSION` plus per-platform artifact tags. Release builds use the version alone, for example `free_rfr-windows-1.0.3+0`, even when a platform's signing secrets are missing. Non-release builds append `-snapshot`, for example `free_rfr-windows-1.0.3+0-snapshot`. The Linux GPG archive and signature use the Linux tag.
 
 Tag builds upload the packaged build artifacts to the GitHub release for that tag. Missing secrets skip that platform's signing step but do not change the artifact tag.
 
