@@ -35,11 +35,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - run: flutter pub get --enforce-lockfile
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze
@@ -62,11 +63,12 @@ jobs:
           cache-dependency-path: |
             android/**/*.gradle*
             pubspec.lock
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - name: Prepare Android signing
         if: env.IS_RELEASE == 'true' && env.ANDROID_SIGNING_READY == 'true'
         shell: bash
@@ -113,11 +115,12 @@ jobs:
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev keybinder-3.0
@@ -153,11 +156,12 @@ jobs:
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter build windows --${{ env.FLUTTER_BUILD_MODE }}
       - name: Sign Windows binaries
@@ -184,11 +188,12 @@ jobs:
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - uses: actions/cache@v4
         with:
           path: ~/Library/Caches/CocoaPods
@@ -226,11 +231,12 @@ jobs:
       - name: Read app version
         shell: bash
         run: bash scripts/ci/read_app_version.sh
-      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+      - uses: subosito/flutter-action@v2.23.0
         with:
           channel: "stable"
           flutter-version: ${{env.FLUTTER_VERSION}}
           cache: true
+          pub-cache: true
       - uses: actions/cache@v4
         with:
           path: ~/Library/Caches/CocoaPods
